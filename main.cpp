@@ -1,12 +1,12 @@
-
-
 #include "oscillation_basic.h"
+
+#include "fft/fftw_impl.h"
 
 const std::string DataPath = "C:/PostGrad/phd/2016-2021-M3/2016-2021-M3/";
 
 
 
-namespace periods
+namespace periods ///caclulate periods
 {
     ///static bool decrease;
 
@@ -154,10 +154,11 @@ int main(){
 //        A.info();
 //        //A.print();
         //oscillation B;
-        oscillation A(DataPath + "3942-ist.txt");
+        ///oscillation A(DataPath + "3942-ist.txt");
         //A.print();
           //  A.info();
         //A.write(DataPath + "3942_o.txt");
-        periods::PlotScript(DataPath + "Plotter", periods::calculate_periods(A,""));
+        ///periods::PlotScript(DataPath + "Plotter", periods::calculate_periods(A,""));
 
+        fftw::func();
 }

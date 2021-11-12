@@ -65,6 +65,9 @@ public:
         dangle.clear();
     }
 
+    std::vector<double> get_angle() const{
+    return angle;}
+
 
     double get_angle(int i){
     return angle[i];}
