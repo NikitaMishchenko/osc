@@ -170,13 +170,30 @@ int main(int argc, char * argv[]){
 
         /// /home/mishnic/data_proc/wt_exp/transversive_rod/2016-2021-M3/3942-ist.txt
         oscillation A(argv[1]);
-        std::vector<double> spectrum;
+        std::vector<double> spectrum(A.size());
 
         osc::fftw::perfom_fftw(A, spectrum);
+
+        for(auto k : spectrum)
+            std::cout << k << std::endl;
 
         std::cout << "spectrum size = " << spectrum.size() << std::endl;
 
         std::ofstream output_file("spectrum");
             std::ostream_iterator<double> output_iterator(output_file, "\n");
         std::copy(spectrum.begin(), spectrum.end(), output_iterator);
+
+
+//        std::vector<double> V;
+//        std::cout << V.size() << std::endl;
+//        V.push_back(0);
+//        std::cout << V.size() << std::endl;
+//        V.reserve(2);
+//        std::cout << V.size() << std::endl;
+//        V[1] = 1;
+//        std::cout << V.size() << std::endl;
+//        V.push_back(3);
+//        std::cout << V.size() << std::endl;
+//        std::cout << "V = " << V[0] << ", " << V[1] << ", " << V[2] << std::endl;
+
 }
