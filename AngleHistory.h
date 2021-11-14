@@ -16,19 +16,26 @@ public:
         std::cerr << "default AngleHistory()\n";
     }
 
-    virtual void load_row(std::string file_name)
+    virtual void load_row(const std::string file_name)
     {
         std::ifstream fin(file_name);
-        while(!fin.eof())
-        {
-            double b_angle, b_time;
-                fin >> b_time >> b_angle;
-                    angle.push_back(b_angle);
-                    time.push_back(b_time);
-//                std::cerr
-//                        << "angle = " << angle.back()
-//                        << "angle = " << angle.back()
+        std::cout << "trying open file: " << file_name << std::endl;
 
+        if(fin.is_open())
+        {
+            while(!fin.eof())
+            {
+                double b_angle, b_time;
+                    fin >> b_time >> b_angle;
+                        angle.push_back(b_angle);
+                        time.push_back(b_time);
+    //                std::cerr
+    //                        << "angle = " << angle.back()
+    //                        << "angle = " << angle.back()
+
+            }
+        } else {
+            std::cerr << "File did not opened" << std::endl;
         }
         fin.close();
     }

@@ -32,7 +32,7 @@ public:
         std::cerr << "default oscillation()\n";
     }
 
-    oscillation(std::string file_name): AngleHistory(file_name)//, dangle()
+    oscillation(const std::string file_name): AngleHistory(file_name)//, dangle()
     {
         std::cout << "oscillation(file_name) constructor\n";
             //std::cout << angle.size() << std::endl;
@@ -43,7 +43,7 @@ public:
 
         ///dangle calc
             dangle.push_back(0);
-            for(int i = 1; i < size()-1; ++i)
+            for(size_t i = 1; i < size()-1; ++i)
             {
                 dangle.push_back(angle[i-1] - angle[i+1]);
                 dangle[i] /= 2.0*h;
@@ -52,7 +52,7 @@ public:
 
         ///ddangle calc
             ddangle.push_back(0);
-            for(int i = 1; i < size()-1; ++i)
+            for(size_t i = 1; i < size()-1; ++i)
             {
                 ddangle.push_back(dangle[i-1] - dangle[i+1]);
                 ddangle[i] /= 2.0*h;

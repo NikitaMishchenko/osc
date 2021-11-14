@@ -2,7 +2,7 @@
 
 #include "fft/fftw_impl.h"
 
-const std::string DataPath = "C:/PostGrad/phd/2016-2021-M3/2016-2021-M3/";
+std::string DataPath = "C:/PostGrad/phd/2016-2021-M3/2016-2021-M3/";
 
 
 
@@ -36,7 +36,7 @@ namespace periods ///caclulate periods
         std::ofstream fout;
 
         int period_counter = 0;
-        int i = 0;
+        size_t i = 0;
 
         while(i < D.size())
         {
@@ -148,7 +148,7 @@ namespace periods ///caclulate periods
 
 
 
-int main(){
+int main(int argc, char * argv[]){
 //    AngleHistory A;
 //        A.load_row("C:/PostGrad/phd/2016-2021-M3/2016-2021-M3/3942-ist.txt");
 //        A.info();
@@ -160,5 +160,23 @@ int main(){
         //A.write(DataPath + "3942_o.txt");
         ///periods::PlotScript(DataPath + "Plotter", periods::calculate_periods(A,""));
 
-        fftw::func();
+        ///fftw::func();
+
+        std::cout << "argc = " << argc << std::endl;
+
+        std::cout << "argv = ";
+            for (int i = 0; i != argc; i++)
+                std::cout << argv[i] << std::endl;
+
+        /// /home/mishnic/data_proc/wt_exp/transversive_rod/2016-2021-M3/3942-ist.txt
+        oscillation A(argv[1]);
+        std::vector<double> spectrum;
+
+        osc::fftw::perfom_fftw(A, spectrum);
+
+        std::cout << "spectrum size = " << spectrum.size() << std::endl;
+
+        std::ofstream output_file("spectrum");
+            std::ostream_iterator<double> output_iterator(output_file, "\n");
+        std::copy(spectrum.begin(), spectrum.end(), output_iterator);
 }

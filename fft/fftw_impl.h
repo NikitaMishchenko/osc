@@ -11,7 +11,7 @@
 
 #include "../oscillation_basic.h"
 
-const int N = 1024*16;
+
 const double PI = 3.14159265359;
 
 std::vector<double> spectrum;
@@ -51,6 +51,44 @@ namespace fftw
 }
 
 
+namespace osc
+{
+    namespace fftw
+    {
+        void perfom_fftw(oscillation real_signal, std::vector<double>& spectrum)
+        {
+            spectrum.reserve(real_signal.size());
+
+            fftw_complex *in, *out;
+            fftw_plan p;
+
+            in = (fftw_complex*) fftw_malloc(sizeof(fftw_complex) * real_signal.size());
+            //fftw::generate_signal(in, 0.01, N);
+            ::fftw::real_vector_to_fftw_complex(real_signal.get_angle(), in, real_signal.size());
+
+            out = (fftw_complex*) fftw_malloc(sizeof(fftw_complex) * real_signal.size());
+                p = fftw_plan_dft_1d(real_signal.size(), in, out, FFTW_FORWARD, FFTW_ESTIMATE);
+                    fftw_execute(p); /* repeat as needed */
+
+            std::vector<double> sp_real;
+            std::vector<double> sp_img;
+
+            ::fftw::fftw_complex_to_vectors(out, real_signal.size(), sp_real, sp_img);
+
+            spectrum.reserve(real_signal.size());
+            for(size_t i = 0; i < real_signal.size(); i++)
+            {
+                spectrum[i] = sqrt(sp_real[i]*sp_real[i] - sp_img[i]*sp_img[i]);
+                std::cout << i << "\t" << spectrum[i] << "\t" << sp_real[i] << "\t" << sp_img[i] << std::endl;
+            }
+
+
+            fftw_destroy_plan(p);
+            fftw_free(in);
+            fftw_free(out);
+        }
+    }
+}
 
 namespace fftw
 {
@@ -58,7 +96,7 @@ namespace fftw
     void generate_signal(fftw_complex* signal, double freq, uint8_t length)
     {
         std::cout << "Signal generation\n";
-
+        const uint8_t N = 1024*16;
 
 
         for(int i = 0; i < length; ++i)
@@ -81,6 +119,8 @@ namespace fftw
 
     void func()
     {
+        const uint8_t N = 1024*16;
+
         fftw_complex *in, *out;
         fftw_plan p;
 
@@ -123,37 +163,3 @@ namespace fftw
 } // namespace fftw
 
 
-namespace osc_fftw
-{
-    void perfom_fftw(oscillation real_signal, std::vector<double>& spectrum)
-    {
-        spectrum.reserve(real_signal.size());
-
-        fftw_complex *in, *out;
-        fftw_plan p;
-
-        in = (fftw_complex*) fftw_malloc(sizeof(fftw_complex) * real_signal.size());
-        //fftw::generate_signal(in, 0.01, N);
-        fftw::real_vector_to_fftw_complex(real_signal.get_angle(), in, real_signal.size());
-
-        out = (fftw_complex*) fftw_malloc(sizeof(fftw_complex) * real_signal.size());
-            p = fftw_plan_dft_1d(real_signal.size(), in, out, FFTW_FORWARD, FFTW_ESTIMATE);
-                fftw_execute(p); /* repeat as needed */
-
-        std::vector<double> sp_real;
-        std::vector<double> sp_img;
-
-        fftw::fftw_complex_to_vectors(out, real_signal.size(), sp_real, sp_img);
-
-        spectrum.reserve(real_signal.size());
-        for(int i = 0; i < real_signal.size(); i++)
-        {
-            spectrum[i] = sqrt(sp_real[i]*sp_real[i] - sp_img[i]*sp_img[i]);
-        }
-
-
-        fftw_destroy_plan(p);
-        fftw_free(in);
-        fftw_free(out);
-    }
-}

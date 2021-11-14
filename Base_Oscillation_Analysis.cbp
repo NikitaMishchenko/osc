@@ -31,7 +31,10 @@
 		<Compiler>
 			<Add option="-Wall" />
 		</Compiler>
+		<Unit filename="AngleHistory.h" />
+		<Unit filename="fft/fftw_impl.h" />
 		<Unit filename="main.cpp" />
+		<Unit filename="oscillation_basic.h" />
 		<Extensions>
 			<lib_finder disable_auto="1" />
 		</Extensions>
