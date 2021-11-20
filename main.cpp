@@ -1,6 +1,6 @@
 #include <string>
 
-#include <stdlib.h> //atof
+//#include <stdlib.h> //atof
 
 #include "oscillation_basic.h"
 #include "fft/fftw_impl.h"
@@ -105,7 +105,6 @@ int Procedure_cut_file(int argc, char * argv[])
     if (argv[1])
     if(std::string(argv[1]) == "cut")
     {
-        //oscillation_files::cut_file("/home/mishnic/data_proc/wt_exp/transversive_rod/16_11_21/4468", 33.27, 43.48, "/home/mishnic/data_proc/wt_exp/transversive_rod/16_11_21/4468_r");
         if(argv[2] && argv[3] && argv[4] && argv[5])
         {
             std::string::size_type sz;
@@ -126,7 +125,38 @@ int Procedure_cut_file(int argc, char * argv[])
         std::cout << "cut_file not performed! not enough arguments: " << argv[2] << argv[3] << argv[4] << argv[5] << std::endl;
         return 1;
     }
+
+    if(std::string(argv[1]) == "cut_raw")
+    {
+        if(argv[2] && argv[3] && argv[4] && argv[5])
+        {
+            std::string::size_type sz;
+
+            std::string sarg1 = std::string(argv[3]);
+            double arg1 = std::stod(sarg1, &sz);
+
+            std::string sarg2 = std::string(argv[4]);
+            double arg2 = std::stod(sarg2, &sz);
+
+            std::cout << "cut_file performing ..." << argv[2] << argv[3] << argv[4] << argv[5] << std::endl;
+
+            oscillation_files::cut_raw_file(std::string(argv[2]), 5, arg1 , arg2, std::string(argv[5]));
+
+            return 0;
+        }
+
+        std::cout << "cut_file not performed! not enough arguments: " << argv[2] << argv[3] << argv[4] << argv[5] << std::endl;
+        return 1;
+    }
     return 2;
+}
+
+void help() // todo
+{
+    std::cout << "set of utills for oscillation analysis" << std::endl;
+        std::cout << "fft_osc" << std::endl; ///todo make object to push to stream;
+        std::cout << "periods" << std::endl;
+        std::cout << "cut file" << std::endl;
 }
 
 int main(int argc, char * argv[])

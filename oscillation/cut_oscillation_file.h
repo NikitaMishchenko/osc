@@ -45,4 +45,28 @@ namespace oscillation_files
         return true;
     }
 
+    void cut_raw_file(const std::string& input_file, int lines_count_to_skip, const double from_time, const double to_time, const std::string& output_file)
+    {
+        std::ifstream fin(input_file);
+        std::ofstream fout(output_file);
+
+
+        std::string sbuff;
+        int line_counter = 0;
+        while(!fin.eof())
+        {
+            std::getline(fin, sbuff);
+            line_counter++;
+
+            if(line_counter > lines_count_to_skip)
+                fout << sbuff;
+
+        }
+
+        fout.close();
+        fin.close();
+
+
+        cut_file(output_file, from_time, to_time, output_file);
+    }
 }
