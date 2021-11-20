@@ -105,7 +105,7 @@ namespace fftw_example
     void generate_signal(fftw_complex* signal, double freq, uint8_t length)
     {
         std::cout << "Signal generation\n";
-        const uint8_t N = 1024*16;
+        //const uint8_t N = 1024*16;
 
 
         for(int i = 0; i < length; ++i)
@@ -115,20 +115,19 @@ namespace fftw_example
         }
 
 
-
         std::cout << "Signal saving\n";
 
         std::ofstream fout("input");
-        for(int i = 0; i < N; ++i)
+        for(int i = 0; i < length; ++i)
             fout << i << "\t" << signal[i][0] << "\t" << signal[i][1] << std::endl;
         fout.close();
 
     }
 
 
-    void func()
+    void func(uint8_t N)
     {
-        const uint8_t N = 1024*16;
+        //const uint8_t N = 1024*16;
 
         fftw_complex *in, *out;
         fftw_plan p;

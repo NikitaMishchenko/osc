@@ -26,18 +26,17 @@ public:
             while(!fin.eof())
             {
                 double b_angle, b_time;
-                    fin >> b_time >> b_angle;
-                        angle.push_back(b_angle);
-                        time.push_back(b_time);
-    //                std::cerr
-    //                        << "angle = " << angle.back()
-    //                        << "angle = " << angle.back()
+                fin >> b_time >> b_angle;
+                //std::cout << b_time << b_angle << std::endl;
+                angle.push_back(b_angle);
+                time.push_back(b_time);
 
             }
         } else {
             std::cerr << "File did not opened" << std::endl;
         }
         fin.close();
+        std::cout << "file closed\n";
     }
 
     AngleHistory(std::string file_name){
@@ -54,7 +53,7 @@ public:
     void move_angle(const double A)
     {
         for(auto a : angle)
-            a += angle;
+            a += A;
     }
 
     virtual void print(){

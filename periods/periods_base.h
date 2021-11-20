@@ -36,7 +36,7 @@ namespace periods ///caclulate periods
         {
             if(D.dangle[i] <= 0)
             {
-                fout.open(DataPath + base_file_name + std::to_string(period_counter));
+                fout.open(base_file_name + std::to_string(period_counter));
                 while( D.dangle[i] <= 0.0)
                 {
                     fout << D.time[i] << "\t"
@@ -54,7 +54,7 @@ namespace periods ///caclulate periods
 
             if(D.dangle[i]>=0.0)
             {
-                fout.open(DataPath + base_file_name + std::to_string(period_counter));
+                fout.open(base_file_name + std::to_string(period_counter));
                 while( D.dangle[i] > 0.0)
                 {
                     fout << D.time[i] << "\t"

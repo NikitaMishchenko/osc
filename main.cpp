@@ -1,164 +1,24 @@
-#include "oscillation_basic.h"
-
-#include "fft/fftw_impl.h"
-
 #include <string>
 
-std::string DataPath = "C:/PostGrad/phd/2016-2021-M3/2016-2021-M3/";
+#include <stdlib.h> //atof
+
+#include "oscillation_basic.h"
+#include "fft/fftw_impl.h"
+#include "periods/periods_base.h"
+
+#include "oscillation/cut_oscillation_file.h"
 
 
 
-namespace periods ///caclulate periods
+
+void perform_procedure_FFT(const std::string& file_name)
 {
-    ///static bool decrease;
 
-//    bool alterating(double data)
-//    {
-//        ///prev = false decrease
-//        ///prev = true increase
-//        if(decreas)
-//        {
-//            if(data < 0.0)
-//                return false ///same signe
-//
-//            decrease = true;
-//            return true; ///signe changed
-//        }else{
-//            if(data > 0.0)
-//                return false
-//            return true;
-//        }
-//
-//    }
-
-
-    int calculate_periods(oscillation D, std::string base_file_name)
-    {std::cout << "calculate_periods\n";
-
-        std::ofstream fout;
-
-        int period_counter = 0;
-        size_t i = 0;
-
-        while(i < D.size())
-        {
-            if(D.dangle[i] <= 0)
-            {
-                fout.open(DataPath + base_file_name + std::to_string(period_counter));
-                while( D.dangle[i] <= 0.0)
-                {
-                    fout << D.time[i] << "\t"
-                            << D.angle[i] << "\t"
-                                << D.dangle[i] << "\t"
-                                    << D.ddangle[i] << "\n";
-                    i++;
-                    //std::cout << i << "\n";
-                }
-                fout.close();
-            }
-            period_counter++;
-
-            std::cout << "period_counter = " << period_counter << std::endl;
-
-            if(D.dangle[i]>=0.0)
-            {
-                fout.open(DataPath + base_file_name + std::to_string(period_counter));
-                while( D.dangle[i] > 0.0)
-                {
-                    fout << D.time[i] << "\t"
-                            << D.angle[i] << "\t"
-                                << D.dangle[i] << "\t"
-                                    << D.ddangle[i] << "\n";
-                    i++;
-                    //std::cout << i << "\n";
-                }
-                fout.close();
-                period_counter++;
-            }
-            std::cout << "period_counter = " << period_counter << std::endl;
-        }
-        return period_counter;
-    }
-
-    namespace gnuplot
-    {
-        std::string file_name(std::string fn){
-            return (std::string("\"") + fn + "\"");
-        }
-    }
-
-
-    void PlotScript(std::string base_file_name, int period_counter)
-    {
-        std::ofstream fout(base_file_name);
-        std::ofstream fout1;
-        fout << "plot ";
-            for(int i = 0; i < period_counter-1 ; i++)//period_counter;
-            {
-               fout << "\"" + std::to_string(i) + "\"" + " using 1:2 with lines notitle, ";
-            }
-        fout.close();
-
-        fout.open(base_file_name + "_1");
-        fout << "plot ";
-            for(int i = 0; i < period_counter-1 ; i++)//period_counter;
-            {
-               fout << "\"" + std::to_string(i) + "\"" + " using 2:4 with lines notitle, \\" << std::endl;
-            }
-        fout.close();
-
-        ///PNG PERIODS mz(a)
-        fout.open(base_file_name + "_mz(a)");
-        fout1.open(base_file_name + "_a(t)");
-
-        ///*******
-                fout << "set terminal png size 800,600;\n";
-                fout << "set grid;\n";
-                fout << "set xrange [-100:100]\n";
-                fout << "set yrange [-400000:400000]\n";
-
-                fout1 << "set terminal png size 800,600;\n";
-                fout1 << "set grid;\n";
-
-            for(int i = 0; i < period_counter-1 ; i++)//period_counter;
-            {
-                fout  << "set output \'mz(a)" + std::to_string(i/2) +".png\'" << std::endl;
-                fout << std::string("plot ") +
-                        gnuplot::file_name(std::to_string(i)) +  " using 2:4 with lines notitle lt rgb" + gnuplot::file_name("red")+ ", "
-                        << gnuplot::file_name(std::to_string(i+1)) + " using 2:4 with lines notitle" + gnuplot::file_name("blue") << std::endl;
-
-                fout1  << "set output \'a(t)" + std::to_string(i/2) +".png\'" << std::endl;
-                fout1 << std::string("plot ") +
-                        gnuplot::file_name(std::to_string(i)) +  " using 1:2 with lines notitle lt rgb" + gnuplot::file_name("red")+ ", "
-                        << gnuplot::file_name(std::to_string(i+1)) + " using 1:2 with lines notitle" + gnuplot::file_name("blue") << std::endl;
-
-                i++;
-            }
-        ///*********
-        fout.close();
-        fout1.close();
-
-
-    }
-
-    void SavePeriod(std::string file_name)
-    {
-        std::cout << "empty func\n";
-    }
-
-}
-
-void procedure_FFT(std::string file_name)
-{
-//  std::cout << "argc = " << argc << std::endl;
-//
-//        std::cout << "argv = ";
-//            for (int i = 0; i != argc; i++)
-//                std::cout << argv[i] << std::endl;
-
-        /// /home/mishnic/data_proc/wt_exp/transversive_rod/2016-2021-M3/3942-ist.txt
         oscillation A(file_name);
-        A.move_angle(-25.5);
+
+            ///calculate angle
+            A.move_angle(-25.5);
+
         std::vector<double> spectrum(A.size());
 
         osc::fftw::perfom_fftw(A, spectrum);
@@ -168,31 +28,28 @@ void procedure_FFT(std::string file_name)
 
         std::cout << "spectrum size = " << spectrum.size() << std::endl;
 
+
+        ///todo correct saving
         std::ofstream output_file("spectrum");
             std::ostream_iterator<double> output_iterator(output_file, "\n");
         std::copy(spectrum.begin(), spectrum.end(), output_iterator);
 
 }
 
+/**
+    Data loaded as oscillation object. So the the initial data is y and t. And while oscillation constructed
+    y' and y'' is calculating.
 
-void procedure_Periods(std::string file_name)
+    Basically procedure finds periods of the signal and saves it in specific manner.
+    Each period splits into forward a backward movement after that gnuplot script creating.
+*/
+void perform_procedure_Periods(const std::string& file_name)
 {
 
 }
 
-int main(int argc, char * argv[]){
-//    AngleHistory A;
-//        A.load_row("C:/PostGrad/phd/2016-2021-M3/2016-2021-M3/3942-ist.txt");
-//        A.info();
-//        //A.print();
-        //oscillation B;
-        ///oscillation A(DataPath + "3942-ist.txt");
-        //A.print();
-          //  A.info();
-        //A.write(DataPath + "3942_o.txt");
-        ///periods::PlotScript(DataPath + "Plotter", periods::calculate_periods(A,""));
-
-        ///fftw::func();
+void General_Procedure(int argc, char * argv[])
+{
 
         std::cout << "argc = " << argc << std::endl;
         std::cout << "argv = ";
@@ -206,26 +63,80 @@ int main(int argc, char * argv[]){
             {
 
                 std::cout << "FFT performing" << argv[2] << std::endl;
+
                 if(argv[2])
-                    procedure_FFT(std::string(argv[2]));
+                    perform_procedure_FFT(std::string(argv[2]));
+
             }
+
 
             if(std::string(argv[1]) == "period")
             {
+
                 std::cout << "period performing" << argv[2] << std::endl;
+
+                if(argv[2])
+                    perform_procedure_Periods(std::string(argv[2]));
+
             }
         }
 
-//        std::vector<double> V;
-//        std::cout << V.size() << std::endl;
-//        V.push_back(0);
-//        std::cout << V.size() << std::endl;
-//        V.reserve(2);
-//        std::cout << V.size() << std::endl;
-//        V[1] = 1;
-//        std::cout << V.size() << std::endl;
-//        V.push_back(3);
-//        std::cout << V.size() << std::endl;
-//        std::cout << "V = " << V[0] << ", " << V[1] << ", " << V[2] << std::endl;
+}
 
+
+
+int Procedure_cut_file(int argc, char * argv[])
+{
+    std::cout << "argc = " << argc << std::endl;
+    std::cout << "argv = ";
+        for(int i = 0; i < argc; i++)
+            std::cout << argv[i] << ", ";
+        std::cout << std::endl << std::endl;
+
+    std::ofstream log("cut.log", std::ios::app);
+        log << "cut called from binary" << std::endl;
+            log << "argc = " << argc << std::endl;
+            log << "argv = \n";
+                for(int i = 0; i < argc; i++)
+                    log << argv[i] << " ";
+                log << std::endl << std::endl;
+    log.close();
+
+    if (argv[1])
+    if(std::string(argv[1]) == "cut")
+    {
+        //oscillation_files::cut_file("/home/mishnic/data_proc/wt_exp/transversive_rod/16_11_21/4468", 33.27, 43.48, "/home/mishnic/data_proc/wt_exp/transversive_rod/16_11_21/4468_r");
+        if(argv[2] && argv[3] && argv[4] && argv[5])
+        {
+            std::string::size_type sz;
+
+            std::string sarg1 = std::string(argv[3]);
+            double arg1 = std::stod(sarg1, &sz);
+
+            std::string sarg2 = std::string(argv[4]);
+            double arg2 = std::stod(sarg2, &sz);
+
+            std::cout << "cut_file performing ..." << argv[2] << argv[3] << argv[4] << argv[5] << std::endl;
+
+            oscillation_files::cut_file(std::string(argv[2]), arg1 , arg2, std::string(argv[5]));
+
+            return 0;
+        }
+
+        std::cout << "cut_file not performed! not enough arguments: " << argv[2] << argv[3] << argv[4] << argv[5] << std::endl;
+        return 1;
+    }
+    return 2;
+}
+
+int main(int argc, char * argv[])
+{
+    ///autotests()
+
+    //General_Procedure(argc, argv);
+
+    std::cout << "returned: " << Procedure_cut_file(argc, argv) << std::endl;
+
+    ///tests
+    ///perform test for each utill
 }
