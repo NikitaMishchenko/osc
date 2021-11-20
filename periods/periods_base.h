@@ -1,12 +1,4 @@
-#include "oscillation_basic.h"
-
-#include "fft/fftw_impl.h"
-
-#include <string>
-
-std::string DataPath = "C:/PostGrad/phd/2016-2021-M3/2016-2021-M3/";
-
-
+#pragma once
 
 namespace periods ///caclulate periods
 {
@@ -145,87 +137,5 @@ namespace periods ///caclulate periods
     {
         std::cout << "empty func\n";
     }
-
-}
-
-void procedure_FFT(std::string file_name)
-{
-//  std::cout << "argc = " << argc << std::endl;
-//
-//        std::cout << "argv = ";
-//            for (int i = 0; i != argc; i++)
-//                std::cout << argv[i] << std::endl;
-
-        /// /home/mishnic/data_proc/wt_exp/transversive_rod/2016-2021-M3/3942-ist.txt
-        oscillation A(file_name);
-        A.move_angle(-25.5);
-        std::vector<double> spectrum(A.size());
-
-        osc::fftw::perfom_fftw(A, spectrum);
-
-        for(auto k : spectrum)
-            std::cout << k << std::endl;
-
-        std::cout << "spectrum size = " << spectrum.size() << std::endl;
-
-        std::ofstream output_file("spectrum");
-            std::ostream_iterator<double> output_iterator(output_file, "\n");
-        std::copy(spectrum.begin(), spectrum.end(), output_iterator);
-
-}
-
-
-void procedure_Periods(std::string file_name)
-{
-
-}
-
-int main(int argc, char * argv[]){
-//    AngleHistory A;
-//        A.load_row("C:/PostGrad/phd/2016-2021-M3/2016-2021-M3/3942-ist.txt");
-//        A.info();
-//        //A.print();
-        //oscillation B;
-        ///oscillation A(DataPath + "3942-ist.txt");
-        //A.print();
-          //  A.info();
-        //A.write(DataPath + "3942_o.txt");
-        ///periods::PlotScript(DataPath + "Plotter", periods::calculate_periods(A,""));
-
-        ///fftw::func();
-
-        std::cout << "argc = " << argc << std::endl;
-        std::cout << "argv = ";
-        for(int i = 0; i < argc; i++)
-            std::cout << argv[i] << ", ";
-        std::cout << std::endl << std::endl;
-
-        if(argv[1])
-        {
-            if(std::string(argv[1]) == "fft")
-            {
-
-                std::cout << "FFT performing" << argv[2] << std::endl;
-                if(argv[2])
-                    procedure_FFT(std::string(argv[2]));
-            }
-
-            if(std::string(argv[1]) == "period")
-            {
-                std::cout << "period performing" << argv[2] << std::endl;
-            }
-        }
-
-//        std::vector<double> V;
-//        std::cout << V.size() << std::endl;
-//        V.push_back(0);
-//        std::cout << V.size() << std::endl;
-//        V.reserve(2);
-//        std::cout << V.size() << std::endl;
-//        V[1] = 1;
-//        std::cout << V.size() << std::endl;
-//        V.push_back(3);
-//        std::cout << V.size() << std::endl;
-//        std::cout << "V = " << V[0] << ", " << V[1] << ", " << V[2] << std::endl;
 
 }

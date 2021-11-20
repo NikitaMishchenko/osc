@@ -51,6 +51,12 @@ public:
         time.clear();
     }
 
+    void move_angle(const double A)
+    {
+        for(auto a : angle)
+            a += angle;
+    }
+
     virtual void print(){
         for(size_t i = 0; i < angle.size(); i++)
         {
