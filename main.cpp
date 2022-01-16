@@ -10,7 +10,7 @@
 
 #include "options.h"
 
-const double Pi = 3.14;
+const double Pi = 3.14159265359;
 
 
 void perform_procedure_FFT(const std::string& input_file_name, const std::string& output_file_name)
@@ -87,6 +87,15 @@ void perform_procedure_Periods(const std::string& file_name)
     }
 }
 
+int perform_procedure_cutFile(const std::string& initialFile, const double timeFrom, const double timeTo, const std::string& finalFile)
+{
+    if(!oscillation_files::cut_file(initialFile, timeFrom , timeTo, finalFile))
+    {
+        std::cerr << "cut file failed!/n";
+        return 1;
+    }
+    return 0;
+}
 
 int Procedure_cut_file(int argc, char * argv[])
 {
@@ -217,8 +226,6 @@ void testFunc()
     std::vector<oscillation> arr_osc;
     arr_osc.push_back(A);
     arr_osc[0].write("A_osc");
-
-
 }
 
 /*
@@ -229,35 +236,6 @@ TODO
 
 int main(int argc, char * argv[])
 {
-
-    ///perform_procedure_Periods("A");
-
-    /*
-    std::vector<oscillation> osc_v;
-    oscillation ah;
-        ah.push_back(1,1,1,1);
-        ah.push_back(2,2,2,2);
-
-
-    std::cout << ah << std::endl;
-
-    for(int i = 0; i < 5; ++i)
-    {
-        std::cout << "push_back i = " << i << " size of ah = " << ah.size() << std::endl;
-        osc_v.push_back(ah);
-        std::cout << "size of last appended = " << osc_v[osc_v.size()-1].size() << std::endl;
-        std::cout << "size of vector = " << osc_v.size() << std::endl;
-    }
-
-    std::cout << "vector of 5th ah:\n";
-    for(auto k : osc_v)
-    {
-        std::cout << "size = " << k.size() << std::endl;
-        std::cout << k << std::endl;
-    }
-    */
-
-
     Options opt;
     if(!opt.parse_options(argc, argv))
         std::cerr << "err occured\n";
@@ -273,6 +251,7 @@ int main(int argc, char * argv[])
     ///INIT PARAMS
     const std::string mode = opt.getMode();
     const std::string fileName = opt.getFileName();
+    const std::vector<double> args = opt.getArgs();
 
 
     if("test" == mode)
@@ -290,7 +269,6 @@ int main(int argc, char * argv[])
     if("periods" == mode)
     {
         std::cout << "performing Period\n";
-        //perform_procedure_Periods(std::string(argv[2]));
         perform_procedure_Periods(fileName);
 
     }
@@ -299,6 +277,16 @@ int main(int argc, char * argv[])
     {
         std::cout << "cut file performing\n";
         //Procedure_cut_file();
+        std::string initialFileName = "A";
+
+        if(args.size() < 2)
+            return 2;
+
+        double timeFrom = args[0];
+        double timeTo = args[1];
+
+        perform_procedure_cutFile(initialFileName, timeFrom, timeTo,
+                                  initialFileName + "_t" + std::to_string(timeFrom) + "_" + std::to_string(timeTo));
     }
 
 

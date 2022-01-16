@@ -30,7 +30,7 @@ namespace oscillation_files
             _it++;
 
         //std::vector<double>::const_iterator last = _it;
-        size_t last_st = _it - A.time.begin();
+        size_t last_st = _it - A.time.begin()+1;
             std::cout << "to it value = " << *_it << std::endl;
 
         R.time.insert(R.time.begin(), A.time.begin()+first_st, A.time.begin()+last_st);
