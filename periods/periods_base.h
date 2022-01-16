@@ -23,7 +23,89 @@ namespace periods ///caclulate periods
 //
 //    }
 
+    std::vector<oscillation> splitPeriods(const oscillation& D)
+    {
+        std::cout << "split periods\n";
 
+        oscillation buff;
+        std::vector<oscillation> result;
+
+        buff.time.reserve(D.size());
+        buff.angle.reserve(D.size());
+        buff.dangle.reserve(D.size());
+        buff.ddangle.reserve(D.size());
+
+        size_t i = 0;
+        int periodCounter = 0;
+
+        while(i < D.size())
+        {
+            //std::cout << periodCounter << std::endl;
+
+            if(D.dangle[i] <= 0)
+            {
+                while( D.dangle[i] <= 0.0)
+                {
+                    buff.time.push_back(D.time[i]);
+                    //std::cout << "pushed\t" << D.time[i] << "\t" << buff.time.back() << "\n";
+                    buff.angle.push_back(D.angle[i]);
+                    buff.dangle.push_back(D.dangle[i]);
+                    buff.ddangle.push_back(D.ddangle[i]);
+
+                    //std::cout << "buff = " << buff.time[i] << std::endl;
+                    //std::cout << "buff size = " << buff.size() << std::endl;
+
+                    i++;
+                }
+
+                std::cout << buff.size() << std::endl;
+                result.push_back(buff);
+                std::cout << "resultlist size = " << result.size() << std::endl;
+                std::cout << "last result size = " << result[periodCounter].size() << std::endl;
+                periodCounter++;
+
+                buff.clear();
+            }
+
+
+            if(D.dangle[i] >= 0.0)
+            {
+                while( D.dangle[i] >= 0.0)
+                {
+                    buff.time.push_back(D.time[i]);
+                    buff.angle.push_back(D.angle[i]);
+                    buff.dangle.push_back(D.dangle[i]);
+                    buff.ddangle.push_back(D.ddangle[i]);
+
+                    //std::cout << "buff = " << buff.time[i] << std::endl;
+                    //std::cout << "buff size = " << buff.size() << std::endl;
+
+                    i++;
+                }
+
+                std::cout << buff.size() << std::endl;
+                result.push_back(buff);
+                std::cout << "resultlist size = " << result.size() << std::endl;
+                std::cout << "last result size = " << result[periodCounter].size() << std::endl;
+                periodCounter++;
+
+                buff.clear();
+            }
+
+            //std::cout << "****\n";
+        }
+
+        for(size_t i = 0; i < result.at(0).time.size(); ++i)
+            std::cout << "i = " << i << " " << result.at(0).time.at(i) << std::endl;
+
+        std::cout << "end of loop\n";
+        return result;
+    }
+
+
+    /*
+    * Разделение истории колебаний на периоды колебаний.
+    */
     int calculate_periods(oscillation D, std::string base_file_name)
     {std::cout << "calculate_periods\n";
 
@@ -72,6 +154,7 @@ namespace periods ///caclulate periods
         return period_counter;
     }
 
+
     namespace gnuplot
     {
         std::string file_name(std::string fn){
@@ -80,6 +163,9 @@ namespace periods ///caclulate periods
     }
 
 
+    /**
+    * Генерация скриптов отрисовки периодов колебаний
+    */
     void PlotScript(std::string base_file_name, int period_counter)
     {
         std::ofstream fout(base_file_name);
@@ -130,7 +216,6 @@ namespace periods ///caclulate periods
         fout.close();
         fout1.close();
 
-
     }
 
     void SavePeriod(std::string file_name)
@@ -138,4 +223,4 @@ namespace periods ///caclulate periods
         std::cout << "empty func\n";
     }
 
-}
+} // namespace periods

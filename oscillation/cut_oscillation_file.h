@@ -69,4 +69,4 @@ namespace oscillation_files
 
         cut_file(output_file, from_time, to_time, output_file);
     }
-}
+} // namespace oscillation_files

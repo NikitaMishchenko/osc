@@ -22,19 +22,12 @@ namespace fftw
     {
         std::cout << "fftw_complex_to_vectors() " << "_real.size() = " << _real.size() << " _img.size() = " << _img.size() << std::endl;
 
-        //_real.reserve(data_size);
-        //_img.reserve(data_size);
 
         for(int i = 0; i < data_size; i++)
         {
             _real.at(i) = data[i][0];
             _img.at(i) = data[i][1];
-//            std::cout << _real[i] << " -> " << data[i][0]
-//                    << "\t" << _img[i] << " -> " << data[i][1] << std::endl; ///ok
         }
-        //_real.shrink_to_fit();
-        //_img.shrink_to_fit();
-        //std::cout << "_real.size() = " << _real.size() << std::endl;
     }
 
     void vectors_to_fftw_complex()
@@ -49,7 +42,6 @@ namespace fftw
         {
             data[i][0] = _real.at(i);
             data[i][1] = 0;
-            //std::cout << data[i][0] << std::endl;
         }
     }
 }
@@ -59,10 +51,22 @@ namespace osc
 {
     namespace fftw
     {
-        void perfom_fftw(oscillation real_signal, std::vector<double>& spectrum)
+        struct spectrum
         {
-            std::cout << "perfom_fft()" << " real_signal.size() = " << real_signal.size() << "\t" << std::endl;
-            spectrum.reserve(real_signal.size());
+            std::vector<double> amplitude;
+            std::vector<double> real;
+            std::vector<double> img;
+
+            spectrum(size_t _size) : amplitude(_size), real(_size), img(_size)
+            {
+                //std::vector<double> v(_size);
+                //amplitude = real = img = v
+            }
+        };
+
+        void perfom_fftw(oscillation real_signal, spectrum& _spectrum)
+        {
+            //std::cout << "perfom_fft()" << " real_signal.size() = " << real_signal.size() << "\t" << std::endl;
 
 
             fftw_complex *in, *out;
@@ -76,21 +80,27 @@ namespace osc
                 p = fftw_plan_dft_1d(real_signal.size(), in, out, FFTW_FORWARD, FFTW_ESTIMATE);
                     fftw_execute(p); /* repeat as needed */
 
-            std::vector<double> sp_real(real_signal.size());
-            std::vector<double> sp_img(real_signal.size());
+            //std::vector<double> sp_real(real_signal.size());
+            //std::vector<double> sp_img(real_signal.size());
 
-            ::fftw::fftw_complex_to_vectors(out, real_signal.size(), sp_real, sp_img);
 
-            spectrum.reserve(real_signal.size());
+            ::fftw::fftw_complex_to_vectors(out, real_signal.size(), _spectrum.real, _spectrum.img);//sp_real, sp_img);
+
+            _spectrum.amplitude.reserve(real_signal.size());
+            _spectrum.real.reserve(real_signal.size());
+            _spectrum.img.reserve(real_signal.size());
+
             for(size_t i = 0; i < real_signal.size(); i++)
             {
-                spectrum[i] = sqrt(sp_real.at(i)*sp_real.at(i) + sp_img.at(i)*sp_img.at(i));
-                //std::cout << i << "\t" << spectrum[i] << "\t" << sp_real[i] << "\t" << sp_img[i] << std::endl;
-                //if(spectrum[i] != 0) std::cout << "not null spectrum power!\t" << i << " " << spectrum[i] << std::endl; //ok
+                _spectrum.amplitude.at(i) = sqrt(_spectrum.real.at(i)*_spectrum.real.at(i) + _spectrum.img.at(i)*_spectrum.img.at(i));
+
+                _spectrum.real.at(i) = _spectrum.real.at(i);
+
+                _spectrum.img.at(i) = _spectrum.img.at(i);
             }
 
-            std::cout << "spectrum.size() = " << spectrum.size() << std::endl;
-            std::cout << "spectrum.capacity() = " << spectrum.capacity() << std::endl;
+            std::cout << "_spectrum.size() = " << _spectrum.amplitude.size() << std::endl;
+            std::cout << "_spectrum.capacity() = " << _spectrum.amplitude.capacity() << std::endl;
 
             fftw_destroy_plan(p);
             fftw_free(in);
@@ -105,8 +115,6 @@ namespace fftw_example
     void generate_signal(fftw_complex* signal, double freq, uint8_t length)
     {
         std::cout << "Signal generation\n";
-        //const uint8_t N = 1024*16;
-
 
         for(int i = 0; i < length; ++i)
         {
@@ -169,5 +177,3 @@ namespace fftw_example
         fftw_free(out2);
     }
 } // namespace fftw
-
-
