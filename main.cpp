@@ -129,6 +129,8 @@ int main(int argc, char * argv[])
     if(opt.exist("help"))
     {
         opt.show();
+        opt.readme();
+
         return 0;
     }
 

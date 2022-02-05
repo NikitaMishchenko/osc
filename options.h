@@ -32,6 +32,24 @@ public:
         std::cout << *descr << std::endl;
     }
 
+    void readme()
+    {
+        std::cout << "\nReadme"
+            << "\t-m Perods -f filename -args single_arg\n"
+            << "\t\tfilename raw file 1-st row - time, 2-nd row - angle\n"
+            << "\t\ttsingle_arg - shift of angle (could be ><=0)\n"
+            << "\n"
+
+            << "\t-m cut -f filename -args first_arg second_arg\n"
+            << "\t\tfilename raw file 1-st row - time, 2-nd row - angle\n"
+            << "\t\targs first_arg - cut from, second_arg - cut to\n"
+            << "\n"
+
+            << "\t-m FFT -f filename\n"
+            << "\t\tfilename - file in oscillation-format\n"
+            << "\n";
+    }
+
     std::string getMode()
     {
         return value<std::string>("mode");
