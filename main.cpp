@@ -1,29 +1,41 @@
 #include <string>
 
-
 #include "oscillation_basic.h"
 #include "fft/fftw_impl.h"
 #include "periods/periods_base.h"
-
 #include "oscillation/cut_oscillation_file.h"
-
-
 #include "options.h"
 
 const double Pi = 3.14159265359;
 
-
-void perform_procedure_FFT(const std::string& input_file_name, const std::string& output_file_name)
+/*
+* Perform FFT procedure via FFTW realization
+*/
+void perform_procedure_FFT(const std::string& input_file_name, const std::string& output_file_name, double shiftAngle)
 {
+    std::cout << "perform_procedure_FFT(" << input_file_name << ", "
+                                          << output_file_name << ", "
+                                          << shiftAngle << "\n";
 
-        oscillation A(input_file_name);
+    std::cout << "init oscillation\n";
+    oscillation A;//(input_file_name);
 
-            ///calculate angle
-            A.move_angle(-25.5); // fixme
+    if(!A.loadFile(input_file_name))
+    {
+        std::cout << "failed to Load oscillation!\n";
+        return;
+    }
 
-        osc::fftw::spectrum sp(A.size());
+    A.info();
 
-        osc::fftw::perfom_fftw(A, sp);
+    // todo calculate angle
+    A.move_angle(shiftAngle);
+
+
+    osc::fftw::spectrum sp(A.size());
+
+    std::cout << "Performing FFTW\n";
+    osc::fftw::perfom_fftw(A, sp);
 
 
         std::cout << "sp size = " << sp.amplitude.size() << std::endl;
@@ -36,11 +48,12 @@ void perform_procedure_FFT(const std::string& input_file_name, const std::string
                 fout << i/Pi << "\t"
                         << sp.amplitude[i] << "\t"
                         << sp.real[i] << "\t"
-                        << sp.img[i] << "\t"
-                        << std::endl;
+                        << sp.img[i] << "\t\n";
             }
         fout.close();
 }
+
+
 
 /**
 *    Data loaded as oscillation object. So the the initial data is y and t. And while oscillation constructed
@@ -75,13 +88,7 @@ void perform_procedure_Periods(const std::string& file_name)
 
         std::ofstream fout(std::to_string(i));
         fout << periodsList.at(i);
-        //periodsList.at(i).info();
 
-        //std::cout << "size = " << periodsList[i].size() << std::endl;
-
-
-        ///for(int j = 0; j < periodsList.at(i).angle.size(); j++)
-           /// std::cout << periodsList.at(i).angle.at(j) << std::endl;
 
         fout.close();
     }
@@ -97,128 +104,7 @@ int perform_procedure_cutFile(const std::string& initialFile, const double timeF
     return 0;
 }
 
-int Procedure_cut_file(int argc, char * argv[])
-{
-    std::cout << "argc = " << argc << std::endl;
-    std::cout << "argv = ";
-        for(int i = 0; i < argc; i++)
-            std::cout << argv[i] << ", ";
-        std::cout << std::endl << std::endl;
 
-
-    std::ofstream log("cut.log", std::ios::app);
-        log << "cut called from binary" << std::endl;
-            log << "argc = " << argc << std::endl;
-            log << "argv = \n";
-                for(int i = 0; i < argc; i++)
-                    log << argv[i] << " ";
-                log << std::endl << std::endl;
-    log.close();
-
-
-    if (argv[1])
-    if(std::string(argv[1]) == "cut")
-    {
-        if(argv[2] && argv[3] && argv[4] && argv[5])
-        {
-            std::string::size_type sz;
-
-            std::string sarg1 = std::string(argv[3]);
-            double arg1 = std::stod(sarg1, &sz);
-
-            std::string sarg2 = std::string(argv[4]);
-            double arg2 = std::stod(sarg2, &sz);
-
-            std::cout << "cut_file performing ..." << argv[2] << argv[3] << argv[4] << argv[5] << std::endl;
-
-            oscillation_files::cut_file(std::string(argv[2]), arg1 , arg2, std::string(argv[5]));
-
-            return 0;
-        }
-
-        std::cout << "cut_file not performed! not enough arguments: " << argv[2] << argv[3] << argv[4] << argv[5] << std::endl;
-        return 1;
-    }
-
-    if(std::string(argv[1]) == "cut_raw")
-    {
-        if(argv[2] && argv[3] && argv[4] && argv[5])
-        {
-            std::string::size_type sz;
-
-            std::string sarg1 = std::string(argv[3]);
-            double arg1 = std::stod(sarg1, &sz);
-
-            std::string sarg2 = std::string(argv[4]);
-            double arg2 = std::stod(sarg2, &sz);
-
-            std::cout << "cut_file performing ..." << argv[2] << argv[3] << argv[4] << argv[5] << std::endl;
-
-            oscillation_files::cut_raw_file(std::string(argv[2]), 5, arg1 , arg2, std::string(argv[5]));
-
-            return 0;
-        }
-
-        std::cout << "cut_file not performed! not enough arguments: " << argv[2] << argv[3] << argv[4] << argv[5] << std::endl;
-        return 1;
-    }
-    return 2;
-}
-
-void help() // todo
-{
-    std::cout << "set of utills for oscillation analysis" << std::endl;
-        std::cout << "fft_osc" << std::endl; ///todo make object to push to stream;
-        std::cout << "periods" << std::endl;
-        std::cout << "cut file" << std::endl;
-}
-
-
-void General_Procedure(int argc, char * argv[])
-{
-
-        std::cout << "argc = " << argc << std::endl;
-        std::cout << "argv = ";
-        for(int i = 0; i < argc; i++)
-            std::cout << argv[i] << ", ";
-        std::cout << std::endl << std::endl;
-
-        help();
-
-        if(argv[1])
-        {
-            if(std::string(argv[1]) == "fft")
-            {
-
-                std::cout << "FFT performing" << argv[2] << std::endl;
-
-                if(argv[2])
-                    perform_procedure_FFT(std::string(argv[2]), std::string(argv[3]));
-
-            }
-
-
-            if(std::string(argv[1]) == "period")
-            {
-
-                std::cout << "period performing" << argv[2] << std::endl;
-
-                if(argv[2])
-                    perform_procedure_Periods(std::string(argv[2]));
-
-            }
-
-
-            if(std::string(argv[1]) == "cut" || std::string(argv[1]) == "cut_raw")
-            {
-
-                Procedure_cut_file(argc, argv);
-
-            }
-
-        }
-
-}
 
 void testFunc()
 {
@@ -238,20 +124,21 @@ int main(int argc, char * argv[])
 {
     Options opt;
     if(!opt.parse_options(argc, argv))
-        std::cerr << "err occured\n";
+        std::cerr << "parse program_options: err occured\n";
 
     if(opt.exist("help"))
     {
         opt.show();
         return 0;
     }
+
     std::cout << "perfroming!\n";
 
 
     ///INIT PARAMS
     const std::string mode = opt.getMode();
     const std::string fileName = opt.getFileName();
-    const std::vector<double> args = opt.getArgs();
+    const std::vector<double> extraArguments = opt.getArgs();
 
 
     if("test" == mode)
@@ -263,7 +150,7 @@ int main(int argc, char * argv[])
     if("FFT" == mode)
     {
         std::cout << "performing fft\n";
-        //perform_procedure_FFT();
+        perform_procedure_FFT(fileName, fileName + "_spectrum", extraArguments[0]);
     }
 
     if("periods" == mode)
@@ -276,21 +163,20 @@ int main(int argc, char * argv[])
     if("cut" == mode)
     {
         std::cout << "cut file performing\n";
-        //Procedure_cut_file();
-        std::string initialFileName = "A";
 
-        if(args.size() < 2)
+        if(extraArguments.size() < 2)
             return 2;
 
-        double timeFrom = args[0];
-        double timeTo = args[1];
+        double timeFrom = extraArguments[0];
+        double timeTo = extraArguments[1];
 
-        perform_procedure_cutFile(initialFileName, timeFrom, timeTo,
-                                  initialFileName + "_t" + std::to_string(timeFrom) + "_" + std::to_string(timeTo));
+        perform_procedure_cutFile(fileName, timeFrom, timeTo,
+                                  fileName + "_t" + std::to_string(timeFrom) + "_" + std::to_string(timeTo));
     }
 
 
-    std::cout << "procedures performed! status: succes\n";
+
+    std::cout << "procedures performed! status: success\n";
     return 0;
 }
 

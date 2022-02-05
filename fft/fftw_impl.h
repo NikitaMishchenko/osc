@@ -66,19 +66,20 @@ namespace osc
 
         void perfom_fftw(oscillation real_signal, spectrum& _spectrum)
         {
-            //std::cout << "perfom_fft()" << " real_signal.size() = " << real_signal.size() << "\t" << std::endl;
-
 
             fftw_complex *in, *out;
             fftw_plan p;
 
             in = (fftw_complex*) fftw_malloc(sizeof(fftw_complex) * real_signal.size());
             //fftw::generate_signal(in, 0.01, N);
+
             ::fftw::real_vector_to_fftw_complex(real_signal.get_angle(), in, real_signal.size());
 
             out = (fftw_complex*) fftw_malloc(sizeof(fftw_complex) * real_signal.size());
-                p = fftw_plan_dft_1d(real_signal.size(), in, out, FFTW_FORWARD, FFTW_ESTIMATE);
-                    fftw_execute(p); /* repeat as needed */
+
+            p = fftw_plan_dft_1d(real_signal.size(), in, out, FFTW_FORWARD, FFTW_ESTIMATE);
+
+            fftw_execute(p); /* repeat as needed */
 
             //std::vector<double> sp_real(real_signal.size());
             //std::vector<double> sp_img(real_signal.size());
@@ -94,9 +95,9 @@ namespace osc
             {
                 _spectrum.amplitude.at(i) = sqrt(_spectrum.real.at(i)*_spectrum.real.at(i) + _spectrum.img.at(i)*_spectrum.img.at(i));
 
-                _spectrum.real.at(i) = _spectrum.real.at(i);
+                //_spectrum.real.at(i) = _spectrum.real.at(i);
 
-                _spectrum.img.at(i) = _spectrum.img.at(i);
+                //_spectrum.img.at(i) = _spectrum.img.at(i);
             }
 
             std::cout << "_spectrum.size() = " << _spectrum.amplitude.size() << std::endl;

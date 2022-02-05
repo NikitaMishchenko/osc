@@ -100,7 +100,7 @@ public:
 
 
     //BASIC
-    void push_back(double t, double a, double da, double dda)
+    void push_back(const double& t, const double& a, const double& da, const double& dda)
     {
         time.push_back(t);
         angle.push_back(a);
@@ -167,6 +167,31 @@ public:
             //std::cout << time[i] << std::endl;
         }
         fout.close();
+    }
+
+    /*
+    *   Load oscillation file saved in 'write"-form
+    */
+    bool loadFile(std::string file_name)
+    {
+        this->clear();
+
+        std::ifstream fin( file_name);
+
+        if( !fin.is_open())
+        {
+            return false;
+        }
+
+        double tBuff, aBuff, daBuff, ddaBuff;
+        while(!fin.eof())
+        {
+            fin >> tBuff >> aBuff >> daBuff >> ddaBuff;
+
+            this->push_back(tBuff, aBuff, daBuff, ddaBuff);
+        }
+
+        return true;
     }
 
     friend std::ostream& operator<< (std::ostream& out, const oscillation& D)
