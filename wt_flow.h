@@ -19,7 +19,7 @@ namespace wt_flow
 
         // reference
         double m_mach = 0;
-        double m_reynolds = 0;
+        double m_reynolds = 0; // normalized at 1 meter
 
 
     public:
@@ -81,10 +81,44 @@ namespace wt_flow
         }
 
 
+        /// IO
+
+        void print()
+        {
+            std::cout
+            << "Flow:\n"
+                << "\trho = " << m_rho << "\n"
+                << "\tvelocity = " << m_velocity << "\n"
+                << "\tT0 = " << m_T0 << "\n"
+                << "\tdynamicPressure  = " << m_dynamicPressure  << "\n"
+                << "\tmach = " << m_mach << "\n"
+                << "\treynolds = " << m_reynolds << "\n";
+        }
+
+        bool loadFile( const std::string& fileName)
+        {
+            std::ifstream fin(fileName);
+
+            if (!fin.is_open())
+            {
+                std::cerr << "flow: can't open file" << fileName << "\n";
+                return false;
+            }
+
+            std::cout << "Parsing file " << fileName << "...\n";
+            std::string buff_s;
+
+            // mach = *mach* T0  = *T0* rho = *rho*
+            fin
+                >> buff_s >>  buff_s >> m_mach
+                >> buff_s >>  buff_s >> m_T0
+                >> buff_s >>  buff_s >> m_rho;
+
+            fin.close();
+
+            return true;
+        }
+
     };
 
-
-
-
-
-}
+} // namespace wt_flow

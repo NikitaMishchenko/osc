@@ -1,4 +1,5 @@
 #include <string>
+#include <utility>
 
 #include "oscillation_basic.h"
 #include "fft/fftw_impl.h"
@@ -21,7 +22,7 @@ void perform_procedure_FFT(const std::string& input_file_name, const std::string
     std::cout << "init Oscillation\n";
     Oscillation A;//(input_file_name);
 
-    if(!A.loadFile(input_file_name))
+    if (!A.loadFile(input_file_name))
     {
         std::cout << "failed to Load Oscillation!\n";
         return;
@@ -97,7 +98,7 @@ void perform_procedure_Periods(const std::string& file_name)
 
 int perform_procedure_cutFile(const std::string& initialFile, const double timeFrom, const double timeTo, const std::string& finalFile)
 {
-    if(!Oscillation_files::cut_file(initialFile, timeFrom , timeTo, finalFile))
+    if (!Oscillation_files::cut_file(initialFile, timeFrom , timeTo, finalFile))
     {
         std::cerr << "cut file failed!/n";
         return 1;
@@ -124,10 +125,10 @@ TODO
 int main(int argc, char * argv[])
 {
     Options opt;
-    if(!opt.parse_options(argc, argv))
+    if (!opt.parse_options(argc, argv))
         std::cerr << "parse program_options: err occured\n";
 
-    if(opt.exist("help"))
+    if (opt.exist("help"))
     {
         opt.show();
         opt.readme();
@@ -144,26 +145,26 @@ int main(int argc, char * argv[])
     const std::vector<double> extraArguments = opt.getArgs();
 
 
-    if("test" == mode)
+    if ("test" == mode)
     {
         std::cout << "performing All procedures\n";
         testFunc();
     }
 
-    if("FFT" == mode)
+    if ("FFT" == mode)
     {
         std::cout << "performing fft\n";
         perform_procedure_FFT(fileName, fileName + "_spectrum", extraArguments[0]);
     }
 
-    if("periods" == mode)
+    if ("periods" == mode)
     {
         std::cout << "performing Period\n";
         perform_procedure_Periods(fileName);
 
     }
 
-    if("cut" == mode)
+    if ("cut" == mode)
     {
         std::cout << "cut file performing\n";
 
@@ -178,6 +179,48 @@ int main(int argc, char * argv[])
     }
 
 
+
+    if ("WT" == mode)
+    {
+        std::cout << "wt test processing mode performing\n";
+
+        /// FLOW->
+        wt_flow::Flow flow;
+        if (!flow.loadFile((fileName + "_flow")))
+            return 1;
+
+        flow.calculateFlow();
+        flow.print();
+        /// FLOW<-
+
+        /// MODEL->
+        Model model;
+        if (!model.loadFile((fileName + "_model")))
+            return 1;
+
+        model.print();
+        /// MODEL<-
+
+        /// OSCILLATION->
+        Oscillation oscillation;
+        if (!oscillation.loadFile(fileName + "_osc"))
+            return 1;
+        /// OSCILLATION<-
+
+
+        WtOscillation wtTest(oscillation, flow, model);
+
+        wtTest.getMz();
+        wtTest.saveMzData(fileName + "_mz");
+        //todo check
+
+
+        wtTest.getMzAmplitudeIndexes();
+        wtTest.saveMzAmplitudeData(fileName + "_mz_amplitude");
+
+
+
+    }
 
     std::cout << "procedures performed! status: success\n";
     return 0;

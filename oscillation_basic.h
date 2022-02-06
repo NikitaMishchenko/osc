@@ -42,25 +42,29 @@ public:
                 //std::cout << dangle.size() << std::endl;
             dangle.reserve(this->size());
 
-            double h = time[1] - time[0];
+            const double h = time[1] - time[0];
 
             ///dangle calc
-                dangle.push_back(0);
+            for(size_t i = 0; i < size(); ++i)
+                dangle.emplace_back(derevativeOrd1N2(angle, h, i));
+                /*dangle.push_back(0);
                 for(size_t i = 1; i < size()-1; ++i)
                 {
                     dangle.push_back(angle[i-1] - angle[i+1]);
                     dangle[i] /= 2.0*h;
                 }
-                dangle.push_back(0);
+                dangle.push_back(0);*/
 
             ///ddangle calc
-                ddangle.push_back(0);
+            for(size_t i = 0; i < size(); ++i)
+                dangle.emplace_back(derevativeOrd2N2(angle, h, i));
+                /*ddangle.push_back(0);
                 for(size_t i = 1; i < size()-1; ++i)
                 {
                     ddangle.push_back(dangle[i-1] - dangle[i+1]);
                     ddangle[i] /= 2.0*h;
                 }
-                ddangle.push_back(0);
+                ddangle.push_back(0);*/
         }
         else
         {
@@ -69,6 +73,27 @@ public:
             ddangle.reserve(0);
         }
 
+    }
+
+    double derevativeOrd1N2(std::vector<double>& func, const double& h, const size_t index)
+    {
+        // left border
+        if (0 == index)
+            return (-3.0*func.at(0) + 4.0*func.at(1) - func.at(2))/2.0/h;
+
+        // center
+        if (index > 0 && index < func.size()-1)
+            return (func.at(index+1) - func.at(index-1))/2.0/h; // ~h^2/6(f''')
+
+        //if (index == func.size()-1)
+        //    return (func.at())
+        // right border
+        return 0;
+    }
+
+    double derevativeOrd2N2(std::vector<double>& func, const double& h, const size_t index)
+    {
+        return (func.at(index+2) - 2.0*func.at(index+1) + func.at(index))/h/h;
     }
 
     ~Oscillation(){
@@ -82,14 +107,10 @@ public:
     {
         time = d.time;
         angle = d.angle;
-        std::cout << "Oscillation::copy constructor\n";
-
     }
 
     Oscillation& operator= (const Oscillation& d)
     {
-        std::cout << "Oscillation::operator=\n";
-
         //time = d.time;
         //angle = d.angle;
         dangle = d.dangle;
@@ -178,14 +199,15 @@ public:
     /*
     *   Load Oscillation file saved in 'write"-form
     */
-    bool loadFile(std::string file_name)
+    bool loadFile(const std::string& fileName)
     {
         this->clear();
 
-        std::ifstream fin( file_name);
+        std::ifstream fin( fileName);
 
         if( !fin.is_open())
         {
+            std::cerr << "filed to open file " << fileName << "\n";
             return false;
         }
 

@@ -52,24 +52,38 @@ public:
         return out;
     }
 
+    void print()
+    {
+        std::cout << "Model:\n"
+            << "\tname = " << m_name << "\n"
+            << "\ts = " << m_refSquare << "\n"
+            << "\tl = " << m_refLength << "\n"
+            << "\tI = " << m_momentOfInertia << "\n";
+    }
 
     /*
     *   todo .model file
     */
-    bool loadFromFile(std::string& fileName)
+    bool loadFile(const std::string& fileName)
     {
+        std::cout << "parsing file " << fileName << "...\n";
         std::ifstream fin(fileName);
 
         if (!fin.is_open())
+        {
+            std::cerr << "model: can't open file " << fileName << "\n";
             return false;
+        }
 
-        fin >> m_name
-            >> m_refSquare
-            >> m_refLength
-            >> m_momentOfInertia;
-
+        std::string buff_s;
+        fin >> buff_s >> buff_s >> m_name
+            >> buff_s >> buff_s >> m_refSquare
+            >> buff_s >> buff_s >> m_refLength
+            >> buff_s >> buff_s >> m_momentOfInertia;
 
         fin.close();
+
+        return true;
     }
 
 
