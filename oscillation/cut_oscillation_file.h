@@ -6,16 +6,16 @@
 
 #include "../oscillation_basic.h"
 
-namespace oscillation_files
+namespace Oscillation_files
 {
 
     bool cut_file(const std::string& input_file, const double from_time, const double to_time, const std::string& output_file)
     {
-        oscillation A(input_file);
+        Oscillation A(input_file);
 
         std::cout << "size of input file = " << A.size() << std::endl;
 
-        oscillation R;
+        Oscillation R;
 
         std::vector<double>::const_iterator _it = A.time.begin();
 
@@ -69,4 +69,4 @@ namespace oscillation_files
 
         cut_file(output_file, from_time, to_time, output_file);
     }
-} // namespace oscillation_files
+} // namespace Oscillation_files

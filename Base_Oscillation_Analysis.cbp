@@ -39,6 +39,10 @@
 		<Unit filename="oscillation/cut_oscillation_file.h" />
 		<Unit filename="oscillation_basic.h" />
 		<Unit filename="periods/periods_base.h" />
+		<Unit filename="tr_rod_model_params" />
+		<Unit filename="tr_rod_model_params.h" />
+		<Unit filename="wt_flow.h" />
+		<Unit filename="wt_oscillation.h" />
 		<Extensions>
 			<lib_finder disable_auto="1" />
 		</Extensions>

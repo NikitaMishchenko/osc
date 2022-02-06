@@ -64,7 +64,7 @@ namespace osc
             }
         };
 
-        void perfom_fftw(oscillation real_signal, spectrum& _spectrum)
+        void perfom_fftw(Oscillation real_signal, spectrum& _spectrum)
         {
 
             fftw_complex *in, *out;
@@ -142,7 +142,7 @@ namespace fftw_example
         fftw_plan p;
 
         in = (fftw_complex*) fftw_malloc(sizeof(fftw_complex) * N);
-            generate_signal(in, 0.01, N); ///to do colab with oscillation make signal addition
+            generate_signal(in, 0.01, N); ///to do colab with Oscillation make signal addition
 
         for(int i = 0; i < N; ++i)
             std::cout << i << "\t" << in[i][0] << "\t" << in[i][1] << std::endl;

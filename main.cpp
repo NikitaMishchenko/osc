@@ -5,6 +5,7 @@
 #include "periods/periods_base.h"
 #include "oscillation/cut_oscillation_file.h"
 #include "options.h"
+#include "wt_oscillation.h"
 
 const double Pi = 3.14159265359;
 
@@ -17,12 +18,12 @@ void perform_procedure_FFT(const std::string& input_file_name, const std::string
                                           << output_file_name << ", "
                                           << shiftAngle << "\n";
 
-    std::cout << "init oscillation\n";
-    oscillation A;//(input_file_name);
+    std::cout << "init Oscillation\n";
+    Oscillation A;//(input_file_name);
 
     if(!A.loadFile(input_file_name))
     {
-        std::cout << "failed to Load oscillation!\n";
+        std::cout << "failed to Load Oscillation!\n";
         return;
     }
 
@@ -56,7 +57,7 @@ void perform_procedure_FFT(const std::string& input_file_name, const std::string
 
 
 /**
-*    Data loaded as oscillation object. So the the initial data is y and t. And while oscillation constructed
+*    Data loaded as Oscillation object. So the the initial data is y and t. And while Oscillation constructed
 *    y' and y'' is calculating.
 *
 *    Basically procedure finds periods of the signal and saves it in specific manner.
@@ -67,17 +68,17 @@ void perform_procedure_Periods(const std::string& file_name)
 {
     std::cout << "periods procedure performing...\n";
 
-    oscillation D(file_name);
+    Oscillation D(file_name);
         if(0 == D.size())
         {
-            std::cerr << "Empty oscillation data! Aborting procedure\n";
+            std::cerr << "Empty Oscillation data! Aborting procedure\n";
             return;
         }
 
     D.info();
     std::cout << "stg\n";
 
-    std::vector<oscillation> periodsList;
+    std::vector<Oscillation> periodsList;
     periodsList = periods::splitPeriods(D);
     std::cout << periodsList.size() << std::endl;
 
@@ -96,7 +97,7 @@ void perform_procedure_Periods(const std::string& file_name)
 
 int perform_procedure_cutFile(const std::string& initialFile, const double timeFrom, const double timeTo, const std::string& finalFile)
 {
-    if(!oscillation_files::cut_file(initialFile, timeFrom , timeTo, finalFile))
+    if(!Oscillation_files::cut_file(initialFile, timeFrom , timeTo, finalFile))
     {
         std::cerr << "cut file failed!/n";
         return 1;
@@ -108,8 +109,8 @@ int perform_procedure_cutFile(const std::string& initialFile, const double timeF
 
 void testFunc()
 {
-    oscillation A("A");
-    std::vector<oscillation> arr_osc;
+    Oscillation A("A");
+    std::vector<Oscillation> arr_osc;
     arr_osc.push_back(A);
     arr_osc[0].write("A_osc");
 }
@@ -183,6 +184,8 @@ int main(int argc, char * argv[])
 }
 
 /**
+*
+* TODO
 * Gtests, autotests
 *
 */

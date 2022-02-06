@@ -1,34 +1,26 @@
 #pragma once
 
+class Periods
+{
+public:
+
+
+private:
+
+    std::vector<Oscillation> periods;
+
+
+};
+
 namespace periods ///caclulate periods
 {
-    ///static bool decrease;
 
-//    bool alterating(double data)
-//    {
-//        ///prev = false decrease
-//        ///prev = true increase
-//        if(decreas)
-//        {
-//            if(data < 0.0)
-//                return false ///same signe
-//
-//            decrease = true;
-//            return true; ///signe changed
-//        }else{
-//            if(data > 0.0)
-//                return false
-//            return true;
-//        }
-//
-//    }
-
-    std::vector<oscillation> splitPeriods(const oscillation& D)
+    std::vector<Oscillation> splitPeriods(const Oscillation& D)
     {
         std::cout << "split periods\n";
 
-        oscillation buff;
-        std::vector<oscillation> result;
+        Oscillation buff;
+        std::vector<Oscillation> result;
 
         buff.time.reserve(D.size());
         buff.angle.reserve(D.size());
@@ -106,7 +98,7 @@ namespace periods ///caclulate periods
     /*
     * Разделение истории колебаний на периоды колебаний.
     */
-    int calculate_periods(oscillation D, std::string base_file_name)
+    int calculate_periods(Oscillation D, std::string base_file_name)
     {std::cout << "calculate_periods\n";
 
         std::ofstream fout;

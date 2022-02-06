@@ -21,20 +21,20 @@ enum LOG_MODE{
 
 
 
-class oscillation : public AngleHistory
+class Oscillation : public AngleHistory
 {
 public:
     std::vector<double> dangle;
     std::vector<double> ddangle;
 
-    oscillation(): AngleHistory(), dangle(), ddangle()
+    Oscillation(): AngleHistory(), dangle(), ddangle()
     {
-        std::cerr << "default oscillation()\n";
+        std::cerr << "default Oscillation()\n";
     }
 
-    oscillation(const std::string file_name): AngleHistory(file_name)//, dangle()
+    Oscillation(const std::string file_name): AngleHistory(file_name)//, dangle()
     {
-        std::cout << "oscillation( " << file_name << ") constructor\n";
+        std::cout << "Oscillation( " << file_name << ") constructor\n";
         std::cout << "angle size = " << angle.size() << "\n";
         if(0 != angle.size())
         {
@@ -64,31 +64,31 @@ public:
         }
         else
         {
-            std::cout << "empty AngleHistory -> empty oscillation \n";
+            std::cout << "empty AngleHistory -> empty Oscillation \n";
             dangle.reserve(0);
             ddangle.reserve(0);
         }
 
     }
 
-    ~oscillation(){
+    ~Oscillation(){
         dangle.clear();
         ddangle.clear();
     }
 
-    oscillation(const oscillation& d) :
+    Oscillation(const Oscillation& d) :
                                         dangle(d.dangle),
                                         ddangle(d.ddangle)
     {
         time = d.time;
         angle = d.angle;
-        std::cout << "oscillation::copy constructor\n";
+        std::cout << "Oscillation::copy constructor\n";
 
     }
 
-    oscillation& operator= (const oscillation& d)
+    Oscillation& operator= (const Oscillation& d)
     {
-        std::cout << "oscillation::operator=\n";
+        std::cout << "Oscillation::operator=\n";
 
         //time = d.time;
         //angle = d.angle;
@@ -100,6 +100,8 @@ public:
 
 
     //BASIC
+    const size_t size() const override {return angle.size();}
+
     void push_back(const double& t, const double& a, const double& da, const double& dda)
     {
         time.push_back(t);
@@ -121,20 +123,24 @@ public:
         return angle;
     }
 
+    const double get_time(int i) const
+    {
+        return time.at(i);
+    }
 
     const double get_angle(int i) const
     {
-        return angle[i];
+        return angle.at(i);
     }
 
     const double get_dangle(int i) const
     {
-        return dangle[i];
+        return dangle.at(i);
     }
 
     double get_ddangle(int i) const
     {
-        return dangle[i];
+        return dangle.at(i);
     }
 
 
@@ -154,7 +160,7 @@ public:
 
     void write(std::string file_name)
     {
-        std::cout << "oscillation write(file_name)\n";
+        std::cout << "Oscillation write(file_name)\n";
         this->info();
         //angle_history.print();
         std::ofstream fout(file_name);
@@ -170,7 +176,7 @@ public:
     }
 
     /*
-    *   Load oscillation file saved in 'write"-form
+    *   Load Oscillation file saved in 'write"-form
     */
     bool loadFile(std::string file_name)
     {
@@ -194,7 +200,7 @@ public:
         return true;
     }
 
-    friend std::ostream& operator<< (std::ostream& out, const oscillation& D)
+    friend std::ostream& operator<< (std::ostream& out, const Oscillation& D)
     {
         for(size_t i = 0; i < D.size(); i++)
             out << D.time[i] << "\t"
@@ -204,10 +210,61 @@ public:
         return out;
     }
 
-    const size_t size() const override {return angle.size();}
+    /// SPECIAL
 
+    void scaleTime(const double& factor)
+    {
+        if(time.size() > 0)
+            for(size_t i = 0; i < time.size(); i++)
+                time[i] *= factor;
+    }
+
+    void scaleAngle(const double& factor)
+    {
+        if(angle.size() > 0)
+            for(size_t i = 0; i < angle.size(); i++)
+                angle[i] *= factor;
+    }
+
+    void scaleDAngle(const double& factor)
+    {
+        if(dangle.size() > 0)
+            for(size_t i = 0; i < dangle.size(); i++)
+                dangle[i] *= factor;
+    }
+
+    void scaleDDAngle(const double& factor)
+    {
+        if(ddangle.size() > 0)
+            for(size_t i = 0; i < ddangle.size(); i++)
+                ddangle[i] *= factor;
+    }
+
+    std::vector<double> makeScaledDDAngle(const double& factor)
+    {
+
+        std::vector<double> scaledDDAngle;
+
+        if(ddangle.size() > 0)
+        {
+            scaledDDAngle = ddangle;
+
+            if ( (factor-1.0) < 0.0000000001 &&
+                 (1.0-factor) < 0.0000000001)
+            {
+                return scaledDDAngle;
+            }
+
+            for(size_t i = 0; i < scaledDDAngle.size(); i++)
+                scaledDDAngle[i] *= factor;
+        }
+
+        return scaledDDAngle;
+    }
+
+    /// OTHER
     void info() override {
-        std::cout << "oscillation object \nsize = ";
+        std::cout << "Oscillation object \nsize = ";
         std::cout << this->size() << std::endl;
     }
 };
