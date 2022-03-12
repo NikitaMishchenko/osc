@@ -31,18 +31,18 @@
 		<Compiler>
 			<Add option="-Wall" />
 		</Compiler>
-		<Unit filename="AngleHistory.h" />
-		<Unit filename="fft/fftw_impl.h" />
-		<Unit filename="main.cpp" />
-		<Unit filename="options.cpp" />
-		<Unit filename="options.h" />
-		<Unit filename="oscillation/cut_oscillation_file.h" />
-		<Unit filename="oscillation_basic.h" />
-		<Unit filename="periods/periods_base.h" />
-		<Unit filename="tr_rod_model_params" />
-		<Unit filename="tr_rod_model_params.h" />
-		<Unit filename="wt_flow.h" />
-		<Unit filename="wt_oscillation.h" />
+		<Unit filename="src/fft/fftw_impl.h" />
+		<Unit filename="src/flow/wt_flow.cpp" />
+		<Unit filename="src/flow/wt_flow.h" />
+		<Unit filename="src/main.cpp" />
+		<Unit filename="src/model/tr_rod_model_params.h" />
+		<Unit filename="src/options.cpp" />
+		<Unit filename="src/options.h" />
+		<Unit filename="src/oscillation/AngleHistory.h" />
+		<Unit filename="src/oscillation/cut_oscillation_file.h" />
+		<Unit filename="src/oscillation/oscillation_basic.h" />
+		<Unit filename="src/oscillation/wt_oscillation.h" />
+		<Unit filename="src/periods/periods_base.h" />
 		<Extensions>
 			<lib_finder disable_auto="1" />
 		</Extensions>
