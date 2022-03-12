@@ -9,7 +9,7 @@
 #include <math.h>
 #include <vector>
 
-#include "../oscillation_basic.h"
+#include "../oscillation/oscillation_basic.h"
 
 
 const double PI = 3.14159265359;

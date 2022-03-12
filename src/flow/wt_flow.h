@@ -3,7 +3,6 @@
 #include <math.h>
 
 
-
 namespace wt_flow
 {
     const double T0_KELVIN = 273.15;
@@ -101,7 +100,7 @@ namespace wt_flow
 
             if (!fin.is_open())
             {
-                std::cerr << "flow: can't open file" << fileName << "\n";
+                std::cerr << "flow: can't open file " << fileName << "\n";
                 return false;
             }
 
@@ -115,6 +114,86 @@ namespace wt_flow
                 >> buff_s >>  buff_s >> m_rho;
 
             fin.close();
+
+            return true;
+        }
+
+        //namespace
+        //{
+            bool parsedContains(const std::string& str)
+            {
+                return (
+                        (str.find("N")  != std::string::npos) &&
+                        (str.find("Re") != std::string::npos) &&
+                        (str.find("Q")  != std::string::npos) &&
+                        (str.find("N")  != std::string::npos) &&
+                        (str.find("t1") != std::string::npos) &&
+                        (str.find("t1") != std::string::npos)
+                        );
+            }
+        //} // namespace
+
+        bool parsePTLfile(const std::string& fileName)
+        {
+            std::cout << "parsePTLfile:: started\n";
+            std::ifstream fin(fileName);
+
+            std::cin.get();
+
+            if (!fin.is_open())
+            {
+                std::cerr << "Can't open file! aborting\n";
+                return false;
+            }
+
+            std::cout << "parsePTLfile:: file " << fileName << " is opened\n";
+            std::cin.get();
+
+            std::string buff_s;
+
+            int counter = 1;
+            while (!parsedContains(buff_s))
+            {
+                std::getline(fin, buff_s);
+                std::cout << "stringNo = " << counter++ << "\n";
+                std::cout << buff_s << "\n";
+                std::cin.get();
+            }
+
+            std::cout << "STOPED\n";
+            std::cin.get();
+
+            std::vector<double> Re;
+            std::vector<double> q;
+            double buff_d;
+
+            /**
+            *   TODO
+            *   save time
+            *   make special object
+            *   make connection to *name*_flow file -> find flow parameters during test period
+            */
+
+            do
+            {
+                fin >> buff_s >> buff_d;
+                    Re.push_back(buff_d);
+                fin >> buff_d;
+                    q.push_back(buff_d);
+                fin >> buff_s >> buff_s;
+
+            }
+            while( buff_s != "______________________________________________________________________________________");
+
+            fin.close();
+
+            std::ofstream fout(fileName + "_parsed");
+            for(size_t i = 0; i < Re.size(); i++)
+            {
+                std::cout << Re.at(i) << "\t" << q.at(i) << "\n";
+                fout << Re.at(i) << "\t" << q.at(i) << "\n";
+            }
+            fout.close();
 
             return true;
         }

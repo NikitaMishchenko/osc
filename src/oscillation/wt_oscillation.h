@@ -3,8 +3,8 @@
 #include <utility>
 
 #include "oscillation_basic.h"
-#include "tr_rod_model_params.h"
-#include "wt_flow.h"
+#include "../model/tr_rod_model_params.h"
+#include "../flow/wt_flow.h"
 
 class WtOscillation
 {

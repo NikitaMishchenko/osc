@@ -34,7 +34,7 @@ public:
 
     void readme()
     {
-        std::cout << "\nReadme"
+        std::cout << "\nReadme\n"
             << "\t-m Perods -f filename -args single_arg\n"
             << "\t\tfilename raw file 1-st row - time, 2-nd row - angle\n"
             << "\t\ttsingle_arg - shift of angle (could be ><=0)\n"

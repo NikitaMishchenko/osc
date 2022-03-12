@@ -1,12 +1,12 @@
 #include <string>
 #include <utility>
 
-#include "oscillation_basic.h"
+#include "oscillation/oscillation_basic.h"
 #include "fft/fftw_impl.h"
 #include "periods/periods_base.h"
 #include "oscillation/cut_oscillation_file.h"
 #include "options.h"
-#include "wt_oscillation.h"
+#include "oscillation/wt_oscillation.h"
 
 const double Pi = 3.14159265359;
 
@@ -219,8 +219,10 @@ int main(int argc, char * argv[])
         wtTest.saveMzAmplitudeData(fileName + "_mz_amplitude");
 
 
-
     }
+
+    wt_flow::Flow flow;
+    flow.parsePTLfile("test.ptl");
 
     std::cout << "procedures performed! status: success\n";
     return 0;
