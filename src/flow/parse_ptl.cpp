@@ -21,15 +21,14 @@ namespace wt_flow
                 N_smth_Tx_POb_PC_M_AP_AI_P0_M_pkt_ls_t1_t2 = 1,
                 N_pkt_r_pKD_UP_AL_ALF_M_M_r_M_ls_t1_t2,
                 N_Re_Q_t1_t2
-
         };
+
 
         /**
         *   Содержит строку с описанием таблицы (по ней определяется начало данных таблицы)
         */
         bool parsedContains(const std::string& str, const int table)
         {
-            //std::cout << "parsedContains(): string = " << str << ", table = " << table << "\n";
             /**
             *   make special object of each table to perform better parsing
             *   ex: table discription, tavble, ended, tableDtat(data1, data2, etc...)
@@ -37,7 +36,6 @@ namespace wt_flow
             if (N_smth_Tx_POb_PC_M_AP_AI_P0_M_pkt_ls_t1_t2 == table)
             return (
                     (str.find("N")  != std::string::npos) &&
-                    //(str.find("ñèíõð") != std::string::npos) &&
                     (str.find("TX")  != std::string::npos) &&
                     (str.find("P0b")  != std::string::npos) &&
                     (str.find("PC_M") != std::string::npos) &&
@@ -46,9 +44,7 @@ namespace wt_flow
                     (str.find("P0_M") != std::string::npos) &&
                     (str.find("pkt_ls") != std::string::npos) &&
                     (str.find("t1") != std::string::npos) &&
-                    //(str.find("ñåê") != std::string::npos) &&
                     (str.find("t2") != std::string::npos)
-                    //(str.find("ñåê") != std::string::npos)
                     );
 
             if (N_pkt_r_pKD_UP_AL_ALF_M_M_r_M_ls_t1_t2 == table)
@@ -66,7 +62,6 @@ namespace wt_flow
                     (str.find("t2") != std::string::npos)
                     );
 
-
             if (N_Re_Q_t1_t2 == table)
             return (
                     (str.find("N")  != std::string::npos) &&
@@ -81,6 +76,7 @@ namespace wt_flow
         }
     } // namespace
 
+
     void parseToTableBegining(std::ifstream& fin, const int ptlTableDiscription, int& counter)
     {
         std::string buff_s;
@@ -91,12 +87,14 @@ namespace wt_flow
         }
     }
 
+
     void skipStrings(std::ifstream& fin, const int skipCounter)
     {
         std::string buff_s;
         for (int i = 0; i < skipCounter; i++)
             std::getline(fin, buff_s);
     }
+
 
     /**
     *   Parse .ptl file (T-313 wt protocol)
@@ -113,7 +111,9 @@ namespace wt_flow
         }
         std::cout << "parsePTLfile:: file " << fileName << " is opened\n";
 
-
+        ////////////////////////////////////////////////////////////////////////////////////////
+        /// time stamp of Angle Polling
+        ////////////////////////////////////////////////////////////////////////////////////////
         std::string buff_s;
         int counter = 1;
         parseToTableBegining(fin, N_smth_Tx_POb_PC_M_AP_AI_P0_M_pkt_ls_t1_t2, counter);
@@ -199,22 +199,15 @@ namespace wt_flow
         }
 
 
-
         ///////////////////////////////////////////////////////////////////////////////////////////////////////
         /// Re, Q, t
         ///////////////////////////////////////////////////////////////////////////////////////////////////////
         parseToTableBegining(fin, N_Re_Q_t1_t2, counter);
 
-
         std::vector<double> Re;
         std::vector<double> q;
         std::vector<double> t;
 
-            /**
-            *   TODO
-            *   make special object
-            *   make connection to *name*_flow file -> find flow parameters during test period
-            */
 
         std::ofstream fout(fileName + "_parsed");
         int testCounts = 0;
@@ -228,11 +221,9 @@ namespace wt_flow
             fin >> buff_s; // t2
 
 
-
             if (buff_t1 > timeAnglePolling.front() &&
                 buff_t1 < timeAnglePolling.back())
             {
-                std::cout << buff_t1 << " " << timeAnglePolling.front() << " " << timeAnglePolling.back() << "\n";
                 /// CAUTION!!!
                 q.push_back(buff_q*GRAVITATIONAL_ACCELERATION);
                 Re.push_back(buff_Re);
@@ -246,7 +237,6 @@ namespace wt_flow
                 testCounts++;
                 if (testCounts > maxTestCountsScinceAnglePolling)
                 {
-                    std::cout << "Reached max test counts = " << testCounts << "!\n";
                     break;
                 }
             }
@@ -256,11 +246,6 @@ namespace wt_flow
         fin.close();
         fout.close();
 
-        std::cout << "Got flow data length = " << q.size() << "\n";
-
-        /// fit flow
-        //auto const count = static_cast<float>(v.size());
-        //return std::reduce(v.begin(), v.end()) / count;
 
         /// fit result flow
         flowData.setDynamicPressure(std::reduce(q.begin(), q.begin()+testCounts) / testCounts);
@@ -271,7 +256,6 @@ namespace wt_flow
 
         flowData.calculateVelocity();
         flowData.calculateDensity();
-
 
         return true;
     }

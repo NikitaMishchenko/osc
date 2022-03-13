@@ -218,13 +218,21 @@ int main(int argc, char * argv[])
 
         wtTest.getMzAmplitudeIndexes();
         wtTest.saveMzAmplitudeData(fileName + "_mz_amplitude");
-
-
     }
 
-    wt_flow::Flow flow;
-    wt_flow::parsePTLfile("test.ptl", flow, 5);
-    flow.saveFile("test_flow");
+
+    if ("flow" == mode)
+    {
+        wt_flow::Flow flow;
+        if( wt_flow::parsePTLfile(fileName + ".ptl", flow, 5))
+        {
+            flow.saveFile(fileName + ".flow");
+            std::cout << "File " << fileName << " parsed: success\n";
+        }
+        else
+            std::cerr << "File " << fileName << " parsed: failed\n";
+    }
+
 
     std::cout << "procedures performed! status: success\n";
     return 0;

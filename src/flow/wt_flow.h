@@ -79,7 +79,6 @@ namespace wt_flow
             if(m_T0 && m_mach)
             {
                 m_velocity = 20.04*m_mach*sqrt((m_T0 + T0_KELVIN)/(1.0 + 0.2*m_mach*m_mach));
-                std::cout << "m_velocity = " << m_velocity << "\n";
                 return true;
             }
 

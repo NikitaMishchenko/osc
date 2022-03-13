@@ -54,7 +54,10 @@ namespace wt_flow
         // mach = *mach* T0  = *T0* rho = *rho*
         fin
             >> buff_s >> buff_s >> m_mach
+            >> buff_s >> buff_s >> m_reynolds
             >> buff_s >> buff_s >> m_T0
+            >> buff_s >> buff_s >> m_velocity
+            >> buff_s >> buff_s >> m_dynamicPressure
             >> buff_s >> buff_s >> m_rho;
 
         fin.close();
@@ -74,9 +77,11 @@ namespace wt_flow
 
         // mach = *mach* T0  = *T0* rho = *rho*
         fout
-            << "mach" << " = " << m_mach << "\n"
-            << "T0"   << " = " << m_T0   << "\n"
-            << "rho"  << " = " << m_rho  << "\n";
+            << "mach"   << "\t=\t" << m_mach            << "\n"
+            << "Re"     << "\t=\t" << m_reynolds        << "\n"
+            << "T0"     << "\t=\t" << m_T0              << "\n"
+            << "v"      << "\t=\t" << m_velocity        << "\n"
+            << "q"      << "\t=\t" << m_dynamicPressure << "\n";
 
         fout.close();
 
