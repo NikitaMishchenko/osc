@@ -58,7 +58,7 @@ public:
 
             ///ddangle calc
             for(size_t i = 0; i < size(); ++i)
-                dangle.emplace_back(derevativeOrd2N2(angle, h, i));
+                ddangle.emplace_back(derevativeOrd2N2(angle, h, i));
                 /*ddangle.push_back(0);
                 for(size_t i = 1; i < size()-1; ++i)
                 {
@@ -98,6 +98,7 @@ public:
         if (index > 0 && index < func.size()-2)
             return (func.at(index+2) - 2.0*func.at(index+1) + func.at(index))/h/h;
 
+        std::cout << "derevativeOrd2N2:: 0 returned\n";
         return 0;
     }
 
