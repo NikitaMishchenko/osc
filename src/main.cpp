@@ -7,6 +7,7 @@
 #include "oscillation/cut_oscillation_file.h"
 #include "options.h"
 #include "oscillation/wt_oscillation.h"
+#include "flow/parse_ptl.h"
 
 const double Pi = 3.14159265359;
 
@@ -222,7 +223,8 @@ int main(int argc, char * argv[])
     }
 
     wt_flow::Flow flow;
-    flow.parsePTLfile("test.ptl");
+    wt_flow::parsePTLfile("test.ptl", flow, 5);
+    flow.saveFile("test_flow");
 
     std::cout << "procedures performed! status: success\n";
     return 0;

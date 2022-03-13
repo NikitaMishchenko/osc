@@ -32,6 +32,8 @@
 			<Add option="-Wall" />
 		</Compiler>
 		<Unit filename="src/fft/fftw_impl.h" />
+		<Unit filename="src/flow/parse_ptl.cpp" />
+		<Unit filename="src/flow/parse_ptl.h" />
 		<Unit filename="src/flow/wt_flow.cpp" />
 		<Unit filename="src/flow/wt_flow.h" />
 		<Unit filename="src/main.cpp" />

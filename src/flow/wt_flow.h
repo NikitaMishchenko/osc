@@ -11,7 +11,7 @@
 namespace wt_flow
 {
     const double T0_KELVIN = 273.15;
-    const double GREVITATIONAL_ACCELERATION = 9.80665;
+    const double GRAVITATIONAL_ACCELERATION = 9.80665;
 
     class Flow
     {
@@ -35,6 +35,26 @@ namespace wt_flow
             m_dynamicPressure = 1;
         }
 
+        void setDynamicPressure(const double& dynamicPressure)
+        {
+            m_dynamicPressure = dynamicPressure;
+        }
+
+        void setReynolds(const double& reynolds)
+        {
+            m_reynolds = reynolds;
+        }
+
+        void setT0(double T0)
+        {
+            m_T0 = T0;
+        }
+
+        void setMach(double mach)
+        {
+            m_mach = mach;
+        }
+
         /**
         *   @return true if ok
         */
@@ -51,13 +71,30 @@ namespace wt_flow
             return m_dynamicPressure;
         }
 
-
-        // todo remove
-        double calculateVelocityFormula(const double& mach, const double& T0for )
+        /**
+        *   calculete @m_velocity from @m_T0, @m_mach
+        */
+        bool calculateVelocity()
         {
-            return 20.04*mach*sqrt((T0for + T0_KELVIN)/(1.0 + 0.2*mach*mach));
+            if(m_T0 && m_mach)
+            {
+                m_velocity = 20.04*m_mach*sqrt((m_T0 + T0_KELVIN)/(1.0 + 0.2*m_mach*m_mach));
+                std::cout << "m_velocity = " << m_velocity << "\n";
+                return true;
+            }
+
+            return false;
         }
 
+        bool calculateDensity()
+        {
+            if (m_velocity && m_dynamicPressure)
+            {
+                m_rho = m_dynamicPressure/m_velocity/m_velocity * 2.0;
+                return true;
+            }
+            return false;
+        }
 
         /// IO
         void print();
@@ -69,11 +106,8 @@ namespace wt_flow
         *   m_rho
         */
         bool loadFile( const std::string& fileName);
+        bool saveFile( const std::string& fileNmae);
 
-        /// todo make outer function
-        bool parsePTLfile(const std::string& fileName);
     };
-
-
 
 } // namespace wt_flow
