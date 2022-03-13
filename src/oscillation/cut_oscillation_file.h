@@ -13,25 +13,28 @@ namespace Oscillation_files
     {
         Oscillation A(input_file);
 
-        std::cout << "size of input file = " << A.size() << std::endl;
+        std::cout << "File loaded. Size of input file = " << A.size() << std::endl;
 
         Oscillation R;
 
         std::vector<double>::const_iterator _it = A.time.begin();
 
-        while( *_it < from_time && _it != A.time.end())
+        while( *_it <= from_time && _it != A.time.end())
             _it++;
 
-        //std::vector<double>::const_iterator first = _it;
+        // начальный отсчет
         size_t first_st = _it - A.time.begin();
             std::cout << "from it value = " << *_it << std::endl;
 
-        while( *_it < to_time && _it != A.time.end())
+        // последний отсчет
+        while( *_it <= to_time && _it != A.time.end())
             _it++;
 
         //std::vector<double>::const_iterator last = _it;
-        size_t last_st = _it - A.time.begin()+1;
+        size_t last_st = _it - A.time.begin();
             std::cout << "to it value = " << *_it << std::endl;
+
+        //std::cout << first_st << "\t" << last_st << "\tsize=" << A.size() <<"\n";
 
         R.time.insert(R.time.begin(), A.time.begin()+first_st, A.time.begin()+last_st);
         R.angle.insert(R.angle.begin(), A.angle.begin()+first_st, A.angle.begin()+last_st);

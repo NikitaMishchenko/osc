@@ -21,6 +21,7 @@ public:
             ("mode,m", po::value<std::string>()->default_value("none"),
              " - FFT to perform Fast Furue Transform procedures, P to perform periods, cut - to  cut realisation, All - to perform all procedures will be performed")
             ("file,f", po::value<std::string>()->default_value("file"), " - name of file")
+            ("file2", po::value<std::string>()->default_value(""), " - name of file2")
             ("args,a", po::value<std::vector<double>>()->multitoken()->default_value(std::vector<double>{0}, ""), " - list of args");
     }
 
@@ -58,6 +59,11 @@ public:
     std::string getFileName()
     {
         return value<std::string>("file");
+    }
+
+    std::string getFileName2()
+    {
+        return value<std::string>("file2");
     }
 
     std::vector<double> getArgs()

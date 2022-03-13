@@ -232,6 +232,7 @@ namespace wt_flow
                 fout << t.back() << "\t"
                     << q.back() << "\t"
                     << Re.back() << "\t"
+                    << M_r.at(testCounts) << "\t"
                     << Tx.at(testCounts) << "\n";
 
                 testCounts++;

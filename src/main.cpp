@@ -143,6 +143,7 @@ int main(int argc, char * argv[])
     ///INIT PARAMS
     const std::string mode = opt.getMode();
     const std::string fileName = opt.getFileName();
+    const std::string fileName2 = opt.getFileName2();
     const std::vector<double> extraArguments = opt.getArgs();
 
 
@@ -175,8 +176,10 @@ int main(int argc, char * argv[])
         double timeFrom = extraArguments[0];
         double timeTo = extraArguments[1];
 
+
+        std::string resultFileName = fileName2.empty() ? (fileName + "_t" + std::to_string(timeFrom) + "_" + std::to_string(timeTo)) : fileName2;
         perform_procedure_cutFile(fileName, timeFrom, timeTo,
-                                  fileName + "_t" + std::to_string(timeFrom) + "_" + std::to_string(timeTo));
+                                  resultFileName);
     }
 
 
@@ -232,7 +235,6 @@ int main(int argc, char * argv[])
         else
             std::cerr << "File " << fileName << " parsed: failed\n";
     }
-
 
     std::cout << "procedures performed! status: success\n";
     return 0;

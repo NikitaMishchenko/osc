@@ -41,6 +41,7 @@ public:
                 //std::cout << angle.size() << std::endl;
                 //std::cout << dangle.size() << std::endl;
             dangle.reserve(this->size());
+            ddangle.reserve(this->size());
 
             const double h = time[1] - time[0];
 
@@ -77,6 +78,7 @@ public:
 
     double derevativeOrd1N2(std::vector<double>& func, const double& h, const size_t index)
     {
+        //std::cout << index << " derevative \n";
         // left border
         if (0 == index)
             return (-3.0*func.at(0) + 4.0*func.at(1) - func.at(2))/2.0/h;
@@ -93,7 +95,10 @@ public:
 
     double derevativeOrd2N2(std::vector<double>& func, const double& h, const size_t index)
     {
-        return (func.at(index+2) - 2.0*func.at(index+1) + func.at(index))/h/h;
+        if (index > 0 && index < func.size()-2)
+            return (func.at(index+2) - 2.0*func.at(index+1) + func.at(index))/h/h;
+
+        return 0;
     }
 
     ~Oscillation(){
