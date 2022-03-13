@@ -38,8 +38,6 @@ public:
         std::cout << "angle size = " << angle.size() << "\n";
         if(0 != angle.size())
         {
-                //std::cout << angle.size() << std::endl;
-                //std::cout << dangle.size() << std::endl;
             dangle.reserve(this->size());
             ddangle.reserve(this->size());
 
@@ -48,24 +46,11 @@ public:
             ///dangle calc
             for(size_t i = 0; i < size(); ++i)
                 dangle.emplace_back(derevativeOrd1N2(angle, h, i));
-                /*dangle.push_back(0);
-                for(size_t i = 1; i < size()-1; ++i)
-                {
-                    dangle.push_back(angle[i-1] - angle[i+1]);
-                    dangle[i] /= 2.0*h;
-                }
-                dangle.push_back(0);*/
 
             ///ddangle calc
             for(size_t i = 0; i < size(); ++i)
                 ddangle.emplace_back(derevativeOrd2N2(angle, h, i));
-                /*ddangle.push_back(0);
-                for(size_t i = 1; i < size()-1; ++i)
-                {
-                    ddangle.push_back(dangle[i-1] - dangle[i+1]);
-                    ddangle[i] /= 2.0*h;
-                }
-                ddangle.push_back(0);*/
+
         }
         else
         {

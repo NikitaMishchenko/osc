@@ -41,10 +41,7 @@ namespace Oscillation_files
         R.dangle.insert(R.dangle.begin(), A.dangle.begin()+first_st, A.dangle.begin()+last_st);
         R.ddangle.insert(R.ddangle.begin(), A.ddangle.begin()+first_st, A.ddangle.begin()+last_st);
 
-        std::cout << "size_of_cutt_ file = " << R.size() << std::endl;
-
         R.write(output_file);
-
         return true;
     }
 
