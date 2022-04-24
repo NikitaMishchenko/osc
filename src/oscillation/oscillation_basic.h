@@ -1,18 +1,15 @@
 #pragma once
 
 #include <iostream>
-
 #include <fstream>
-
 #include <vector>
-//#include <deque>
 #include <string>
-
+#include <cstring>
 #include <iterator>
 #include <algorithm>
 
-
 #include "AngleHistory.h"
+#include "oscillation_helpers.h"
 
 enum LOG_MODE{
     LOG_ON,
@@ -194,20 +191,37 @@ public:
     {
         this->clear();
 
-        std::ifstream fin( fileName);
-
-        if( !fin.is_open())
+        if (oscillation_helpers::isOscillationFile(fileName))
         {
-            std::cerr << "filed to open file " << fileName << "\n";
-            return false;
+            std::cout << "loading prepared oscillation file \"" << fileName << "\"\n";
+
+            std::ifstream fin( fileName);
+
+            if( !fin.is_open())
+            {
+                std::cerr << "filed to open file " << fileName << "\n";
+                return false;
+            }
+
+            double tBuff, aBuff, daBuff, ddaBuff;
+            while(!fin.eof())
+            {
+                fin >> tBuff >> aBuff >> daBuff >> ddaBuff;
+
+                this->push_back(tBuff, aBuff, daBuff, ddaBuff);
+            }
         }
-
-        double tBuff, aBuff, daBuff, ddaBuff;
-        while(!fin.eof())
+        else
         {
-            fin >> tBuff >> aBuff >> daBuff >> ddaBuff;
+            std::cout << "loading raw oscillation file \"" << fileName << "\"\n";
 
-            this->push_back(tBuff, aBuff, daBuff, ddaBuff);
+            Oscillation result(fileName);
+
+            // todo rewrite
+            time = result.time;
+            angle = result.angle;
+            dangle = result.dangle;
+            ddangle = result.ddangle;
         }
 
         return true;

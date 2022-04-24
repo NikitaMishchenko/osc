@@ -43,6 +43,7 @@
 		<Unit filename="src/oscillation/AngleHistory.h" />
 		<Unit filename="src/oscillation/cut_oscillation_file.h" />
 		<Unit filename="src/oscillation/oscillation_basic.h" />
+		<Unit filename="src/oscillation/oscillation_helpers.h" />
 		<Unit filename="src/oscillation/wt_oscillation.h" />
 		<Unit filename="src/periods/periods_base.h" />
 		<Extensions>

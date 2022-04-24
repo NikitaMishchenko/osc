@@ -11,10 +11,20 @@
 
 const double Pi = 3.14159265359;
 
+namespace errCode
+{
+    enum codes
+    {
+        SUCCESS     = 0,
+        FAIL        = 1,
+        UNEXPECTED  = 2
+    };
+}
+
 /*
 * Perform FFT procedure via FFTW realization
 */
-void perform_procedure_FFT(const std::string& input_file_name, const std::string& output_file_name, double shiftAngle)
+void performProcedureFft(const std::string& input_file_name, const std::string& output_file_name, double shiftAngle)
 {
     std::cout << "perform_procedure_FFT(" << input_file_name << ", "
                                           << output_file_name << ", "
@@ -66,35 +76,78 @@ void perform_procedure_FFT(const std::string& input_file_name, const std::string
 *    Each period splits into forward a backward movement
 *    (todo) after that gnuplot script creating.
 */
-void perform_procedure_Periods(const std::string& file_name)
+void performProcedurePeriods(const std::string& fileName, const std::string& fileName2, const std::vector<double>& extraArguments)
 {
     std::cout << "periods procedure performing...\n";
 
-    Oscillation D(file_name);
-        if(0 == D.size())
-        {
-            std::cerr << "Empty Oscillation data! Aborting procedure\n";
-            return;
-        }
+    std::ifstream fin();
 
-    D.info();
-    std::cout << "stg\n";
+    Oscillation D;
+    D.loadFile(fileName);
+    if(0 == D.size())
+    {
+       std::cerr << "Empty Oscillation data! Aborting procedure\n";
+       return;
+    }
+
+
+    std::cout << "extra arguments size = " << extraArguments.size() << std::endl;
+
+    int mergeHalfPeriods = 1;
+
+    if (extraArguments.size() > 1)
+    {
+        mergeHalfPeriods = extraArguments.at(1);
+        std::cout << "mergeHalfPeriods = " << mergeHalfPeriods <<  "\n";
+    }
+
 
     std::vector<Oscillation> periodsList;
+
     periodsList = periods::splitPeriods(D);
-    std::cout << periodsList.size() << std::endl;
 
-    for(size_t i = 0; i < periodsList.size(); ++i)
+    std::cout << "Data split into " << periodsList.size() << "periods\n";
+
+    std::string outputFileName = std::string();
+
+    std::ofstream fout;
+
+    std::ofstream fout2(fileName + ".periods");
+
+    for(size_t i = 0; i < periodsList.size();)
     {
-        std::cout << "i = " << i << std::endl;
-        std::cout << periodsList.size() << std::endl;
+        outputFileName = fileName2 + "_" + std::to_string(i);
 
-        std::ofstream fout(std::to_string(i));
-        fout << periodsList.at(i);
+        if (mergeHalfPeriods > 1)
+        {
+            outputFileName += "_" + std::to_string(i + mergeHalfPeriods);
+        }
+
+        outputFileName += "_pi";
+
+        fout.open(outputFileName);
+
+        for (int halfperiodsToFile = 0; (halfperiodsToFile < mergeHalfPeriods && i < periodsList.size()); halfperiodsToFile++)
+        {
+            fout << periodsList.at(i);
+
+            if (i <  periodsList.size()-2)
+            {
+                fout2 << periodsList.at(i).time.at(0) << "\t"
+                        << periodsList.at(i).angle.at(0) << "\t"
+                        << periodsList.at(i).dangle.at(0) << "\t"
+                        << periodsList.at(i).ddangle.at(0) << "\t"
+                        << periodsList.at(i+2).time.at(0) - periodsList.at(i).time.at(0) << "\t"
+                        << 1/(periodsList.at(i+2).time.at(0) - periodsList.at(i).time.at(0)) << "\n";
+            }
+
+            i++;
+        }
 
 
         fout.close();
     }
+    fout2.close();
 }
 
 int perform_procedure_cutFile(const std::string& initialFile, const double timeFrom, const double timeTo, const std::string& finalFile)
@@ -147,6 +200,9 @@ int main(int argc, char * argv[])
     const std::vector<double> extraArguments = opt.getArgs();
 
 
+    int result = errCode::UNEXPECTED;
+
+
     if ("test" == mode)
     {
         std::cout << "performing All procedures\n";
@@ -156,14 +212,15 @@ int main(int argc, char * argv[])
     if ("FFT" == mode)
     {
         std::cout << "performing fft\n";
-        perform_procedure_FFT(fileName, fileName + "_spectrum", extraArguments[0]);
+        performProcedureFft(fileName, fileName + "_spectrum", extraArguments[0]);
+        result = errCode::SUCCESS;
     }
 
-    if ("periods" == mode)
+    if ("periods" == mode || "P" == mode)
     {
         std::cout << "performing Period\n";
-        perform_procedure_Periods(fileName);
-
+        performProcedurePeriods(fileName, fileName2, extraArguments);
+        result = errCode::SUCCESS;
     }
 
     if ("cut" == mode)
@@ -180,6 +237,7 @@ int main(int argc, char * argv[])
         std::string resultFileName = fileName2.empty() ? (fileName + "_t" + std::to_string(timeFrom) + "_" + std::to_string(timeTo)) : fileName2;
         perform_procedure_cutFile(fileName, timeFrom, timeTo,
                                   resultFileName);
+        result = errCode::SUCCESS;
     }
 
 
@@ -221,6 +279,7 @@ int main(int argc, char * argv[])
 
         wtTest.getMzAmplitudeIndexes();
         wtTest.saveMzAmplitudeData(fileName + "_mz_amplitude");
+        result = errCode::SUCCESS;
     }
 
 
@@ -234,10 +293,34 @@ int main(int argc, char * argv[])
         }
         else
             std::cerr << "File " << fileName << " parsed: failed\n";
+        result = errCode::SUCCESS;
     }
 
-    std::cout << "procedures performed! status: success\n";
-    return 0;
+
+    if (result != errCode::SUCCESS)
+    {
+        std::cout << "procedure not performed successfully:\n";
+
+        switch (result)
+        {
+            case errCode::UNEXPECTED:
+                std::cerr << "\tUNEXPECTED errcode\n";
+                break;
+            case errCode::FAIL:
+                std::cerr << "\tFAIL errcode\n";
+                break;
+            default:
+                std::cerr << "err code missing\n";
+                break;
+        }
+        return 1;
+    }
+    else
+    {
+        std::cout << "procedures performed! status: success\n";
+        return 0;
+    }
+
 }
 
 /**

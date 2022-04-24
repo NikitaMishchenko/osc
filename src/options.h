@@ -13,8 +13,8 @@ class Options
 {
 public:
     Options()
-    {
-        descr.reset(new po::options_description("Allowed options"));
+     {
+        descr.reset(new po::options_description("Base_Oscillation_Analisys build 23.04.22\nAllowed options"));
 
         descr->add_options()
             ("help,h", " - show basic info, help etc.")
@@ -36,9 +36,11 @@ public:
     void readme()
     {
         std::cout << "\nReadme\n"
-            << "\t-m Perods -f filename -args single_arg\n"
+            << "\t-m Perods -f filename --file2 filename2 -args first_arg second_arg\n"
             << "\t\tfilename raw file 1-st row - time, 2-nd row - angle\n"
+            << "\t\tfilename2 output file. time/ange/dange/ddangle\n"
             << "\t\ttsingle_arg - shift of angle (could be ><=0)\n"
+            << "\t\tsecond_arg - number of halfperiods in file\n"
             << "\n"
 
             << "\t-m cut -f filename -args first_arg second_arg\n"

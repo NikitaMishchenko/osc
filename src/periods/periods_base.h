@@ -19,8 +19,8 @@ namespace periods ///caclulate periods
     {
         std::cout << "split periods\n";
 
-        Oscillation buff;
         std::vector<Oscillation> result;
+        Oscillation buff;
 
         buff.time.reserve(D.size());
         buff.angle.reserve(D.size());
@@ -44,16 +44,16 @@ namespace periods ///caclulate periods
                     buff.dangle.push_back(D.dangle[i]);
                     buff.ddangle.push_back(D.ddangle[i]);
 
-                    //std::cout << "buff = " << buff.time[i] << std::endl;
+                    //std::cout << "buff time = " << buff.time[i] << std::endl;
                     //std::cout << "buff size = " << buff.size() << std::endl;
 
                     i++;
                 }
 
-                std::cout << buff.size() << std::endl;
+                //std::cout << "buff.size() = " << buff.size() << std::endl;
                 result.push_back(buff);
-                std::cout << "resultlist size = " << result.size() << std::endl;
-                std::cout << "last result size = " << result[periodCounter].size() << std::endl;
+                //std::cout << "resultlist size = " << result.size() << std::endl;
+                //std::cout << "last result size = " << result[periodCounter].size() << std::endl;
                 periodCounter++;
 
                 buff.clear();
@@ -69,28 +69,29 @@ namespace periods ///caclulate periods
                     buff.dangle.push_back(D.dangle[i]);
                     buff.ddangle.push_back(D.ddangle[i]);
 
-                    //std::cout << "buff = " << buff.time[i] << std::endl;
+                    //std::cout << "buff time = " << buff.time[i] << std::endl;
                     //std::cout << "buff size = " << buff.size() << std::endl;
 
                     i++;
                 }
 
-                std::cout << buff.size() << std::endl;
+                //std::cout << "buff.size() =" << buff.size() << std::endl;
                 result.push_back(buff);
-                std::cout << "resultlist size = " << result.size() << std::endl;
-                std::cout << "last result size = " << result[periodCounter].size() << std::endl;
+                //std::cout << "resultlist size = " << result.size() << std::endl;
+                //std::cout << "last result size = " << result[periodCounter].size() << std::endl;
                 periodCounter++;
 
                 buff.clear();
             }
 
+
             //std::cout << "****\n";
         }
 
-        for(size_t i = 0; i < result.at(0).time.size(); ++i)
-            std::cout << "i = " << i << " " << result.at(0).time.at(i) << std::endl;
+        //for(size_t i = 0; i < result.at(0).time.size(); ++i)
+        //    std::cout << "i = " << i << " " << result.at(0).time.at(i) << std::endl;
 
-        std::cout << "end of loop\n";
+        //std::cout << "end of loop\n";
         return result;
     }
 
