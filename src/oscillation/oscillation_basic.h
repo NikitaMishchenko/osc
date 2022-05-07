@@ -11,11 +11,12 @@
 #include "AngleHistory.h"
 #include "oscillation_helpers.h"
 
-enum LOG_MODE{
+
+enum LOG_MODE
+{
     LOG_ON,
     LOG_OFF
 };
-
 
 
 class Oscillation : public AngleHistory
@@ -29,7 +30,39 @@ public:
         std::cerr << "default Oscillation()\n";
     }
 
-    Oscillation(const std::string file_name): AngleHistory(file_name)//, dangle()
+
+    Oscillation(const AngleHistory& angleHistory) : AngleHistory(angleHistory)
+    {
+        std::cout << "Oscillation() constructor\n";
+        std::cout << "angle size = " << angle.size() << "\n";
+
+        if(0 != angle.size())
+        {
+            dangle.reserve(this->size());
+            ddangle.reserve(this->size());
+
+            const double h = time[1] - time[0];
+
+            ///dangle calc
+            for(size_t i = 0; i < size(); ++i)
+                dangle.emplace_back(derevativeOrd1N2(angle, h, i));
+
+            ///ddangle calc
+            for(size_t i = 0; i < size(); ++i)
+                ddangle.emplace_back(derevativeOrd2N2(angle, h, i));
+
+        }
+        else
+        {
+            std::cout << "empty AngleHistory -> empty Oscillation \n";
+            dangle.reserve(0);
+            ddangle.reserve(0);
+        }
+
+    }
+
+
+    Oscillation(const std::string file_name) : AngleHistory(file_name)
     {
         std::cout << "Oscillation( " << file_name << ") constructor\n";
         std::cout << "angle size = " << angle.size() << "\n";
@@ -55,7 +88,6 @@ public:
             dangle.reserve(0);
             ddangle.reserve(0);
         }
-
     }
 
     double derevativeOrd1N2(std::vector<double>& func, const double& h, const size_t index)
