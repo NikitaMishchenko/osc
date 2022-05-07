@@ -1,3 +1,13 @@
 bin/
 obj/
-*layout
+*.layout
+*.depend
+fout
+fout2
+input
+0
+1
+2
+3
+A
+BuildDir/
