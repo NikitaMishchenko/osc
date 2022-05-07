@@ -19,7 +19,7 @@ public:
         descr->add_options()
             ("help,h", " - show basic info, help etc.")
             ("mode,m", po::value<std::string>()->default_value("none"),
-             " - FFT to perform Fast Furue Transform procedures, P to perform periods, cut - to  cut realisation, All - to perform all procedures will be performed")
+             "P to perform periods, cut - to  cut realisation")
             ("file,f", po::value<std::string>()->default_value("file"), " - name of file")
             ("file2", po::value<std::string>()->default_value(""), " - name of file2")
             ("args,a", po::value<std::vector<double>>()->multitoken()->default_value(std::vector<double>{0}, ""), " - list of args");
@@ -48,7 +48,6 @@ public:
             << "\t\targs first_arg - cut from, second_arg - cut to\n"
             << "\n"
 
-            << "\t-m FFT -f filename\n"
             << "\t\tfilename - file in oscillation-format\n"
             << "\n";
     }

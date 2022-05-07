@@ -21,53 +21,6 @@ namespace errCode
     };
 }
 
-/*
-* Perform FFT procedure via FFTW realization
-*/
-void performProcedureFft(const std::string& input_file_name, const std::string& output_file_name, double shiftAngle)
-{
-    std::cout << "perform_procedure_FFT(" << input_file_name << ", "
-                                          << output_file_name << ", "
-                                          << shiftAngle << "\n";
-
-    std::cout << "init Oscillation\n";
-    Oscillation A;//(input_file_name);
-
-    if (!A.loadFile(input_file_name))
-    {
-        std::cout << "failed to Load Oscillation!\n";
-        return;
-    }
-
-    A.info();
-
-    // todo calculate angle
-    A.move_angle(shiftAngle);
-
-
-    osc::fftw::spectrum sp(A.size());
-
-    std::cout << "Performing FFTW\n";
-    osc::fftw::perfom_fftw(A, sp);
-
-
-        std::cout << "sp size = " << sp.amplitude.size() << std::endl;
-
-
-        std::ofstream fout(output_file_name);
-            for(size_t i = 0; i < sp.amplitude.size(); i++ )
-            {
-
-                fout << i/Pi << "\t"
-                        << sp.amplitude[i] << "\t"
-                        << sp.real[i] << "\t"
-                        << sp.img[i] << "\t\n";
-            }
-        fout.close();
-}
-
-
-
 /**
 *    Data loaded as Oscillation object. So the the initial data is y and t. And while Oscillation constructed
 *    y' and y'' is calculating.
@@ -209,12 +162,6 @@ int main(int argc, char * argv[])
         testFunc();
     }
 
-    if ("FFT" == mode)
-    {
-        std::cout << "performing fft\n";
-        performProcedureFft(fileName, fileName + "_spectrum", extraArguments[0]);
-        result = errCode::SUCCESS;
-    }
 
     if ("periods" == mode || "P" == mode)
     {
