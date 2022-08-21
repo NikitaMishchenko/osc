@@ -11,11 +11,12 @@
 #include "AngleHistory.h"
 #include "oscillation_helpers.h"
 
-enum LOG_MODE{
+
+enum LOG_MODE
+{
     LOG_ON,
     LOG_OFF
 };
-
 
 
 class Oscillation : public AngleHistory
@@ -24,15 +25,19 @@ public:
     std::vector<double> dangle;
     std::vector<double> ddangle;
 
+
+
     Oscillation(): AngleHistory(), dangle(), ddangle()
     {
         std::cerr << "default Oscillation()\n";
     }
 
-    Oscillation(const std::string file_name): AngleHistory(file_name)//, dangle()
+
+    Oscillation(const AngleHistory& angleHistory) : AngleHistory(angleHistory)
     {
-        std::cout << "Oscillation( " << file_name << ") constructor\n";
+        std::cout << "Oscillation() constructor\n";
         std::cout << "angle size = " << angle.size() << "\n";
+
         if(0 != angle.size())
         {
             dangle.reserve(this->size());
@@ -58,17 +63,62 @@ public:
 
     }
 
+
+    Oscillation(const std::string file_name) : AngleHistory(file_name)
+    {
+        std::cout << "Oscillation( " << file_name << ") constructor\n";
+        std::cout << "angle size = " << angle.size() << "\n";
+        this->recalculate();
+    }
+
+    void recalculate()
+    {
+        if(0 != angle.size())
+        {
+            dangle.clear();
+            ddangle.clear();
+
+            dangle.reserve(this->size());
+            ddangle.reserve(this->size());
+
+            const double h = time[1] - time[0];
+
+            ///dangle calc
+            for(size_t i = 0; i < size(); ++i)
+                dangle.emplace_back(derevativeOrd1N2(angle, h, i));
+
+            ///ddangle calc
+            for(size_t i = 0; i < size(); ++i)
+                ddangle.emplace_back(derevativeOrd2N2(angle, h, i));
+
+        }
+        else
+        {
+            std::cout << "empty AngleHistory -> empty Oscillation \n";
+            dangle.reserve(0);
+            ddangle.reserve(0);
+        }
+    }
+
     double derevativeOrd1N2(std::vector<double>& func, const double& h, const size_t index)
     {
         //std::cout << index << " derevative \n";
+        double d = 0.0;
         // left border
         if (0 == index)
-            return (-3.0*func.at(0) + 4.0*func.at(1) - func.at(2))/2.0/h;
+        {
+            d = (-3.0*func.at(0) + 4.0*func.at(1) - func.at(2))/2.0/h;
+            //std::cout << d << "\n";
+            return d;
+        }
 
         // center
         if (index > 0 && index < func.size()-1)
-            return (func.at(index+1) - func.at(index-1))/2.0/h; // ~h^2/6(f''')
-
+        {
+            d =  (func.at(index+1) - func.at(index-1))/2.0/h; // ~h^2/6(f''')
+            //std::cout << d << "\n";
+            return d;
+        }
         //if (index == func.size()-1)
         //    return (func.at())
         // right border
@@ -167,7 +217,7 @@ public:
 
     }
 
-    void write(std::string file_name)
+    void write(const std::string& file_name)
     {
         std::cout << "Oscillation write(file_name)\n";
         this->info();
@@ -187,42 +237,112 @@ public:
     /*
     *   Load Oscillation file saved in 'write"-form
     */
-    bool loadFile(const std::string& fileName)
+    bool loadFile(const std::string& fileName,
+                  oscillation_helpers::FileType mode = oscillation_helpers::DEFAULT)
     {
         this->clear();
 
-        if (oscillation_helpers::isOscillationFile(fileName))
+
+        switch (mode)
         {
-            std::cout << "loading prepared oscillation file \"" << fileName << "\"\n";
-
-            std::ifstream fin( fileName);
-
-            if( !fin.is_open())
+            case oscillation_helpers::DEFAULT:
             {
-                std::cerr << "filed to open file " << fileName << "\n";
-                return false;
+                // try to analyze file
+                if (oscillation_helpers::isOscillationFile(fileName)) // todo check for words in string
+                    mode = oscillation_helpers::TIME_ANGLE_DANGLE_DDANGLE;
+                else
+                    mode = oscillation_helpers::TIME_ANGLE;
             }
 
-            double tBuff, aBuff, daBuff, ddaBuff;
-            while(!fin.eof())
+            case oscillation_helpers::TIME_ANGLE:
             {
-                fin >> tBuff >> aBuff >> daBuff >> ddaBuff;
+                std::cout << "LOADING " << "TIME_ANGLE\n";
+                std::cout << "loading raw oscillation file \"" << fileName << "\"\n";
 
-                this->push_back(tBuff, aBuff, daBuff, ddaBuff);
+                Oscillation result(fileName);
+
+                // todo rewrite
+                time = result.time;
+                angle = result.angle;
+                dangle = result.dangle;
+                ddangle = result.ddangle;
+
+                break;
+            }
+            case oscillation_helpers::TIME_ANGLE_DANGLE:
+            {
+                std::cout << "LOADING " << "TIME_ANGLE_DANGLE\n";
+                std::ifstream fin( fileName);
+
+                if( !fin.is_open())
+                {
+                    std::cerr << "failed to open file " << fileName << "\n";
+                    return false;
+                }
+
+                double tBuff, aBuff, daBuff;
+                while(!fin.eof())
+                {
+                    fin >> tBuff >> aBuff >> daBuff;
+
+                    this->push_back(tBuff, aBuff, daBuff, 0);
+                }
+
+                double h = this->time.at(1) - time.at(0);
+
+                ///ddangle calc
+                //for(size_t i = 0; i < size(); ++i)
+                //    ddangle.emplace_back(derevativeOrd2N2(angle, h, i));
+
+                ///dangle calc
+                double d = 0.0;
+                std::cout << "SIZE = " << size() << "\n";
+                ddangle.clear();
+                ddangle.reserve(size());
+                for(size_t i = 0; i < size(); ++i)
+                {
+                    d = derevativeOrd1N2(dangle, h, i);
+                    //std::cout << "result = " << d << "\n";
+                    ddangle.emplace_back(d);
+                }
+
+                for(size_t i = 0; i < size(); ++i)
+                {
+
+                    std::cout << "ddangle = " << ddangle.at(i) << "\n";
+                }
+                fin.close();
+                break;
+            }
+            case oscillation_helpers::TIME_ANGLE_DANGLE_DDANGLE:
+            {
+                std::cout << "LOADING " << "TIME_ANGLE_DANGLE_DDANGLE\n";
+                std::cout << "loading prepared oscillation file \"" << fileName << "\"\n";
+
+                std::ifstream fin( fileName);
+
+                if( !fin.is_open())
+                {
+                    std::cerr << "failed to open file " << fileName << "\n";
+                    return false;
+                }
+
+                double tBuff, aBuff, daBuff, ddaBuff;
+                while(!fin.eof())
+                {
+                    fin >> tBuff >> aBuff >> daBuff >> ddaBuff;
+
+                    //std::cout << tBuff << "\t" << aBuff << "\t" << daBuff << "\n" << ddaBuff << "\n";
+
+                    this->push_back(tBuff, aBuff, daBuff, ddaBuff);
+                }
+
+                fin.close();
+                break;
             }
         }
-        else
-        {
-            std::cout << "loading raw oscillation file \"" << fileName << "\"\n";
 
-            Oscillation result(fileName);
-
-            // todo rewrite
-            time = result.time;
-            angle = result.angle;
-            dangle = result.dangle;
-            ddangle = result.ddangle;
-        }
+        this->info();
 
         return true;
     }

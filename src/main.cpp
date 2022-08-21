@@ -1,13 +1,13 @@
 #include <string>
 #include <utility>
 
+#include "filtration/butterworth_filter.h"
+#include "flow/parse_ptl.h"
 #include "oscillation/oscillation_basic.h"
-#include "fft/fftw_impl.h"
-#include "periods/periods_base.h"
 #include "oscillation/cut_oscillation_file.h"
 #include "options.h"
 #include "oscillation/wt_oscillation.h"
-#include "flow/parse_ptl.h"
+#include "periods/periods_base.h"
 
 const double Pi = 3.14159265359;
 
@@ -36,7 +36,7 @@ void performProcedurePeriods(const std::string& fileName, const std::string& fil
     std::ifstream fin();
 
     Oscillation D;
-    D.loadFile(fileName);
+    D.loadFile(fileName, oscillation_helpers::TIME_ANGLE_DANGLE_DDANGLE);
     if(0 == D.size())
     {
        std::cerr << "Empty Oscillation data! Aborting procedure\n";
@@ -51,7 +51,7 @@ void performProcedurePeriods(const std::string& fileName, const std::string& fil
     if (extraArguments.size() > 1)
     {
         mergeHalfPeriods = extraArguments.at(1);
-        std::cout << "mergeHalfPeriods = " << mergeHalfPeriods <<  "\n";
+        std::cout << "mergeHalfPeriods count to merge = " << mergeHalfPeriods <<  "\n";
     }
 
 
@@ -114,15 +114,6 @@ int perform_procedure_cutFile(const std::string& initialFile, const double timeF
 }
 
 
-
-void testFunc()
-{
-    Oscillation A("A");
-    std::vector<Oscillation> arr_osc;
-    arr_osc.push_back(A);
-    arr_osc[0].write("A_osc");
-}
-
 /*
 TODO
  фильтрация, опции, нормальный функционал, деление на логику и работу с файлами
@@ -147,8 +138,8 @@ int main(int argc, char * argv[])
 
 
     ///INIT PARAMS
-    const std::string mode = opt.getMode();
-    const std::string fileName = opt.getFileName();
+    const std::string mode      = opt.getMode();
+    const std::string fileName  = opt.getFileName();
     const std::string fileName2 = opt.getFileName2();
     const std::vector<double> extraArguments = opt.getArgs();
 
@@ -156,14 +147,72 @@ int main(int argc, char * argv[])
     int result = errCode::UNEXPECTED;
 
 
+    if ("test2" == mode)
+    {
+        std::cout << "test2\n";
+
+        Oscillation osc;
+
+        osc.loadFile(fileName, oscillation_helpers::TIME_ANGLE_DANGLE);
+
+        osc.write(fileName2);
+
+
+        result = errCode::SUCCESS;
+    }
+
     if ("test" == mode)
     {
-        std::cout << "performing All procedures\n";
-        testFunc();
+        std::cout << "test mpode!\n";
+
+        //calculateBatterworthCoefficients(1, 30, 1, 5);
+        //filters::calculateCoeff(1, 30, 30, 90);
+
+        ///std::vector<double> theta = filters::calculatePolynimCoeff(1, 30, 1, 5);
+
+
+        filters::batterworth_3::Batterworth3Filter batterworth3Filter;
+        batterworth3Filter.main(3, 0.1);
+
+
+        std::ofstream fout("input");
+
+        const double dt = 0.1;
+
+        double w = 0.1;
+        std::vector<double> input;
+        input.reserve(5000);
+        double t = 0;
+        for (int i = 0; i < 5000; i++)
+        {
+            t = i*dt;
+            input.push_back(sin(w*i*dt));
+
+            fout << t << "\t"
+            << sin(w*t) + 0.2*sin(3.2*w*t + 0.1) + 0.1*sin(5.1*w*t + 0.3)
+            << "\n";
+        }
+
+        fout.close();
+
+        std::vector<double> output;
+        batterworth3Filter.doJob(input, output);
+
+        fout.open("output");
+
+        std::cout << "Saving filtered data " << output.size() <<"\n";
+        for (int i = 0; i < 5000; i++)
+        {
+            fout << i*dt << "\t" << output.at(i) << "\n";
+        }
+
+        fout.close();
+
+        return 0;
     }
 
 
-    if ("periods" == mode || "P" == mode)
+    if ("periods" == mode || "P" == mode || "Periods" == mode)
     {
         std::cout << "performing Period\n";
         performProcedurePeriods(fileName, fileName2, extraArguments);
@@ -178,15 +227,34 @@ int main(int argc, char * argv[])
             return 2;
 
         double timeFrom = extraArguments[0];
-        double timeTo = extraArguments[1];
+        double timeTo   = extraArguments[1];
 
 
-        std::string resultFileName = fileName2.empty() ? (fileName + "_t" + std::to_string(timeFrom) + "_" + std::to_string(timeTo)) : fileName2;
+        const std::string resultFileName = fileName2.empty() ? (fileName + "_t" + std::to_string(timeFrom) + "_" + std::to_string(timeTo)) : fileName2;
         perform_procedure_cutFile(fileName, timeFrom, timeTo,
                                   resultFileName);
         result = errCode::SUCCESS;
     }
 
+
+    if ("recalculate" == mode)
+    {
+        std::cout << "recalculate performing\t";
+
+        Oscillation osc;
+
+        osc.loadFile(fileName);
+
+        osc.recalculate();
+
+        const std::string resultFile = fileName2.empty() ? (fileName + "_recalculate") : fileName2;
+
+        std::cout << "input file: " << fileName << "; outputFile: " << resultFile << "\n";
+
+        osc.write(resultFile);
+
+        result = errCode::SUCCESS;
+    }
 
 
     if ("WT" == mode)

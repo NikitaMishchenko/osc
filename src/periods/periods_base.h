@@ -32,60 +32,49 @@ namespace periods ///caclulate periods
 
         while(i < D.size())
         {
-            //std::cout << periodCounter << std::endl;
+            std::cout << periodCounter << std::endl;
 
             if(D.dangle[i] <= 0)
             {
-                while( D.dangle[i] <= 0.0)
+                while( D.dangle[i] <= 0.0 && i < D.size())
                 {
-                    buff.time.push_back(D.time[i]);
-                    //std::cout << "pushed\t" << D.time[i] << "\t" << buff.time.back() << "\n";
-                    buff.angle.push_back(D.angle[i]);
-                    buff.dangle.push_back(D.dangle[i]);
-                    buff.ddangle.push_back(D.ddangle[i]);
-
-                    //std::cout << "buff time = " << buff.time[i] << std::endl;
-                    //std::cout << "buff size = " << buff.size() << std::endl;
+                    buff.push_back(D.time[i], D.angle[i], D.dangle[i], D.ddangle[i]);
+                    //std::cout << "buff time = " << buff.time[i] << " buff size = " << buff.size() << std::endl;
 
                     i++;
                 }
 
-                //std::cout << "buff.size() = " << buff.size() << std::endl;
+                std::cout << "buff.size() = " << buff.size() << std::endl;
                 result.push_back(buff);
-                //std::cout << "resultlist size = " << result.size() << std::endl;
-                //std::cout << "last result size = " << result[periodCounter].size() << std::endl;
+                std::cout << "resultlist size (cout of the halfperiods) = " << result.size() << std::endl;
+                std::cout << "last result size (data counts in period) = " << result[periodCounter].size() << std::endl;
                 periodCounter++;
 
                 buff.clear();
             }
 
 
-            if(D.dangle[i] >= 0.0)
+            if(D.dangle[i] > 0.0)
             {
-                while( D.dangle[i] >= 0.0)
+                while( D.dangle[i] >= 0.0 && i < D.size())
                 {
-                    buff.time.push_back(D.time[i]);
-                    buff.angle.push_back(D.angle[i]);
-                    buff.dangle.push_back(D.dangle[i]);
-                    buff.ddangle.push_back(D.ddangle[i]);
-
-                    //std::cout << "buff time = " << buff.time[i] << std::endl;
-                    //std::cout << "buff size = " << buff.size() << std::endl;
+                    buff.push_back(D.time[i], D.angle[i], D.dangle[i], D.ddangle[i]);
+                    //std::cout << "buff time = " << buff.time[i] << " buff size = " << buff.size() << std::endl;
 
                     i++;
                 }
 
-                //std::cout << "buff.size() =" << buff.size() << std::endl;
+                std::cout << "buff.size() =" << buff.size() << std::endl;
                 result.push_back(buff);
-                //std::cout << "resultlist size = " << result.size() << std::endl;
-                //std::cout << "last result size = " << result[periodCounter].size() << std::endl;
+                std::cout << "resultlist size (cout of the halfperiods) = " << result.size() << std::endl;
+                std::cout << "last result size (data counts in period) = " << result[periodCounter].size() << std::endl;
                 periodCounter++;
 
                 buff.clear();
             }
 
 
-            //std::cout << "****\n";
+            std::cout << "****" << i << "****\n";
         }
 
         //for(size_t i = 0; i < result.at(0).time.size(); ++i)
