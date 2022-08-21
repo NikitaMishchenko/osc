@@ -16,17 +16,17 @@ public:
     }
 
     /// GET
-    double getL()
+    double getL() const
     {
         return m_refLength;
     }
 
-    double getS()
+    double getS() const
     {
         return m_refSquare;
     }
 
-    double getI()
+    double getI() const
     {
         return m_momentOfInertia;
     }

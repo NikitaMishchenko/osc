@@ -2,33 +2,38 @@
 
 #include <utility>
 
+#include <vector>
+
 #include "oscillation_basic.h"
 #include "../model/tr_rod_model_params.h"
 #include "../flow/wt_flow.h"
 
 class WtOscillation
 {
-
-private:
-    Oscillation m_oscillation;
-
-    std::vector<double> m_mz;
-    std::vector<size_t> m_mzAmplitudeIndexes;
-
-    wt_flow::Flow m_flow;
-
-    Model m_model;
-
-
-
 public:
 
     WtOscillation(Oscillation oscillation, wt_flow::Flow flow, Model model) : m_oscillation(oscillation),
                                                                               m_flow(flow),
-                                                                              m_model(model)
+                                                                              m_model(model),
+                                                                              m_timeStamp( m_oscillation.time.at(1) - m_oscillation.time.at(0))
     {
     };
 
+    double getTimeStamp() const
+    {
+        return m_timeStamp;
+    }
+
+    double getAngle(size_t index) const
+    {
+        return m_oscillation.angle.at(index);
+    }
+
+
+    std::vector<double> getAngle() const
+    {
+        return m_oscillation.angle;
+    }
 
     bool getMz()
     {
@@ -106,4 +111,15 @@ public:
         return true;
     }
 
+    private:
+        Oscillation m_oscillation;
+
+        std::vector<double> m_mz;
+        std::vector<size_t> m_mzAmplitudeIndexes;
+
+        wt_flow::Flow m_flow;
+
+        Model m_model;
+
+        double m_timeStamp;
 };
