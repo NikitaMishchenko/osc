@@ -4,9 +4,13 @@
 
 #include <vector>
 
+// todo research https://www.boost.org/doc/libs/1_56_0/libs/math/doc/html/math_toolkit/internals2/minimax.html
+// #include <boost/math/tools/polynomial.hpp>
+// boost::math::tools::polynomial<double> p;
+
 #include "../oscillation/wt_oscillation.h"
 #include "../model/tr_rod_model_params.h"
-#include <boost/math/tools/polynomial.hpp>
+
 
 
 
@@ -14,7 +18,7 @@ namespace dynamic_coefficients
 {
     enum APPROACH_DYNAMIC_COEFFICIENTS_COEFFICIENTS
     {
-        LOGARITHM_ANF_REDD
+        LOGARITHM_AND_REDD
     };
 
     struct DampingCoefficients
@@ -34,14 +38,13 @@ namespace dynamic_coefficients
 
         bool doCalc(APPROACH_DYNAMIC_COEFFICIENTS_COEFFICIENTS approach)
         {
-            boost::math::tools::polynomial<double> p;
             switch (approach)
             {
-            case LOGARITHM_ANF_REDD:
+            case LOGARITHM_AND_REDD:
             {
                 m_coeff.eqvivalentDamp = calcLogAmplitude();
 
-                // todo polynomial approximation
+                // todo polynomial approximation to calculate DampingCoefficients::actualDamping
 
                 return true;
             }
