@@ -31,6 +31,7 @@
 		<Compiler>
 			<Add option="-Wall" />
 		</Compiler>
+		<Unit filename="src/analize_coefficients/dynamic_coefficients.h" />
 		<Unit filename="src/fft/fftw_impl.h" />
 		<Unit filename="src/filtration/butterworth_filter.h" />
 		<Unit filename="src/flow/parse_ptl.cpp" />
