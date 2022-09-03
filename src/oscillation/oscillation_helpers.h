@@ -1,13 +1,25 @@
 #pragma once
 
 #include <string>
+#include <strstream>
 #include <fstream>
 #include <iostream>
 
 namespace oscillation_helpers
 {
 
-    // todo rewrite
+    enum FileType
+    {
+        DEFAULT,
+        TIME_ANGLE,
+        TIME_ANGLE_DANGLE,
+        TIME_ANGLE_DANGLE_DDANGLE
+    };
+
+// todo rewrite
+/**
+*   когда есть больше 2 точек в строке
+*/
 bool isOscillationFile(const std::string& fileName)
     {
         std::ifstream fin(fileName);
@@ -46,4 +58,23 @@ bool isOscillationFile(const std::string& fileName)
 
         return false;
     }
+
+    /*FileType typeOfOscillationFile(const std::string& fileName)
+    {
+        std::vector<std::string> tokens;
+        std::istringstream   mySstream(fileName);
+        std::string         temp;
+
+        const char delim = ' ';
+
+        while (getline(mySstream, temp, delim))
+        {
+            tokens.push_back( temp );
+        }
+
+        //return tokens;
+        return DEFAULT;
+    }*/
+
+
 } // namespace oscillation

@@ -9,26 +9,32 @@
 class AngleHistory
 {
 public:
-    std::vector<double> angle;
     std::vector<double> time;
+    std::vector<double> angle;
 
-    AngleHistory(){
-        //std::cerr << "default AngleHistory()\n";
-    }
 
-    AngleHistory(std::string file_name){
+    AngleHistory()
+    {}
+
+    AngleHistory(const std::vector<double>& timeIn, const std::vector<double>& angleIn) : time(timeIn), angle(angleIn)
+    {}
+
+    AngleHistory(const std::string& file_name)
+    {
         std::cerr << "AngleHistory( " << file_name << ") constructor\n";
+
         this->load_row(file_name);
             this->info();
     }
 
-    ~AngleHistory(){
+    ~AngleHistory()
+    {
         angle.clear();
         time.clear();
     }
 
     //copy
-    AngleHistory(const AngleHistory& d) : angle(d.angle), time(d.time)
+    AngleHistory(const AngleHistory& d) : time(d.time), angle(d.angle)
     {
         std::cout << "AngleHistory copy constructor\n";
     }
@@ -60,9 +66,12 @@ public:
     friend std::ostream& operator<< (std::ostream& out, const AngleHistory& D)
     {
         for(size_t i = 0; i < D.size(); i++)
-            out << D.time[i] << "\t"
-                << D.angle[i] << "\t"
-                << "\n";
+        {
+             out << D.time[i] << "\t"
+                 << D.angle[i] << "\t"
+                 << "\n";
+        }
+
         return out;
     }
 
@@ -75,7 +84,7 @@ public:
     }
 
 private:
-    virtual void load_row(const std::string file_name)
+    virtual void load_row(const std::string& file_name)
     {
         std::ifstream fin(file_name);
         std::cout << "trying open file: " << file_name << std::endl;
@@ -85,16 +94,19 @@ private:
             while(!fin.eof())
             {
                 double b_angle, b_time;
+
                 fin >> b_time >> b_angle;
-                //std::cout << b_time << b_angle << std::endl;
+
                 angle.push_back(b_angle);
                 time.push_back(b_time);
 
             }
-        } else {
+        }
+        else
+        {
             std::cerr << "File did not opened" << std::endl;
         }
+
         fin.close();
-        std::cout << "file closed\n";
     }
 };

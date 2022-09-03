@@ -6,9 +6,8 @@
 #include "basic_procedures.h"
 
 /*
+
 #include "oscillation/oscillation_basic.h"
-#include "fft/fftw_impl.h"
-#include "periods/periods_base.h"
 #include "oscillation/cut_oscillation_file.h"
 
 #include "oscillation/wt_oscillation.h"
@@ -26,6 +25,7 @@ int doJob( const options::Procedure procedureToPerform,
        int result = basic_procedures::UNEXPECTED;
 
     switch (procedureToPerform)
+
     {
         case options::CUT:
         {
