@@ -11,17 +11,10 @@
 #include "oscillation/wt_oscillation.h"
 #include "flow/parse_ptl.h"
 #include "analize_coefficients/dynamic_coefficients.h"
-
+#include "errcodes.h"
 
 namespace basic_procedures
 {
-    enum ErrorCodes
-    {
-        SUCCESS     = 0,
-        FAIL        = 1,
-        UNEXPECTED  = 2
-    };
-
 
     /**
     *    Data loaded as Oscillation object. So the the initial data is y and t. And while Oscillation constructed
@@ -185,12 +178,9 @@ namespace basic_procedures
     };
 
 
-    void testFunc()
+    ErrorCodes testFunc()
     {
-        Oscillation A("A");
-        std::vector<Oscillation> arr_osc;
-        arr_osc.push_back(A);
-        arr_osc[0].write("A_osc");
+        return FAIL;
     }
 
     /*

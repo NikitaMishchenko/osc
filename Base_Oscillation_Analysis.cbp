@@ -32,6 +32,8 @@
 			<Add option="-Wall" />
 		</Compiler>
 		<Unit filename="src/analize_coefficients/dynamic_coefficients.h" />
+		<Unit filename="src/basic_procedures.h" />
+		<Unit filename="src/errcodes.h" />
 		<Unit filename="src/fft/fftw_impl.h" />
 		<Unit filename="src/filtration/butterworth_filter.h" />
 		<Unit filename="src/flow/parse_ptl.cpp" />
@@ -48,6 +50,7 @@
 		<Unit filename="src/oscillation/oscillation_helpers.h" />
 		<Unit filename="src/oscillation/wt_oscillation.h" />
 		<Unit filename="src/periods/periods_base.h" />
+		<Unit filename="tests/tests.h" />
 		<Extensions>
 			<lib_finder disable_auto="1" />
 		</Extensions>
