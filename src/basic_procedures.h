@@ -84,12 +84,12 @@ namespace basic_procedures
 
                 if (i <  periodsList.size()-2)
                 {
-                    fout2 << periodsList.at(i).time.at(0) << "\t"
-                            << periodsList.at(i).angle.at(0) << "\t"
-                            << periodsList.at(i).dangle.at(0) << "\t"
-                            << periodsList.at(i).ddangle.at(0) << "\t"
-                            << periodsList.at(i+2).time.at(0) - periodsList.at(i).time.at(0) << "\t"
-                            << 1/(periodsList.at(i+2).time.at(0) - periodsList.at(i).time.at(0)) << "\n";
+                    fout2 << periodsList.at(i).getTime(0) << "\t"
+                            << periodsList.at(i).getAngle(0) << "\t"
+                            << periodsList.at(i).getDangle(0) << "\t"
+                            << periodsList.at(i).getDdangle(0) << "\t"
+                            << periodsList.at(i+2).getTime(0) - periodsList.at(i).getTime(0) << "\t"
+                            << 1/(periodsList.at(i+2).getTime(0) - periodsList.at(i).getTime(0)) << "\n";
                 }
 
                 i++;
@@ -126,7 +126,7 @@ namespace basic_procedures
     {
         std::cout << "cut file performing\n";
 
-        if (!Oscillation_files::cut_file(initialFile, timeFrom , timeTo, finalFile))
+        if (!oscillation_files::cut_file(initialFile, timeFrom , timeTo, finalFile))
         {
             std::cerr << "cut file failed!/n";
             return FAIL;
@@ -178,6 +178,15 @@ namespace basic_procedures
         return SUCCESS;
     };
 
+
+    ErrorCodes performProcedurePendulum(const std::string& fileName)
+    {
+        AngleHistory angleHistory;
+        if (!angleHistory.loadRaw((fileName)))
+            return FAIL;
+
+        return FAIL;
+    }
 
     ErrorCodes testFunc()
     {

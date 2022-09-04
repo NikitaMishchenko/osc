@@ -16,6 +16,7 @@ namespace options
         FLOW,
         PERIODS,
         WT,
+        PENDULUM,
         TEST,
         UNKNOWN
 
@@ -85,6 +86,9 @@ namespace options
 
             if ("flow" == mode)
                 return Procedure::FLOW;
+
+            if ("pendulum" == mode)
+            return Procedure::PENDULUM;
 
             if ("test" == mode)
                 return Procedure::TEST;

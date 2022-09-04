@@ -67,6 +67,14 @@ int doJob( const options::Procedure procedureToPerform,
 
             break;
         }
+
+        case options::PENDULUM:
+        {
+            result = basic_procedures::performProcedurePendulum(fileName);
+
+            break;
+        }
+
         case options::TEST:
         {
             std::cout << "performing All test procedures\n";

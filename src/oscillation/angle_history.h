@@ -9,9 +9,6 @@
 class AngleHistory
 {
 public:
-    std::vector<double> time;
-    std::vector<double> angle;
-
 
     AngleHistory()
     {}
@@ -23,11 +20,11 @@ public:
     {
         std::cerr << "AngleHistory( " << file_name << ") constructor\n";
 
-        this->load_row(file_name);
+        this->loadRaw(file_name);
             this->info();
     }
 
-    ~AngleHistory()
+    virtual ~AngleHistory()
     {
         angle.clear();
         time.clear();
@@ -83,8 +80,7 @@ public:
         std::cout << angle.size() << std::endl;
     }
 
-private:
-    virtual void load_row(const std::string& file_name)
+    virtual bool loadRaw(const std::string& file_name)
     {
         std::ifstream fin(file_name);
         std::cout << "trying open file: " << file_name << std::endl;
@@ -101,6 +97,8 @@ private:
                 time.push_back(b_time);
 
             }
+            fin.close();
+            return true;
         }
         else
         {
@@ -108,5 +106,10 @@ private:
         }
 
         fin.close();
+        return true;
     }
+
+protected:
+    std::vector<double> time;
+    std::vector<double> angle;
 };

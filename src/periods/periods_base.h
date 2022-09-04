@@ -22,10 +22,11 @@ namespace periods ///caclulate periods
         std::vector<Oscillation> result;
         Oscillation buff;
 
-        buff.time.reserve(D.size());
+        buff.reserve(D.size());
+        /*buff.time.reserve(D.size());
         buff.angle.reserve(D.size());
         buff.dangle.reserve(D.size());
-        buff.ddangle.reserve(D.size());
+        buff.ddangle.reserve(D.size());*/
 
         size_t i = 0;
         int periodCounter = 0;
@@ -38,7 +39,7 @@ namespace periods ///caclulate periods
             {
                 while( D.dangle[i] <= 0.0 && i < D.size())
                 {
-                    buff.push_back(D.time[i], D.angle[i], D.dangle[i], D.ddangle[i]);
+                    buff.push_back(D.getTime(i), D.getAngle(i), D.getDangle(i), D.getDdangle(i));
                     //std::cout << "buff time = " << buff.time[i] << " buff size = " << buff.size() << std::endl;
 
                     i++;
@@ -58,7 +59,7 @@ namespace periods ///caclulate periods
             {
                 while( D.dangle[i] >= 0.0 && i < D.size())
                 {
-                    buff.push_back(D.time[i], D.angle[i], D.dangle[i], D.ddangle[i]);
+                    buff.push_back(D.getTime(i), D.getAngle(i), D.getDangle(i), D.getDdangle(i));
                     //std::cout << "buff time = " << buff.time[i] << " buff size = " << buff.size() << std::endl;
 
                     i++;
@@ -103,10 +104,10 @@ namespace periods ///caclulate periods
                 fout.open(base_file_name + std::to_string(period_counter));
                 while( D.dangle[i] <= 0.0)
                 {
-                    fout << D.time[i] << "\t"
-                            << D.angle[i] << "\t"
-                                << D.dangle[i] << "\t"
-                                    << D.ddangle[i] << "\n";
+                    fout << D.getTime(i) << "\t"
+                            << D.getAngle(i) << "\t"
+                                << D.getDangle(i) << "\t"
+                                    << D.getDdangle(i) << "\n";
                     i++;
                     //std::cout << i << "\n";
                 }
@@ -121,10 +122,10 @@ namespace periods ///caclulate periods
                 fout.open(base_file_name + std::to_string(period_counter));
                 while( D.dangle[i] > 0.0)
                 {
-                    fout << D.time[i] << "\t"
-                            << D.angle[i] << "\t"
-                                << D.dangle[i] << "\t"
-                                    << D.ddangle[i] << "\n";
+                    fout << D.getTime(i) << "\t"
+                            << D.getAngle(i) << "\t"
+                                << D.getDangle(i) << "\t"
+                                    << D.getDdangle(i) << "\n";
                     i++;
                     //std::cout << i << "\n";
                 }

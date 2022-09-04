@@ -73,7 +73,7 @@ namespace osc
             in = (fftw_complex*) fftw_malloc(sizeof(fftw_complex) * real_signal.size());
             //fftw::generate_signal(in, 0.01, N);
 
-            ::fftw::real_vector_to_fftw_complex(real_signal.get_angle(), in, real_signal.size());
+            ::fftw::real_vector_to_fftw_complex(real_signal.getAngle(), in, real_signal.size());
 
             out = (fftw_complex*) fftw_malloc(sizeof(fftw_complex) * real_signal.size());
 
