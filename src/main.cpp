@@ -4,6 +4,7 @@
 
 #include "options.h"
 #include "basic_procedures.h"
+#include "../tests/tests.h"
 
 /*
 
@@ -22,10 +23,9 @@ int doJob( const options::Procedure procedureToPerform,
            const std::string fileName2,
            const std::vector<double> extraArguments)
 {
-       int result = basic_procedures::UNEXPECTED;
+    int result = basic_procedures::UNEXPECTED;
 
     switch (procedureToPerform)
-
     {
         case options::CUT:
         {
@@ -71,7 +71,7 @@ int doJob( const options::Procedure procedureToPerform,
         {
             std::cout << "performing All test procedures\n";
 
-            basic_procedures::testFunc();
+            result = basic_procedures::testFunc();
 
             break;
         }
@@ -108,16 +108,23 @@ int doJob( const options::Procedure procedureToPerform,
 
 int main(int argc, char * argv[])
 {
+    std::cout << "argc = " << argc << "\n";
+    if (1 == argc)
+        tests::makeAllTests();
+        //doJob(options::TEST, std::string(), std::string(),std::vector<double>());
+    return 0;
+
+
     options::Options opt;
 
     try
     {
         if (!opt.parse_options(argc, argv))
-            std::cerr << "parse program_options: err occured\n";
+            std::cerr << "parse program_options: err occurred\n";
     }
     catch (std::exception& e)
     {
-        std::cerr << "parse program_options: exception throwed: "  << e.what() << "\n";
+        std::cerr << "parse program_options: exception thrown: "  << e.what() << "\n";
     }
 
     if (opt.exist("help"))
@@ -137,10 +144,3 @@ int main(int argc, char * argv[])
 
     return doJob(procedureToPerform, fileName, fileName2, extraArguments);
 }
-
-/**
-*
-* TODO
-* Gtests, autotests
-*
-*/
