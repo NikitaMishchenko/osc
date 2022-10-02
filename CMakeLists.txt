@@ -1,11 +1,16 @@
 cmake_minimum_required(VERSION 3.0.0)
 project(oscillation VERSION 0.1.0)
 
-include(CTest)
-#enable_testing()
-
-include_directories (/src/)
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
+
+include(CTest)
+
+enable_testing()
+
+include_directories (src/)
+
+#add_subdirectory(tests build/tests)
+add_subdirectory(tests)
 
 
 
@@ -25,7 +30,7 @@ add_executable(oscillation
               ./src/flow/wt_flow.h
               ./src/flow/wt_flow.cpp
               ./src/model/tr_rod_model_params.h
-              ./src/oscillation/AngleHistory.h
+              ./src/oscillation/angle_history.h
               ./src/oscillation/cut_oscillation_file.h
               ./src/oscillation/oscillation_basic.h
               ./src/oscillation/oscillation_helpers.h
@@ -50,3 +55,14 @@ target_link_libraries(
 set(CPACK_PROJECT_NAME ${PROJECT_NAME})
 set(CPACK_PROJECT_VERSION ${PROJECT_VERSION})
 include(CPack)
+
+#TESTS
+
+
+#add_executable(tests tests/tests.cpp)
+#target_link_libraries(tests PRIVATE tests)
+
+#add_test(
+#  NAME tests
+#  COMMAND $<TARGET_FILE:tests>
+#  )
