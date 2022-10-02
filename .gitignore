@@ -12,4 +12,5 @@ input
 A
 BuildDir/
 output
-
+build
+.vscode

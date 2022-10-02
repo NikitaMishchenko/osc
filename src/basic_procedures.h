@@ -10,6 +10,7 @@
 #include "oscillation/cut_oscillation_file.h"
 #include "oscillation/wt_oscillation.h"
 #include "flow/parse_ptl.h"
+#include "flow/wt_flow.h"
 #include "analize_coefficients/dynamic_coefficients.h"
 #include "errcodes.h"
 

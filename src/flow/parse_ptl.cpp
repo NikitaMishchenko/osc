@@ -1,10 +1,9 @@
 #include <iostream>
 #include <fstream>
 
+#include <numeric>
 #include <string>
 #include <vector>
-
-#include <numeric>
 
 #include "wt_flow.h"
 
@@ -249,11 +248,18 @@ namespace wt_flow
 
 
         /// fit result flow
-        flowData.setDynamicPressure(std::reduce(q.begin(), q.begin()+testCounts) / testCounts);
-        flowData.setReynolds(std::reduce(Re.begin(), Re.begin()+testCounts) / testCounts);
+        flowData.setDynamicPressure(std::accumulate(q.begin(), q.begin()+testCounts, 0.0) / testCounts);
+        flowData.setReynolds(std::accumulate(Re.begin(), Re.begin()+testCounts, 0.0) / testCounts);
 
-        flowData.setT0(std::reduce(Tx.begin(), Tx.begin()+testCounts) / testCounts);
-        flowData.setMach(std::reduce(M_r.begin(), M_r.begin()+testCounts) / testCounts);
+        flowData.setT0(std::accumulate(Tx.begin(), Tx.begin()+testCounts, 0.0) / testCounts);
+        flowData.setMach(std::accumulate(M_r.begin(), M_r.begin()+testCounts, 0.0) / testCounts);
+
+        // todo reduce????
+        //flowData.setDynamicPressure(std::reduce(q.begin(), q.begin()+testCounts) / testCounts);
+        //flowData.setReynolds(std::reduce(Re.begin(), Re.begin()+testCounts) / testCounts);
+
+        //flowData.setT0(std::reduce(Tx.begin(), Tx.begin()+testCounts) / testCounts);
+        //flowData.setMach(std::reduce(M_r.begin(), M_r.begin()+testCounts) / testCounts);
 
         flowData.calculateVelocity();
         flowData.calculateDensity();
