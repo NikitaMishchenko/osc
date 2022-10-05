@@ -14,7 +14,6 @@
 
 const double PI = 3.14159265359;
 
-std::vector<double> spectrum;
 
 namespace fftw
 {
@@ -51,22 +50,24 @@ namespace osc
 {
     namespace fftw
     {
-        struct spectrum
+        struct Spectrum
         {
             std::vector<double> amplitude;
             std::vector<double> real;
             std::vector<double> img;
 
-            spectrum(size_t _size) : amplitude(_size), real(_size), img(_size)
+            Spectrum() : amplitude(std::vector<double>()), real(std::vector<double>()), img(std::vector<double>())
+            {}
+
+            Spectrum(size_t _size) : amplitude(_size), real(_size), img(_size)
             {
                 //std::vector<double> v(_size);
                 //amplitude = real = img = v
             }
         };
 
-        void perfom_fftw(Oscillation real_signal, spectrum& _spectrum)
+        osc::fftw::Spectrum perfomFftw(Oscillation real_signal)
         {
-
             fftw_complex *in, *out;
             fftw_plan p;
 
@@ -84,28 +85,31 @@ namespace osc
             //std::vector<double> sp_real(real_signal.size());
             //std::vector<double> sp_img(real_signal.size());
 
+            osc::fftw::Spectrum spectrum;
+            
+            ::fftw::fftw_complex_to_vectors(out, real_signal.size(), spectrum.real, spectrum.img);//sp_real, sp_img);
 
-            ::fftw::fftw_complex_to_vectors(out, real_signal.size(), _spectrum.real, _spectrum.img);//sp_real, sp_img);
-
-            _spectrum.amplitude.reserve(real_signal.size());
-            _spectrum.real.reserve(real_signal.size());
-            _spectrum.img.reserve(real_signal.size());
+            spectrum.amplitude.reserve(real_signal.size());
+            spectrum.real.reserve(real_signal.size());
+            spectrum.img.reserve(real_signal.size());
 
             for(size_t i = 0; i < real_signal.size(); i++)
             {
-                _spectrum.amplitude.at(i) = sqrt(_spectrum.real.at(i)*_spectrum.real.at(i) + _spectrum.img.at(i)*_spectrum.img.at(i));
+                spectrum.amplitude.at(i) = sqrt(spectrum.real.at(i)*spectrum.real.at(i) + spectrum.img.at(i)*spectrum.img.at(i));
 
                 //_spectrum.real.at(i) = _spectrum.real.at(i);
 
                 //_spectrum.img.at(i) = _spectrum.img.at(i);
             }
 
-            std::cout << "_spectrum.size() = " << _spectrum.amplitude.size() << std::endl;
-            std::cout << "_spectrum.capacity() = " << _spectrum.amplitude.capacity() << std::endl;
+            std::cout << "spectrum.size() = " << spectrum.amplitude.size() << std::endl;
+            std::cout << "spectrum.capacity() = " << spectrum.amplitude.capacity() << std::endl;
 
             fftw_destroy_plan(p);
             fftw_free(in);
             fftw_free(out);
+
+            return spectrum;
         }
     }
 }
@@ -132,7 +136,6 @@ namespace fftw_example
         fout.close();
 
     }
-
 
     void func(uint8_t N)
     {
@@ -177,4 +180,5 @@ namespace fftw_example
         fftw_free(out);
         fftw_free(out2);
     }
+
 } // namespace fftw

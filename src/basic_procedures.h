@@ -1,6 +1,5 @@
 #pragma once
 
-
 #include <string>
 #include <utility>
 
@@ -13,21 +12,22 @@
 #include "flow/wt_flow.h"
 #include "analize_coefficients/dynamic_coefficients.h"
 #include "errcodes.h"
+#include "pendulum/pendulum_analisys.h"
 
 namespace basic_procedures
 {
 
     /**
-    *    Data loaded as Oscillation object. So the the initial data is y and t. And while Oscillation constructed
-    *    y' and y'' is calculating.
-    *
-    *    Basically procedure finds periods of the signal and saves it in specific manner.
-    *    Each period splits into forward a backward movement
-    *    (todo) after that gnuplot script creating.
-    */
-    ErrorCodes performProcedurePeriods(const std::string& fileName,
-                                       const std::string& fileName2,
-                                       const std::vector<double>& extraArguments)
+     *    Data loaded as Oscillation object. So the the initial data is y and t. And while Oscillation constructed
+     *    y' and y'' is calculating.
+     *
+     *    Basically procedure finds periods of the signal and saves it in specific manner.
+     *    Each period splits into forward a backward movement
+     *    (todo) after that gnuplot script creating.
+     */
+    ErrorCodes performProcedurePeriods(const std::string &fileName,
+                                       const std::string &fileName2,
+                                       const std::vector<double> &extraArguments)
     {
         std::cout << "periods procedure performing...\n";
 
@@ -35,12 +35,11 @@ namespace basic_procedures
 
         Oscillation D;
         D.loadFile(fileName);
-        if(0 == D.size())
+        if (0 == D.size())
         {
-           std::cerr << "Empty Oscillation data! Aborting procedure\n";
-           return FAIL;
+            std::cerr << "Empty Oscillation data! Aborting procedure\n";
+            return FAIL;
         }
-
 
         std::cout << "extra arguments size = " << extraArguments.size() << std::endl;
 
@@ -49,9 +48,8 @@ namespace basic_procedures
         if (extraArguments.size() > 1)
         {
             mergeHalfPeriods = extraArguments.at(1);
-            std::cout << "mergeHalfPeriods = " << mergeHalfPeriods <<  "\n";
+            std::cout << "mergeHalfPeriods = " << mergeHalfPeriods << "\n";
         }
-
 
         std::vector<Oscillation> periodsList;
 
@@ -65,7 +63,7 @@ namespace basic_procedures
 
         std::ofstream fout2(fileName + ".periods");
 
-        for(size_t i = 0; i < periodsList.size();)
+        for (size_t i = 0; i < periodsList.size();)
         {
             outputFileName = fileName2 + "_" + std::to_string(i);
 
@@ -82,19 +80,18 @@ namespace basic_procedures
             {
                 fout << periodsList.at(i);
 
-                if (i <  periodsList.size()-2)
+                if (i < periodsList.size() - 2)
                 {
                     fout2 << periodsList.at(i).getTime(0) << "\t"
-                            << periodsList.at(i).getAngle(0) << "\t"
-                            << periodsList.at(i).getDangle(0) << "\t"
-                            << periodsList.at(i).getDdangle(0) << "\t"
-                            << periodsList.at(i+2).getTime(0) - periodsList.at(i).getTime(0) << "\t"
-                            << 1/(periodsList.at(i+2).getTime(0) - periodsList.at(i).getTime(0)) << "\n";
+                          << periodsList.at(i).getAngle(0) << "\t"
+                          << periodsList.at(i).getDangle(0) << "\t"
+                          << periodsList.at(i).getDdangle(0) << "\t"
+                          << periodsList.at(i + 2).getTime(0) - periodsList.at(i).getTime(0) << "\t"
+                          << 1 / (periodsList.at(i + 2).getTime(0) - periodsList.at(i).getTime(0)) << "\n";
                 }
 
                 i++;
             }
-
 
             fout.close();
         }
@@ -103,11 +100,11 @@ namespace basic_procedures
         return SUCCESS;
     }
 
-    ErrorCodes performProcedureFlow(const std::string& fileName)
+    ErrorCodes performProcedureFlow(const std::string &fileName)
     {
         wt_flow::Flow flow;
 
-        if( wt_flow::parsePTLfile(fileName + ".ptl", flow, 5))
+        if (wt_flow::parsePTLfile(fileName + ".ptl", flow, 5))
         {
             flow.saveFile(fileName + ".flow");
             std::cout << "File " << fileName << " parsed: success\n";
@@ -119,14 +116,14 @@ namespace basic_procedures
         return FAIL;
     }
 
-    ErrorCodes performProcedureCutFile( const std::string& initialFile,
-                                        const double timeFrom,
-                                        const double timeTo,
-                                        const std::string& finalFile)
+    ErrorCodes performProcedureCutFile(const std::string &initialFile,
+                                       const double timeFrom,
+                                       const double timeTo,
+                                       const std::string &finalFile)
     {
         std::cout << "cut file performing\n";
 
-        if (!oscillation_files::cut_file(initialFile, timeFrom , timeTo, finalFile))
+        if (!oscillation_files::cut_file(initialFile, timeFrom, timeTo, finalFile))
         {
             std::cerr << "cut file failed!/n";
             return FAIL;
@@ -135,8 +132,7 @@ namespace basic_procedures
         return SUCCESS;
     }
 
-
-    ErrorCodes performProceduereProcessingWtData(const std::string& fileName)
+    ErrorCodes performProceduereProcessingWtData(const std::string &fileName)
     {
         std::cout << "wt test processing mode performing\n";
 
@@ -163,27 +159,27 @@ namespace basic_procedures
             return FAIL;
         /// OSCILLATION<-
 
-
         WtOscillation wtTest(oscillation, flow, model);
 
         wtTest.getMz();
         wtTest.saveMzData(fileName + "_mz");
-        //todo check
-
+        // todo check
 
         wtTest.getMzAmplitudeIndexes();
         wtTest.saveMzAmplitudeData(fileName + "_mz_amplitude");
 
-
         return SUCCESS;
     };
 
-
-    ErrorCodes performProcedurePendulum(const std::string& fileName)
+    ErrorCodes performProcedurePendulum(const std::string &fileName)
     {
         AngleHistory angleHistory;
-        if (!angleHistory.loadRaw((fileName)))
+
+        if (!angleHistory.loadRaw(fileName))
             return FAIL;
+
+
+        pendulum::getFrequencies(angleHistory);
 
         return FAIL;
     }
@@ -198,4 +194,4 @@ namespace basic_procedures
      фильтрация, опции, нормальный функционал, деление на логику и работу с файлами
     */
 
-}
+} // basic_procedures

@@ -39,6 +39,7 @@ public:
     }
 
 
+    // SPECIFIC METHODS
     bool getMz()
     {
         if (m_flow.isCalculated())

@@ -45,7 +45,7 @@ public:
     }
 
 
-    void move_angle(const double A)
+    void moveAngle(const double A)
     {
         for(auto a : angle)
             a += A;
