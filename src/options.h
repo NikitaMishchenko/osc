@@ -32,7 +32,7 @@ namespace options
             descr->add_options()
                 ("help,h", " - show basic info, help etc.")
                 ("mode,m", po::value<std::string>()->default_value("none"),
-                 "P to perform periods, cut - to  cut realisation")
+                 "P to perform periods, cut - to  cut realisation, pendullum - to perform p* osc analysis")
                 ("file,f", po::value<std::string>()->default_value("file"), " - name of file")
                 ("file2", po::value<std::string>()->default_value(""), " - name of file2")
                 ("args,a", po::value<std::vector<double>>()->multitoken()->default_value(std::vector<double>{0}, ""), " - list of args");
@@ -74,7 +74,6 @@ namespace options
         {
             std::string mode(value<std::string>("mode"));
 
-
             if ("periods" == mode || "P" == mode)
                 return Procedure::PERIODS;
 
@@ -88,7 +87,7 @@ namespace options
                 return Procedure::FLOW;
 
             if ("pendulum" == mode)
-            return Procedure::PENDULUM;
+                return Procedure::PENDULUM;
 
             if ("test" == mode)
                 return Procedure::TEST;

@@ -179,9 +179,12 @@ namespace basic_procedures
             return FAIL;
 
 
+        pendulum::remove0Harmonic(angleHistory);
         pendulum::getFrequencies(angleHistory);
 
-        return FAIL;
+        // no proper implementation yet
+
+        return SUCCESS;
     }
 
     ErrorCodes testFunc()

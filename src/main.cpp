@@ -146,6 +146,7 @@ int main(int argc, char * argv[])
 
     ///INIT PARAMS
     const options::Procedure procedureToPerform = opt.getProcedure();
+    std::cout << "got procedure: " << static_cast<int>(procedureToPerform) << "\n";
     const std::string fileName = opt.getFileName();
     const std::string fileName2 = opt.getFileName2();
     const std::vector<double> extraArgumentsVector = opt.getArgs();

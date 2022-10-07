@@ -13,7 +13,7 @@ public:
     AngleHistory()
     {}
 
-    AngleHistory(const std::vector<double>& timeIn, const std::vector<double>& angleIn) : time(timeIn), angle(angleIn)
+    AngleHistory(const std::vector<double>& timeIn, const std::vector<double>& angleIn) : m_time(timeIn), m_angle(angleIn)
     {}
 
     AngleHistory(const std::string& file_name)
@@ -26,58 +26,62 @@ public:
 
     virtual ~AngleHistory()
     {
-        angle.clear();
-        time.clear();
+        m_angle.clear();
+        m_time.clear();
     }
 
     //copy
-    AngleHistory(const AngleHistory& d) : time(d.time), angle(d.angle)
+    AngleHistory(const AngleHistory& d) : m_time(d.m_time), m_angle(d.m_angle)
     {
         std::cout << "AngleHistory copy constructor\n";
     }
 
     AngleHistory& operator= (const AngleHistory& d)
     {
-        time = d.time;
-        angle = d.angle;
+        m_time = d.m_time;
+        m_angle = d.m_angle;
 
         return *this;
     }
 
 
+    std::vector<double> getAngle(){ return m_angle;}
+
+    std::vector<double> getTime(){ return m_time;}
+
     void moveAngle(const double A)
     {
-        for(auto a : angle)
+        for(auto& a : m_angle)
             a += A;
     }
 
     virtual void print()
     {
-        for(size_t i = 0; i < angle.size(); i++)
-        {
-            std::cout << time[i] << "\t" << angle[i] << std::endl;
-        }
+        std::cout << *this;
     }
 
 
+    /*
+    * TODO make overload for operator>>
+    */
     friend std::ostream& operator<< (std::ostream& out, const AngleHistory& D)
     {
         for(size_t i = 0; i < D.size(); i++)
         {
-             out << D.time[i] << "\t"
-                 << D.angle[i] << "\t"
+             out << D.m_time[i] << "\t"
+                 << D.m_angle[i] << "\t"
                  << "\n";
         }
 
         return out;
     }
 
-    virtual const size_t size() const { return angle.size();}
+    virtual const size_t size() const { return m_angle.size();}
 
     virtual void info()
     {
         std::cout << "AngleHistory object \nsize = ";
-        std::cout << angle.size() << std::endl;
+        std::cout << m_angle.size() << std::endl;
     }
 
     virtual bool loadRaw(const std::string& file_name)
@@ -93,8 +97,7 @@ public:
 
                 fin >> b_time >> b_angle;
 
-                angle.push_back(b_angle);
-                time.push_back(b_time);
+                this->push_back(b_time, b_angle);
 
             }
             fin.close();
@@ -110,6 +113,13 @@ public:
     }
 
 protected:
-    std::vector<double> time;
-    std::vector<double> angle;
+
+    void push_back(const double time, const double angle)
+    {
+        m_time.push_back(time);
+        m_angle.push_back(angle);
+    }
+
+    std::vector<double> m_time;
+    std::vector<double> m_angle;
 };
