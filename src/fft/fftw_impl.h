@@ -42,6 +42,22 @@ namespace fftw
             data[i][1] = 0;
         }
     }
+
+    void realVectorToFftwComplex(std::vector<double>::const_iterator signalBegin,
+                                 std::vector<double>::const_iterator signalEnd,
+                                 fftw_complex *data)
+    {
+        std::cout << "realVectorToFftwComplex()\n";
+
+        int i = 0;
+        for (auto it = signalBegin; it != signalEnd; ++it)
+        {
+            data[i][0] = *it;
+            data[i][1] = 0;
+            ++i;
+        }
+    }
+
 }
 
 namespace osc
@@ -54,6 +70,12 @@ namespace osc
             Spectrum() : amplitude(std::vector<double>()), real(std::vector<double>()), img(std::vector<double>())
             {}
 
+            Spectrum(size_t size) : amplitude(std::vector<double>(size)),
+                                    real(std::vector<double>(size)),
+                                    img(std::vector<double>(size))
+            {}
+
+            // todo refactor. For not overwride such methods it's better to make vector of ***, not *** of vectors
             void reserve(size_t sizeToReserve)
             {
                 amplitude.reserve(sizeToReserve);
@@ -61,10 +83,11 @@ namespace osc
                 img.reserve(sizeToReserve);
             }
 
-            Spectrum(size_t _size) : amplitude(_size), real(_size), img(_size)
+            void clear()
             {
-                // std::vector<double> v(_size);
-                // amplitude = real = img = v
+                amplitude.clear();
+                real.clear();
+                img.clear();
             }
 
             std::vector<double> amplitude;
@@ -72,6 +95,57 @@ namespace osc
             std::vector<double> img;
         };
 
+        ::osc::fftw::Spectrum fftwComplexToVectors(fftw_complex *data, size_t dataSize)
+        {
+            std::cout << "fftwComplexToVectors()\n";
+
+            ::osc::fftw::Spectrum spectrum(dataSize);
+
+            for (size_t i = 0; i < dataSize; i++)
+            {
+                spectrum.real.at(i) = data[i][0];
+                spectrum.img.at(i) = data[i][1];
+                spectrum.amplitude.at(i) = sqrt(spectrum.real.at(i) * spectrum.real.at(i) + spectrum.img.at(i) * spectrum.img.at(i));
+            }
+
+            return spectrum;
+        }
+
+        osc::fftw::Spectrum perfomFftw(std::vector<double>::const_iterator signalBegin, std::vector<double>::const_iterator signalEnd)
+        {
+            std::cout << "performFftw entry()\n";
+
+            fftw_complex *in, *out;
+            fftw_plan p;
+
+            const int signalSize = signalEnd - signalBegin;
+            std::cout << "signalSize: " << signalSize << "\n";
+
+            // ALLOC buffs
+            in = (fftw_complex *)fftw_malloc(sizeof(fftw_complex) * signalSize);
+            out = (fftw_complex *)fftw_malloc(sizeof(fftw_complex) * signalSize);
+
+            ::fftw::realVectorToFftwComplex(signalBegin, signalEnd, in);
+
+            p = fftw_plan_dft_1d(signalSize, in, out, FFTW_FORWARD, FFTW_ESTIMATE);
+
+            fftw_execute(p);
+
+            osc::fftw::Spectrum spectrum;
+
+            spectrum = fftwComplexToVectors(out, signalSize);
+
+            std::cout << "spectrum.size() = " << spectrum.amplitude.size() << std::endl;
+            std::cout << "spectrum.capacity() = " << spectrum.amplitude.capacity() << std::endl;
+
+            fftw_destroy_plan(p);
+            fftw_free(in);
+            fftw_free(out);
+
+            return spectrum;
+        }
+
+        // custom iterator?
         osc::fftw::Spectrum perfomFftw(AngleHistory inputSignal)
         {
             std::cout << "performFftw entry()\n";

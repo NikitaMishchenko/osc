@@ -178,10 +178,13 @@ namespace basic_procedures
         if (!angleHistory.loadRaw(fileName))
             return FAIL;
 
+        pendulum::remove0Harmonic(angleHistory); // todo config file to basic procedures // based on boost::property_tree
+        
+        bool err;
+        std::vector<pendulum::Frequency> freqs;
 
-        pendulum::remove0Harmonic(angleHistory);
-        pendulum::getFrequencies(angleHistory);
-
+        std::make_tuple(err, freqs) = pendulum::getFrequencies(angleHistory, 100000, 100000); // to config or external params
+        
         // no proper implementation yet
 
         return SUCCESS;

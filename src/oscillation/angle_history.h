@@ -45,9 +45,15 @@ public:
     }
 
 
-    std::vector<double> getAngle(){ return m_angle;}
+    std::vector<double> getAngle() const 
+    {
+        return m_angle;
+    }
 
-    std::vector<double> getTime(){ return m_time;}
+    std::vector<double> getTime() const 
+    {
+        return m_time;
+    }
 
     void moveAngle(const double A)
     {
