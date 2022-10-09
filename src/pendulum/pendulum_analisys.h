@@ -236,7 +236,7 @@ namespace pendulum
 
             Frequency freq;
 
-            if (osc.dangle.at(i) <= 0 && osc.dangle.at(i + 1) >= 0) // from top to bottom
+            if (osc.dangle.at(i) <= 0 && osc.dangle.at(i + 1) > 0) // from top to bottom
             {
 
                 freq.time = osc.getTime(i);
@@ -245,7 +245,7 @@ namespace pendulum
 
                 if (freqs.empty())
                     freqs.push_back(freq);
-                else if (freq.time - freqs.back().time > 100.0 / discrFreq)
+                else if (freq.time - freqs.back().time > coefficientFreqSpred / discrFreq)
                     freqs.push_back(freq);
             }
         }
@@ -254,7 +254,7 @@ namespace pendulum
 
         for (int i = 0; i < freqs.size() - 1; ++i)
         {
-            freqs.at(i).frequency = 1.0 / (freqs.at(i + 1).time - freqs.at(i).time) * 2.0;
+            freqs.at(i).frequency = 1.0 / (freqs.at(i + 1).time - freqs.at(i).time);
         }
 
         return std::make_tuple(true, freqs);
