@@ -80,14 +80,18 @@ namespace osc
                 {
                     spectrum.real.at(i) = data[i][0];
                     spectrum.img.at(i) = data[i][1];
-                    spectrum.amplitude.at(i) = sqrt(spectrum.real.at(i) * spectrum.real.at(i) + spectrum.img.at(i) * spectrum.img.at(i));
+                    spectrum.amplitude.at(i) = sqrt(spectrum.real.at(i) * spectrum.real.at(i)
+                                                    + spectrum.img.at(i) * spectrum.img.at(i));
                 }
 
                 return spectrum;
             }
         }
 
-        osc::fftw::Spectrum perfomFftw(std::vector<double>::const_iterator signalBegin, std::vector<double>::const_iterator signalEnd)
+        /*
+        *  @returns Spectrum based on interval from @signalBegin to @signalEnd (discretization is assumed being constant)
+        */
+        inline osc::fftw::Spectrum perfomFftw(std::vector<double>::const_iterator signalBegin, std::vector<double>::const_iterator signalEnd)
         {
             // std::cout << "performFftw entry()\n";
 

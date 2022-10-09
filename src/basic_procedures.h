@@ -183,9 +183,10 @@ namespace basic_procedures
         bool noErr;
         std::vector<pendulum::Frequency> freqs;
 
-        std::tie(noErr, freqs) = pendulum::getFrequencies(angleHistory, windowWidth, windowStep); // to config or external params
-
-        std::cout << "pP frqs.size() = " << freqs.size() << "\n";
+        if (windowStep && windowWidth)
+            std::tie(noErr, freqs) = pendulum::getFrequenciesViaFft(angleHistory, windowWidth, windowStep); // to config or external params
+        else
+            std::tie(noErr, freqs) = pendulum::getFrequenciesViaSignal(angleHistory);
 
         saveFile(fileName + "_freqs", freqs);
 
