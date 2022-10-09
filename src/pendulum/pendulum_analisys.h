@@ -22,6 +22,22 @@ namespace pendulum
         double frequency;
     };
 
+        /// fixme move to helpers i/o    
+        void saveFile(const std::string& fileNmae, std::vector<Frequency> data)
+        {
+            std::cout << "saving file: " << fileNmae << " data.size() =" << data.size() << "\n";
+
+            std::ofstream fout(fileNmae);
+
+            for (auto k : data)
+            {
+                //std::cout << k.time << "\t" << k.frequency << "\n";
+                fout << k.time << "\t" << k.frequency << "\n";
+            }
+                        
+            fout.close();
+        }
+
     void remove0Harmonic(AngleHistory &angleHistory)
     {
         const double shiftAngle = angleHistory.getAngle().at(angleHistory.size() - 1);
@@ -52,6 +68,17 @@ namespace pendulum
 
             fout.close();
         }
+
+        inline double getConstDiscretisationFreq(const std::vector<double> value)
+        {
+            if (value.size() >=2 )
+                return 1.0/(value.at(1) - value.at(0));
+
+            std::string msg = "Cant's determing discret freq!";
+
+            std::cerr << msg << std::endl;
+            throw std::runtime_error(msg);           
+        }
     }
 
     /**
@@ -59,11 +86,16 @@ namespace pendulum
      * @returns true - allOk, false - error occurred
      */
     std::tuple<bool, std::vector<Frequency>>
-    getFrequencies(const AngleHistory& angleHistory, const size_t windowWidth, const size_t windowStep)
+    getFrequencies(const AngleHistory& angleHistory, const uint32_t windowWidth, const uint32_t windowStep)
     {
         std::cout << "getFrequencies entry\n";
 
+        const double discrFreq = getConstDiscretisationFreq(angleHistory.getTime());
+        std::cout << "discrFreq = " << discrFreq << "\n";
+
         std::vector<Frequency> freqs;
+        freqs.reserve(10);
+        // std::cout << "frqs.size() = " << freqs.size() << "\n";  
 
         int i = 0;
         for (std::vector<double>::const_iterator itAngl = angleHistory.getAngle().begin();;)
@@ -79,16 +111,19 @@ namespace pendulum
 
             Frequency freq;
 
-            // todo coefficient to getFreq
-            freq.frequency = getMaxPowerFreqFromSpectrum(spectrum);              // main freq has max power
-            freq.time = *(angleHistory.getTime().begin() + (itAngl - angleHistory.getAngle().begin()) + windowWidth / 2); // time from middle of the window
+            int64_t maxFreqNo = getMaxPowerFreqFromSpectrum(spectrum);
+            freq.frequency = maxFreqNo / discrFreq / 2.0 / PI; // main freq has max power
+            freq.time = *(angleHistory.getTime().begin() + (itAngl - angleHistory.getAngle().begin()) + windowWidth / 2); // time from middle of the current window
 
-            std::cout << "freq: " << freq.frequency << " time: " << freq.time << "\n";
+            std::cout << "maxFreqNo = " << maxFreqNo << " freq: " << freq.frequency <<  " period: " << 1.0/freq.frequency  << " time: " << freq.time << "\n";
 
             itAngl += windowStep;
+
+            freqs.push_back(freq);
+            std::cout << "frqs.size() = " << freqs.size() << "\n";
         }
 
-        // todo calc freqs
+        std::cout << "getFrequencies() finished returning freqs, frqs.size() = " << freqs.size() << "\n";
 
         return std::make_tuple(true, freqs);
     }

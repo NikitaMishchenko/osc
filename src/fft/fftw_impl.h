@@ -90,6 +90,11 @@ namespace osc
                 img.clear();
             }
 
+            int64_t size() const 
+            {
+                return amplitude.size();
+            }
+
             std::vector<double> amplitude;
             std::vector<double> real;
             std::vector<double> img;
@@ -113,13 +118,12 @@ namespace osc
 
         osc::fftw::Spectrum perfomFftw(std::vector<double>::const_iterator signalBegin, std::vector<double>::const_iterator signalEnd)
         {
-            std::cout << "performFftw entry()\n";
+            //std::cout << "performFftw entry()\n";
 
             fftw_complex *in, *out;
             fftw_plan p;
 
             const int signalSize = signalEnd - signalBegin;
-            std::cout << "signalSize: " << signalSize << "\n";
 
             // ALLOC buffs
             in = (fftw_complex *)fftw_malloc(sizeof(fftw_complex) * signalSize);
@@ -135,8 +139,8 @@ namespace osc
 
             spectrum = fftwComplexToVectors(out, signalSize);
 
-            std::cout << "spectrum.size() = " << spectrum.amplitude.size() << std::endl;
-            std::cout << "spectrum.capacity() = " << spectrum.amplitude.capacity() << std::endl;
+            //std::cout << "spectrum.size() = " << spectrum.amplitude.size() << std::endl;
+            //std::cout << "spectrum.capacity() = " << spectrum.amplitude.capacity() << std::endl;
 
             fftw_destroy_plan(p);
             fftw_free(in);

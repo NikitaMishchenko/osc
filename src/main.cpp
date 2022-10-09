@@ -70,7 +70,16 @@ int doJob( const options::Procedure procedureToPerform,
 
         case options::PENDULUM:
         {
-            result = basic_procedures::performProcedurePendulum(fileName);
+            if (extraArgumentsVector.size() < 2)
+            {
+                result = basic_procedures::FAIL;
+                std::cerr << "not enougth arguments\n";
+            }
+            
+            const uint32_t windowWidth = extraArgumentsVector.at(0);
+            const uint32_t windowStep  = extraArgumentsVector.at(1);
+
+            result = basic_procedures::performProcedurePendulum(fileName, windowWidth, windowStep);
 
             break;
         }

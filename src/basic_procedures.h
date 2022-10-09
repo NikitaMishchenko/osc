@@ -171,7 +171,7 @@ namespace basic_procedures
         return SUCCESS;
     };
 
-    ErrorCodes performProcedurePendulum(const std::string &fileName)
+    ErrorCodes performProcedurePendulum(const std::string &fileName, const uint32_t windowWidth, uint32_t windowStep)
     {
         AngleHistory angleHistory;
 
@@ -180,13 +180,18 @@ namespace basic_procedures
 
         pendulum::remove0Harmonic(angleHistory); // todo config file to basic procedures // based on boost::property_tree
         
-        bool err;
+        bool noErr;
         std::vector<pendulum::Frequency> freqs;
 
-        std::make_tuple(err, freqs) = pendulum::getFrequencies(angleHistory, 100000, 100000); // to config or external params
-        
-        // no proper implementation yet
+        std::tie(noErr, freqs) = pendulum::getFrequencies(angleHistory, windowWidth, windowStep); // to config or external params
 
+        std::cout << "pP frqs.size() = " << freqs.size() << "\n";
+
+        saveFile(fileName + "_freqs", freqs);
+
+        if (!noErr)
+            return FAIL;
+        
         return SUCCESS;
     }
 
