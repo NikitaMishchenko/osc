@@ -186,7 +186,8 @@ namespace basic_procedures
         if (windowStep && windowWidth)
             std::tie(noErr, freqs) = pendulum::getFrequenciesViaFft(angleHistory, windowWidth, windowStep); // to config or external params
         else
-            std::tie(noErr, freqs) = pendulum::getFrequenciesViaSignal(angleHistory);
+            std::tie(noErr, freqs) = pendulum::getFrequenciesViaDerevative(angleHistory);
+            //std::tie(noErr, freqs) = pendulum::getFrequenciesViaSignal(angleHistory);
 
         saveFile(fileName + "_freqs", freqs);
 

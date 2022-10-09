@@ -26,16 +26,15 @@ public:
     std::vector<double> ddangle;
 
 
-
     Oscillation(): AngleHistory(), dangle(), ddangle()
     {
-        std::cerr << "default Oscillation()\n";
+        std::cerr << "default Oscillation() constructor()\n";
     }
 
 
     Oscillation(const AngleHistory& angleHistory) : AngleHistory(angleHistory)
     {
-        std::cout << "Oscillation() constructor\n";
+        std::cout << "Oscillation(AngleHistory) constructor()\n";
         std::cout << "angle size = " << m_angle.size() << "\n";
 
         if(0 != m_angle.size())

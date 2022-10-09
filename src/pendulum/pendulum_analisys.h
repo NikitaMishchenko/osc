@@ -135,7 +135,7 @@ namespace pendulum
         return std::make_tuple(true, freqs);
     }
 
-    // todo rename method
+    // todo rename method // no implimentation
     std::tuple<bool, std::vector<Frequency>>
     getFrequenciesViaSignal(const AngleHistory &angleHistory)
     {
@@ -146,7 +146,38 @@ namespace pendulum
 
         std::vector<double> ang = angleHistory.getAngle(); // otherwise sigfault
 
-        size_t indexPrevMax = getMaxElementIndexFromVector(ang.begin(), ang.end());
+        std::vector<double>::iterator itAngleStart = ang.begin();
+        std::vector<double>::iterator itAngle = itAngleStart;
+        std::vector<double>::iterator itAngle2 = itAngleStart;
+
+        itAngle = std::max_element(itAngleStart, ang.end());
+        // get data for itAngle
+
+        std::vector<Frequency> freqs;
+
+        uint counter = 1;
+        /*
+        while (1)
+        {
+            itAngle2 = std::max_element(itAngle, ang.end());
+            // get data for itAngle2
+            itAngle = std::max_element(itAngle2, ang.end());
+            // get data for itAngle
+
+            std::cout << "#" << counter << " " << *itAngle2 << " " << *itAngle << " ";
+            std::cout <<  *(angleHistory.getTime().begin() + (itAngle2 - itAngleStart))
+                      << " " << *(angleHistory.getTime().begin() + (itAngle - itAngleStart)) << "\n";
+
+            itAngle2 += (itAngle2 - itAngleStart)/2;
+            itAngle += (itAngle2 - itAngleStart)/2;
+            counter++;
+
+            if (itAngle2 + 1 == itAngle)
+                break;
+        }
+        */
+
+        /* size_t indexPrevMax = getMaxElementIndexFromVector(ang.begin(), ang.end());
 
         size_t indexNextMax = getMaxElementIndexFromVector(ang.begin() + indexPrevMax, ang.end());
 
@@ -168,7 +199,7 @@ namespace pendulum
         while (ang.end() > ang.begin() + indexNextMax)
         {
 
-            indexNextMax = getMaxElementIndexFromVector(ang.begin() + indexPrevMax+1, ang.end());
+            indexNextMax = getMaxElementIndexFromVector(ang.begin() + indexPrevMax + 1, ang.end());
             freq.frequency = 1.0 / (*(ang.begin() + indexNextMax) - *(ang.begin() + indexPrevMax));
             freq.time = (*(ang.begin() + indexPrevMax) + *(ang.begin() + indexNextMax)) / 2.0;
 
@@ -176,14 +207,52 @@ namespace pendulum
                       << " search from: " << *(angleHistory.getTime().begin() + indexNextMax)
                       << " freq.frequency: " << freq.frequency << " freq.time: " << freq.time << "\n";
 
-            //indexNextMax = indexPrevMax+1;
-            indexPrevMax = indexNextMax+1;
+            // indexNextMax = indexPrevMax+1;
+            indexPrevMax = indexNextMax + 1;
 
             freqs.push_back(freq);
             std::cout << "iter finished freqs.size() = " << freqs.size() << "\n";
         }
-
+*/
         return std::make_tuple(true, freqs);
     }
 
+    std::tuple<bool, std::vector<Frequency>>
+    getFrequenciesViaDerevative(const AngleHistory &angleHistory)
+    {
+        std::cout << "getFrequenciesViaDerevative()\n";
+        Oscillation osc(angleHistory);
+
+        std::vector<Frequency> freqs;
+
+        for (int i = 0; i < osc.dangle.size()-1; ++i)
+        {
+
+            Frequency freq;
+
+            if (osc.dangle.at(i) < 0 && osc.dangle.at(i+1) >= 0) // from top to bottom
+            {
+                
+                freq.time = osc.getTime(i);
+                freqs.push_back(freq); 
+
+            }
+
+            /*if (osc.dangle.at(i) > 0 && osc.dangle.at(i+1) <= 0) // from top to bottom
+            {
+                
+                freq.frequency = osc.getTime(i);
+
+            } */
+
+            
+        }
+
+        for (int i = 0; i < freqs.size()-1; ++i)
+        {
+            freqs.at(i).frequency = 1.0 / (freqs.at(i+1).time - freqs.at(i).time) * 2.0;
+        }
+
+        return std::make_tuple(true, freqs);
+    }
 }
