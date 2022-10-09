@@ -171,7 +171,7 @@ namespace basic_procedures
         return SUCCESS;
     };
 
-    ErrorCodes performProcedurePendulum(const std::string &fileName, const uint32_t windowWidth, uint32_t windowStep)
+    ErrorCodes performProcedurePendulum(const std::string &fileName, const double arg1, uint32_t windowStep)
     {
         AngleHistory angleHistory;
 
@@ -183,12 +183,17 @@ namespace basic_procedures
         bool noErr;
         std::vector<pendulum::Frequency> freqs;
 
-        if (windowStep && windowWidth)
-            std::tie(noErr, freqs) = pendulum::getFrequenciesViaFft(angleHistory, windowWidth, windowStep); // to config or external params
+        if (windowStep)
+        {
+                std::tie(noErr, freqs) = pendulum::getFrequenciesViaFft(angleHistory, 
+                                                                    static_cast<uint32_t>(arg1),
+                                                                    windowStep); // to config or external params
+        }
         else
-            std::tie(noErr, freqs) = pendulum::getFrequenciesViaDerevative(angleHistory);
+        {
+            std::tie(noErr, freqs) = pendulum::getFrequenciesViaDerevative(angleHistory, arg1); // todo coefficient to params or config
             //std::tie(noErr, freqs) = pendulum::getFrequenciesViaSignal(angleHistory);
-
+        }
         saveFile(fileName + "_freqs", freqs);
 
         if (!noErr)

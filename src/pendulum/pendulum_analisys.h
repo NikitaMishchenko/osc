@@ -217,40 +217,44 @@ namespace pendulum
         return std::make_tuple(true, freqs);
     }
 
+    /*
+    *   @param coefficientFreqSpred means freqs larger than coeff*discrFreq will be nglected
+    */
     std::tuple<bool, std::vector<Frequency>>
-    getFrequenciesViaDerevative(const AngleHistory &angleHistory)
+    getFrequenciesViaDerevative(const AngleHistory &angleHistory, double coefficientFreqSpred)
     {
         std::cout << "getFrequenciesViaDerevative()\n";
+
+        const double discrFreq = getConstDiscretisationFreq(angleHistory.getTime());
+
         Oscillation osc(angleHistory);
 
         std::vector<Frequency> freqs;
 
-        for (int i = 0; i < osc.dangle.size()-1; ++i)
+        for (int i = 0; i < osc.dangle.size() - 1; ++i)
         {
 
             Frequency freq;
 
-            if (osc.dangle.at(i) < 0 && osc.dangle.at(i+1) >= 0) // from top to bottom
+            if (osc.dangle.at(i) <= 0 && osc.dangle.at(i + 1) >= 0) // from top to bottom
             {
-                
+
                 freq.time = osc.getTime(i);
-                freqs.push_back(freq); 
 
+                // std::cout << "#" << i << "time curr:" << freq.time << " time prev: " << freqs.back().time << "\n";
+
+                if (freqs.empty())
+                    freqs.push_back(freq);
+                else if (freq.time - freqs.back().time > 100.0 / discrFreq)
+                    freqs.push_back(freq);
             }
-
-            /*if (osc.dangle.at(i) > 0 && osc.dangle.at(i+1) <= 0) // from top to bottom
-            {
-                
-                freq.frequency = osc.getTime(i);
-
-            } */
-
-            
         }
 
-        for (int i = 0; i < freqs.size()-1; ++i)
+        std::cout << "times of freqs appended\n";
+
+        for (int i = 0; i < freqs.size() - 1; ++i)
         {
-            freqs.at(i).frequency = 1.0 / (freqs.at(i+1).time - freqs.at(i).time) * 2.0;
+            freqs.at(i).frequency = 1.0 / (freqs.at(i + 1).time - freqs.at(i).time) * 2.0;
         }
 
         return std::make_tuple(true, freqs);
