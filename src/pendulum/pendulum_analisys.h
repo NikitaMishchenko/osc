@@ -3,6 +3,7 @@
 #include <tuple>
 #include <vector>
 #include <fstream>
+#include <cmath>
 
 #include "../oscillation/angle_history.h"
 #include "../fft/fftw_impl.h"
@@ -36,6 +37,29 @@ namespace pendulum
         }
 
         fout.close();
+    }
+
+    // to slow
+    void removeOffscale(AngleHistory& angleHistory)
+    {
+        std::cout << "removeOffscale()\n";
+
+        for (size_t i = angleHistory.size()-1; i > 0; --i)
+        {
+            if (std::abs(angleHistory.getAngle(i) - angleHistory.getAngle(i-1) > 359))
+            {
+                std::cout << "acts! #" << i << "\n";
+
+                do
+                {
+                    // transform
+                    angleHistory.setAngle(i, angleHistory.getAngle(i) - 360.0);
+
+                    --i;
+
+                }  while ( std::abs(angleHistory.getAngle(i) - angleHistory.getAngle(i-1)) < 100 && i > 0);
+            }
+        }
     }
 
     void remove0Harmonic(AngleHistory &angleHistory)

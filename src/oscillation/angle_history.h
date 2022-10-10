@@ -50,6 +50,16 @@ public:
         return m_angle;
     }
 
+    double getAngle(int index) const 
+    {
+        return m_angle.at(index);
+    }
+    
+    void setAngle(size_t index, const double value)
+    {
+        m_angle.at(index) = value;
+    }
+
     std::vector<double> getTime() const 
     {
         return m_time;
@@ -106,16 +116,18 @@ public:
                 this->push_back(b_time, b_angle);
 
             }
+            
+            std::cout << "file " << file_name << " loaded! Closing\n";
             fin.close();
             return true;
         }
         else
         {
-            std::cerr << "File did not opened" << std::endl;
+            std::cerr << "File " << file_name << " was not found. Loading failed\n";
         }
 
         fin.close();
-        return true;
+        return false;
     }
 
 protected:

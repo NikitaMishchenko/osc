@@ -178,6 +178,8 @@ namespace basic_procedures
         if (!angleHistory.loadRaw(fileName))
             return FAIL;
 
+        pendulum::removeOffscale(angleHistory);
+
         pendulum::remove0Harmonic(angleHistory); // todo config file to basic procedures // based on boost::property_tree
         
         bool noErr;
