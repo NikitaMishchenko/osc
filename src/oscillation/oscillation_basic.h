@@ -8,7 +8,7 @@
 #include <iterator>
 #include <algorithm>
 
-#include "AngleHistory.h"
+#include "angle_history.h"
 #include "oscillation_helpers.h"
 
 
@@ -26,32 +26,31 @@ public:
     std::vector<double> ddangle;
 
 
-
     Oscillation(): AngleHistory(), dangle(), ddangle()
     {
-        std::cerr << "default Oscillation()\n";
+        std::cerr << "default Oscillation() constructor()\n";
     }
 
 
     Oscillation(const AngleHistory& angleHistory) : AngleHistory(angleHistory)
     {
-        std::cout << "Oscillation() constructor\n";
-        std::cout << "angle size = " << angle.size() << "\n";
+        std::cout << "Oscillation(AngleHistory) constructor()\n";
+        std::cout << "angle size = " << m_angle.size() << "\n";
 
-        if(0 != angle.size())
+        if(0 != m_angle.size())
         {
             dangle.reserve(this->size());
             ddangle.reserve(this->size());
 
-            const double h = time[1] - time[0];
+            const double h = m_time[1] - m_time[0];
 
             ///dangle calc
             for(size_t i = 0; i < size(); ++i)
-                dangle.emplace_back(derevativeOrd1N2(angle, h, i));
+                dangle.emplace_back(derevativeOrd1N2(m_angle, h, i));
 
             ///ddangle calc
             for(size_t i = 0; i < size(); ++i)
-                ddangle.emplace_back(derevativeOrd2N2(angle, h, i));
+                ddangle.emplace_back(derevativeOrd2N2(m_angle, h, i));
 
         }
         else
@@ -67,13 +66,82 @@ public:
     Oscillation(const std::string file_name) : AngleHistory(file_name)
     {
         std::cout << "Oscillation( " << file_name << ") constructor\n";
-        std::cout << "angle size = " << angle.size() << "\n";
+        std::cout << "angle size = " << m_angle.size() << "\n";
         this->recalculate();
     }
 
-    void recalculate()
+
+    virtual void reserve(size_t s)
     {
-        if(0 != angle.size())
+        m_time.reserve(s);
+        m_angle.reserve(s);
+        dangle.reserve(s);
+        ddangle.reserve(s);
+    }
+
+    virtual std::vector<double>::const_iterator timeBegin() const
+    {
+        return m_time.begin();
+    }
+
+    virtual std::vector<double>::const_iterator timeEnd() const
+    {
+        return m_time.end();
+    }
+
+    virtual std::vector<double>::const_iterator angleBegin() const
+    {
+        return m_angle.begin();
+    }
+
+    virtual std::vector<double>::const_iterator angleEnd() const
+    {
+        return m_angle.end();
+    }
+
+    virtual std::vector<double>::const_iterator dangleBegin() const
+    {
+        return dangle.begin();
+    }
+
+    virtual std::vector<double>::const_iterator dangleEnd() const
+    {
+        return dangle.end();
+    }
+
+    virtual std::vector<double>::const_iterator ddangleBegin() const
+    {
+        return ddangle.begin();
+    }
+
+    virtual std::vector<double>::const_iterator ddangleEnd() const
+    {
+        return ddangle.end();
+    }
+
+    virtual double getTime(size_t index) const
+    {
+        return m_time.at(index);
+    }
+
+    virtual double getAngle(size_t index) const
+    {
+        return m_angle.at(index);
+    }
+
+    virtual double getDangle(size_t index) const
+    {
+        return dangle.at(index);
+    }
+
+    virtual double getDdangle(size_t index) const
+    {
+        return ddangle.at(index);
+    }
+
+    virtual void recalculate()
+    {
+        if(0 != m_angle.size())
         {
             dangle.clear();
             ddangle.clear();
@@ -81,15 +149,15 @@ public:
             dangle.reserve(this->size());
             ddangle.reserve(this->size());
 
-            const double h = time[1] - time[0];
+            const double h = m_time[1] - m_time[0];
 
             ///dangle calc
             for(size_t i = 0; i < size(); ++i)
-                dangle.emplace_back(derevativeOrd1N2(angle, h, i));
+                dangle.emplace_back(derevativeOrd1N2(m_angle, h, i));
 
             ///ddangle calc
             for(size_t i = 0; i < size(); ++i)
-                ddangle.emplace_back(derevativeOrd2N2(angle, h, i));
+                ddangle.emplace_back(derevativeOrd2N2(m_angle, h, i));
 
         }
         else
@@ -100,7 +168,7 @@ public:
         }
     }
 
-    double derevativeOrd1N2(std::vector<double>& func, const double& h, const size_t index)
+    static double derevativeOrd1N2(std::vector<double>& func, const double& h, const size_t index)
     {
         //std::cout << index << " derevative \n";
         double d = 0.0;
@@ -125,7 +193,7 @@ public:
         return 0;
     }
 
-    double derevativeOrd2N2(std::vector<double>& func, const double& h, const size_t index)
+    static double derevativeOrd2N2(std::vector<double>& func, const double& h, const size_t index)
     {
         if (index > 0 && index < func.size()-2)
             return (func.at(index+2) - 2.0*func.at(index+1) + func.at(index))/h/h;
@@ -134,7 +202,7 @@ public:
         return 0;
     }
 
-    ~Oscillation(){
+    virtual ~Oscillation(){
         dangle.clear();
         ddangle.clear();
     }
@@ -143,8 +211,8 @@ public:
                                         dangle(d.dangle),
                                         ddangle(d.ddangle)
     {
-        time = d.time;
-        angle = d.angle;
+        m_time = d.m_time;
+        m_angle = d.m_angle;
     }
 
     Oscillation& operator= (const Oscillation& d)
@@ -157,67 +225,80 @@ public:
         return *this;
     }
 
+    virtual void insertAllFieldsFromTo(const Oscillation A, size_t from, size_t to)
+    {
+        m_time.insert(timeBegin(), A.timeBegin()+from, A.timeBegin()+to);
+        m_angle.insert(angleBegin(), A.angleBegin()+from, A.angleBegin()+to);
+        dangle.insert(dangleBegin(), A.dangleBegin()+from, A.dangleBegin()+to);
+        ddangle.insert(ddangleBegin(), A.ddangleBegin()+from, A.ddangleBegin()+to);
+    }
+
 
     //BASIC
-    const size_t size() const override {return angle.size();}
+    virtual const size_t size() const override {return m_angle.size();}
 
-    void push_back(const double& t, const double& a, const double& da, const double& dda)
+    virtual void push_back(const double& t, const double& a, const double& da, const double& dda)
     {
-        time.push_back(t);
-        angle.push_back(a);
+        m_time.push_back(t);
+        m_angle.push_back(a);
         dangle.push_back(da);
         ddangle.push_back(dda);
     }
 
-    void clear()
+    virtual void clear()
     {
-        time.clear();
-        angle.clear();
+        m_time.clear();
+        m_angle.clear();
         dangle.clear();
         ddangle.clear();
     }
 
-    const std::vector<double> get_angle() const
+    virtual const std::vector<double> getTime() const
     {
-        return angle;
+        return m_time;
     }
 
-    const double get_time(int i) const
+    virtual const std::vector<double> getAngle() const
     {
-        return time.at(i);
+        return m_angle;
     }
 
-    const double get_angle(int i) const
+    virtual const double getTime(int i) const
     {
-        return angle.at(i);
+        return m_time.at(i);
     }
 
-    const double get_dangle(int i) const
+    virtual const double getAngle(int i) const
+    {
+        return m_angle.at(i);
+    }
+
+    virtual const double getDangle(int i) const
     {
         return dangle.at(i);
     }
 
-    double get_ddangle(int i) const
+    virtual double getDdangle(int i) const
     {
         return dangle.at(i);
     }
 
 
     //IO
-    void print() const
+    virtual void print() const
     {
         for(size_t i = 0; i < size(); i++)
         {
             std::cerr
-                << time[i] << "\t"
-                << angle[i] << "\t"
+                << m_time[i] << "\t"
+                << m_angle[i] << "\t"
                 << dangle[i] << "\t"
                 << ddangle[i] << "\n";
         }
 
     }
 
-    void write(const std::string& file_name)
+    virtual void write(const std::string& file_name)
     {
         std::cout << "Oscillation write(file_name)\n";
         this->info();
@@ -225,8 +306,8 @@ public:
         std::ofstream fout(file_name);
         for(size_t i = 0; i < this->size(); i++){
             fout
-                << time[i] << "\t"
-                << angle[i] << "\t"
+                << m_time[i] << "\t"
+                << m_angle[i] << "\t"
                 << dangle[i] << "\t"
                 << ddangle[i] << "\n";
             //std::cout << time[i] << std::endl;
@@ -237,7 +318,7 @@ public:
     /*
     *   Load Oscillation file saved in 'write"-form
     */
-    bool loadFile(const std::string& fileName,
+    virtual bool loadFile(const std::string& fileName,
                   oscillation_helpers::FileType mode = oscillation_helpers::DEFAULT)
     {
         this->clear();
@@ -262,8 +343,8 @@ public:
                 Oscillation result(fileName);
 
                 // todo rewrite
-                time = result.time;
-                angle = result.angle;
+                m_time = result.m_time;
+                m_angle = result.m_angle;
                 dangle = result.dangle;
                 ddangle = result.ddangle;
 
@@ -288,7 +369,7 @@ public:
                     this->push_back(tBuff, aBuff, daBuff, 0);
                 }
 
-                double h = this->time.at(1) - time.at(0);
+                double h = this->m_time.at(1) - m_time.at(0);
 
                 ///ddangle calc
                 //for(size_t i = 0; i < size(); ++i)
@@ -350,8 +431,8 @@ public:
     friend std::ostream& operator<< (std::ostream& out, const Oscillation& D)
     {
         for(size_t i = 0; i < D.size(); i++)
-            out << D.time[i] << "\t"
-                << D.angle[i] << "\t"
+            out << D.m_time[i] << "\t"
+                << D.m_angle[i] << "\t"
                 << D.dangle[i] << "\t"
                 << D.ddangle[i] << "\n";
         return out;
@@ -361,16 +442,16 @@ public:
 
     void scaleTime(const double& factor)
     {
-        if(time.size() > 0)
-            for(size_t i = 0; i < time.size(); i++)
-                time[i] *= factor;
+        if(m_time.size() > 0)
+            for(size_t i = 0; i < m_time.size(); i++)
+                m_time[i] *= factor;
     }
 
     void scaleAngle(const double& factor)
     {
-        if(angle.size() > 0)
-            for(size_t i = 0; i < angle.size(); i++)
-                angle[i] *= factor;
+        if(m_angle.size() > 0)
+            for(size_t i = 0; i < m_angle.size(); i++)
+                m_angle[i] *= factor;
     }
 
     void scaleDAngle(const double& factor)
@@ -410,7 +491,7 @@ public:
     }
 
     /// OTHER
-    void info() override {
+    virtual void info() override {
         std::cout << "Oscillation object \nsize = ";
         std::cout << this->size() << std::endl;
     }

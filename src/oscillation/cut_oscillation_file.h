@@ -6,7 +6,7 @@
 
 #include "../oscillation/oscillation_basic.h"
 
-namespace Oscillation_files
+namespace oscillation_files
 {
 
     bool cut_file(const std::string& input_file, const double from_time, const double to_time, const std::string& output_file)
@@ -17,29 +17,32 @@ namespace Oscillation_files
 
         Oscillation R;
 
-        std::vector<double>::const_iterator _it = A.time.begin();
+        std::vector<double>::const_iterator _it = A.timeBegin();
 
-        while( *_it <= from_time && _it != A.time.end())
+        while( *_it <= from_time && _it != A.timeEnd())
             _it++;
 
         // начальный отсчет
-        size_t first_st = _it - A.time.begin();
+        size_t first_st = _it - A.timeBegin();
             std::cout << "from it value = " << *_it << std::endl;
 
         // последний отсчет
-        while( *_it <= to_time && _it != A.time.end())
+        while( *_it <= to_time && _it != A.timeEnd())
             _it++;
 
         //std::vector<double>::const_iterator last = _it;
-        size_t last_st = _it - A.time.begin();
+        size_t last_st = _it - A.timeBegin();
             std::cout << "to it value = " << *_it << std::endl;
 
         //std::cout << first_st << "\t" << last_st << "\tsize=" << A.size() <<"\n";
 
-        R.time.insert(R.time.begin(), A.time.begin()+first_st, A.time.begin()+last_st);
-        R.angle.insert(R.angle.begin(), A.angle.begin()+first_st, A.angle.begin()+last_st);
-        R.dangle.insert(R.dangle.begin(), A.dangle.begin()+first_st, A.dangle.begin()+last_st);
-        R.ddangle.insert(R.ddangle.begin(), A.ddangle.begin()+first_st, A.ddangle.begin()+last_st);
+
+        R.insertAllFieldsFromTo(A, first_st, last_st);
+
+        /*R.time.insert(R.timeBegin(), A.timeBegin()+first_st, A.timeBegin()+last_st);
+        R.angle.insert(R.angleBegin(), A.angleBegin()+first_st, A.angleBegin()+last_st);
+        R.dangle.insert(R.dangleBegin(), A.dangleBegin()+first_st, A.dangleBegin()+last_st);
+        R.ddangle.insert(R.ddangleBegin(), A.ddangleBegin()+first_st, A.ddangleBegin()+last_st);*/
 
         R.write(output_file);
         return true;
@@ -69,4 +72,4 @@ namespace Oscillation_files
 
         cut_file(output_file, from_time, to_time, output_file);
     }
-} // namespace Oscillation_files
+} // namespace oscillation_files

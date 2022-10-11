@@ -8,33 +8,38 @@
 #include "../model/tr_rod_model_params.h"
 #include "../flow/wt_flow.h"
 
-class WtOscillation
+class WtOscillation : public Oscillation
 {
 public:
 
-    WtOscillation(Oscillation oscillation, wt_flow::Flow flow, Model model) : m_oscillation(oscillation),
+    WtOscillation(Oscillation oscillation, wt_flow::Flow flow, Model model) : Oscillation(oscillation),
                                                                               m_flow(flow),
                                                                               m_model(model),
-                                                                              m_timeStamp( m_oscillation.time.at(1) - m_oscillation.time.at(0))
+                                                                              m_timeStamp( getTime(1) - getTime(0))
     {
     };
 
-    double getTimeStamp() const
+    virtual ~WtOscillation()
+    {
+    };
+
+    virtual double getTimeStamp() const
     {
         return m_timeStamp;
     }
 
-    double getAngle(size_t index) const
+    virtual double getAngle(size_t index) const
     {
-        return m_oscillation.angle.at(index);
+        return getAngle(index);
+    }
+
+    virtual const std::vector<double> getAngle() const
+    {
+        return getAngle();
     }
 
 
-    std::vector<double> getAngle() const
-    {
-        return m_oscillation.angle;
-    }
-
+    // SPECIFIC METHODS
     bool getMz()
     {
         if (m_flow.isCalculated())
@@ -43,7 +48,7 @@ public:
 
             std::cout << "\tI/(qsl) = " << factor << "\n";
 
-            m_mz = m_oscillation.makeScaledDDAngle(factor);
+            m_mz = makeScaledDDAngle(factor);
 
             return true;
         }
@@ -60,7 +65,7 @@ public:
 
         for (size_t i = 1; i < m_mz.size()-1; i++)
         {
-            if (m_oscillation.get_dangle(i-1) <= 0 &&  m_oscillation.get_dangle(i) > 0)
+            if (getDangle(i-1) <= 0 && getDangle(i) > 0)
                 m_mzAmplitudeIndexes.emplace_back(i);
         }
 
@@ -72,7 +77,7 @@ public:
     {
         std::ofstream fout(fileName);
 
-        m_oscillation.info();
+        this->info();
 
         if(!fout.is_open())
         {
@@ -81,8 +86,8 @@ public:
         }
 
 
-        for (size_t i = 0; i < m_oscillation.size(); i++)
-            fout << m_oscillation.get_time(i) << "\t" << m_mz.at(i) << "\n";
+        for (size_t i = 0; i < this->size(); i++)
+            fout << getTime(i) << "\t" << m_mz.at(i) << "\n";
 
         fout.close();
 
@@ -93,7 +98,7 @@ public:
     {
         std::ofstream fout(fileName);
 
-        m_oscillation.info();
+        this->info();
 
         if(!fout.is_open())
         {
@@ -104,7 +109,7 @@ public:
 
         for (auto index : m_mzAmplitudeIndexes)
         {
-            fout << m_oscillation.get_time(index) << "\t" << m_mz.at(index) << "\n";
+            fout << getTime(index) << "\t" << m_mz.at(index) << "\n";
         }
         fout.close();
 
@@ -112,7 +117,7 @@ public:
     }
 
     private:
-        Oscillation m_oscillation;
+        //Oscillation m_oscillation;
 
         std::vector<double> m_mz;
         std::vector<size_t> m_mzAmplitudeIndexes;
