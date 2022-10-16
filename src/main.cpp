@@ -3,17 +3,7 @@
 
 #include "options.h"
 #include "basic_procedures.h"
-//#include "../tests/tests.h"
 
-/*
-
-#include "oscillation/oscillation_basic.h"
-#include "oscillation/cut_oscillation_file.h"
-
-#include "oscillation/wt_oscillation.h"
-#include "flow/parse_ptl.h"
-#include "analize_coefficients/dynamic_coefficients.h"
-*/
 
 const double Pi = 3.14159265359;
 

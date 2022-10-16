@@ -8,18 +8,18 @@ include(CTest)
 enable_testing()
 
 include_directories (src/)
+#include_directories (/home/mishnic/gsl/include/gsl/)
 
 #add_subdirectory(tests build/tests)
 add_subdirectory(tests)
 
 
-
-find_library(LIB_TO_INCLUDE ClassLibrary /path/to/your/library)
-find_path (LIB_INCLUDES ClassLibrary.h /home/mishnic/src/boost_1_67_0/libs/)
-
 #find_package(Boost 1.67 COMPONENTS program_options REQUIRED)
-#target_link_libraries(anyExecutable Boost::program_options)
 
+set(CMAKE_CXX_STANDARD 11)
+set(CMAKE_CXX_STANDARD_REQUIRED YES)
+
+#set(SOURCE_FILES main.cpp)
 
 add_executable(oscillation
               ./src/analize_coefficients/dynamic_coefficients.h
@@ -43,13 +43,19 @@ add_executable(oscillation
               ./src/main.cpp
 )
 
+find_package(GSL REQUIRED)
+
 target_link_libraries(
   oscillation 
   /home/mishnic/src/boost_1_67_0/stage/lib/libboost_program_options.a
   /home/mishnic/CPP_Projects/fftw_test/libfftw3.a
+  #/user/local/lib/libfftw3.a
+  /usr/local/lib/libgsl.a
+  /usr/local/lib/libgslcblas.a
+  GSL::gsl
+  GSL::gslcblas
+  #/home/mishnic/gsl/lib/libgslcblas.a
 )
-
-#target_link_libraries(oscillation Boost::program_options)
 
 
 set(CPACK_PROJECT_NAME ${PROJECT_NAME})
