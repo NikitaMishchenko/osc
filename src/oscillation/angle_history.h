@@ -6,7 +6,7 @@
 #include <string>
 
 
-class AngleHistory
+class AngleHistory // todo rename it's better be like TwoVectors // on the higher lvl make it angle and time
 {
 public:
 

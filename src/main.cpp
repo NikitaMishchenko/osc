@@ -72,6 +72,12 @@ int doJob(const options::Procedure procedureToPerform,
         break;
     }
 
+    case options::APPROXIMATION:
+    {
+        result = basic_procedures::performProcedureLinnearApproximation(fileName);
+        break;
+    }
+
     case options::TEST:
     {
         std::cout << "performing All test procedures\n";

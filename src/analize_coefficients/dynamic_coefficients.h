@@ -58,11 +58,22 @@ namespace dynamic_coefficients
 
             for (size_t i = 0; i < m_wtOscillation.getAngle().size() - 1; ++i)
             {
-                res.push_back(m_dimensionOfCoefficient * log(m_wtOscillation.getAngle().at(i + 1) / m_wtOscillation.getAngle().at(i + 1)));
+                res.push_back(m_dimensionOfCoefficient 
+                              * log(m_wtOscillation.getAngle().at(i + 1) / m_wtOscillation.getAngle().at(i + 1)));
             }
 
             return res;
         }
+
+        std::vector<double> calcMzDynamic()
+        {
+            std::vector<double> res;
+
+            // approx amplitude 
+
+            return res;
+        }
+
 
         WtOscillation m_wtOscillation;
         DampingCoefficients m_coeff;

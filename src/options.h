@@ -17,6 +17,7 @@ namespace options
         PERIODS,
         WT,
         PENDULUM,
+        APPROXIMATION,
         TEST,
         UNKNOWN
 
@@ -32,7 +33,7 @@ namespace options
             descr->add_options()
                 ("help,h", " - show basic info, help etc.")
                 ("mode,m", po::value<std::string>()->default_value("none"),
-                 "P to perform periods, cut - to  cut realisation, pendullum - to perform p* osc analysis")
+                 "P to perform periods, cut - to  cut realisation, pendullum - to perform p* osc analysis, approximation - to perform approx")
                 ("file,f", po::value<std::string>()->default_value("file"), " - name of file")
                 ("file2", po::value<std::string>()->default_value(""), " - name of file2")
                 ("args,a", po::value<std::vector<double>>()->multitoken()->default_value(std::vector<double>{0}, ""), " - list of args");
@@ -88,6 +89,11 @@ namespace options
 
             if ("pendulum" == mode)
                 return Procedure::PENDULUM;
+            
+            if ("approximation" == mode || "ap" == mode)
+                return Procedure::APPROXIMATION;
+
+            // todo readme
 
             if ("test" == mode)
                 return Procedure::TEST;

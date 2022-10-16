@@ -13,6 +13,7 @@
 #include "analize_coefficients/dynamic_coefficients.h"
 #include "errcodes.h"
 #include "pendulum/pendulum_analisys.h"
+#include "gnusl_proc/linnear_approximation.h"
 
 namespace basic_procedures
 {
@@ -201,6 +202,23 @@ namespace basic_procedures
         if (!noErr)
             return FAIL;
         
+        return SUCCESS;
+    }
+
+    ErrorCodes performProcedureLinnearApproximation(const std::string &fileName)
+    {
+        AngleHistory angleHistory;
+
+        if (!angleHistory.loadRaw(fileName))
+            return FAIL;
+
+        int errCode;
+        linnear_approximation::ApproxResult result;
+
+        std::tie(errCode, result) = linnear_approximation::approximate(angleHistory.getTime(), angleHistory.getAngle(), boost::none);
+
+        result.save(fileName + "_approx");
+
         return SUCCESS;
     }
 

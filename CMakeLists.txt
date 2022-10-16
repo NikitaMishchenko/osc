@@ -22,6 +22,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED YES)
 #set(SOURCE_FILES main.cpp)
 
 add_executable(oscillation
+              ./src/gnusl_proc/linnear_approximation.h
               ./src/analize_coefficients/dynamic_coefficients.h
               ./src/fft/fftw_impl.h
               ./src/filtration/butterworth_filter.h
