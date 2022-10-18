@@ -49,6 +49,11 @@ namespace dynamic_coefficients
             }
         }
 
+        std::vector<double> getMzEqvivalent() const
+        {
+            return m_coeff.eqvivalentDamp;
+        }
+
     private:
         std::vector<double> calcLogAmplitude()
         {
@@ -58,8 +63,7 @@ namespace dynamic_coefficients
 
             for (size_t i = 0; i < m_wtOscillation.getAngle().size() - 1; ++i)
             {
-                res.push_back(m_dimensionOfCoefficient 
-                              * log(m_wtOscillation.getAngle().at(i + 1) / m_wtOscillation.getAngle().at(i + 1)));
+                res.push_back(m_dimensionOfCoefficient * log(m_wtOscillation.getAngle().at(i + 1) / m_wtOscillation.getAngle().at(i + 1)));
             }
 
             return res;
@@ -69,7 +73,8 @@ namespace dynamic_coefficients
         {
             std::vector<double> res;
 
-            // approx amplitude 
+            // approx amplitude
+        
 
             return res;
         }
