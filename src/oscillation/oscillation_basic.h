@@ -296,9 +296,9 @@ public:
 
     }
 
-    virtual void write(const std::string& file_name)
+    virtual void write(const std::string& file_name) const
     {
-        std::cout << "Oscillation write(file_name)\n";
+        std::cout << "Oscillation write to file: " << file_name << "\n";
         this->info();
         //angle_history.print();
         std::ofstream fout(file_name);
@@ -475,8 +475,11 @@ public:
     }
 
     /// OTHER
-    virtual void info() override {
-        std::cout << "Oscillation object \nsize = ";
-        std::cout << this->size() << std::endl;
+    virtual void info() const override
+    {
+        std::cout << "Oscillation object \n"
+                 << "\tdangle size: " << dangle.size() << "\n"
+                 << "\tddangle size: " << ddangle.size() << "\n";
+        AngleHistory::info();
     }
 };

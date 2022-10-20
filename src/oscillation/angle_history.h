@@ -33,7 +33,7 @@ public:
     //copy
     AngleHistory(const AngleHistory& d) : m_time(d.m_time), m_angle(d.m_angle)
     {
-        std::cout << "AngleHistory copy constructor\n";
+        //std::cout << "AngleHistory copy constructor\n";
     }
 
     AngleHistory& operator= (const AngleHistory& d)
@@ -94,10 +94,11 @@ public:
 
     virtual const size_t size() const { return m_angle.size();}
 
-    virtual void info()
+    virtual void info() const
     {
-        std::cout << "AngleHistory object \nsize = ";
-        std::cout << m_angle.size() << std::endl;
+        std::cout << "AngleHistory object \n"
+                  << "m_time size: " << m_time.size() << "\n"  
+                  << "m_angle size: " <<  m_angle.size() << "\n";
     }
 
     virtual bool loadRaw(const std::string& file_name)
@@ -128,6 +129,15 @@ public:
 
         fin.close();
         return false;
+    }
+
+    virtual void write(const std::string& fileName) const
+    {
+        std::ofstream fout(fileName);
+
+        fout << *this;
+
+        fout.close();
     }
 
     void scaleTime(const double& factor)

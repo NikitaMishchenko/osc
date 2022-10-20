@@ -53,9 +53,9 @@ public:
     {
         std::vector<double> result;
 
-        result.reserve(m_mzAmplitudeIndexes.size());
+        result.reserve(m_AngleAmplitudeIndexes.size());
 
-        for (size_t index = 0; index < m_mzAmplitudeIndexes.size(); ++index)
+        for (size_t index = 0; index < m_AngleAmplitudeIndexes.size(); ++index)
             result.emplace_back(getTimeAmplitude(index));
 
         return result;
@@ -65,9 +65,9 @@ public:
     {
         std::vector<double> result;
 
-        result.reserve(m_mzAmplitudeIndexes.size());
+        result.reserve(m_AngleAmplitudeIndexes.size());
 
-        for (size_t index = 0; index < m_mzAmplitudeIndexes.size(); ++index)
+        for (size_t index = 0; index < m_AngleAmplitudeIndexes.size(); ++index)
             result.emplace_back(getAngleAmplitude(index));
 
         return result;
@@ -75,14 +75,12 @@ public:
 
     double getTimeAmplitude(const size_t index) const
     {
-
-        return m_time.at(m_mzAmplitudeIndexes.at(index));
+        return m_time.at(m_AngleAmplitudeIndexes.at(index));
     }
 
     double getAngleAmplitude(const size_t index) const
     {
-
-        return m_angle.at(m_mzAmplitudeIndexes.at(index));
+        return m_angle.at(m_AngleAmplitudeIndexes.at(index));
     }
 
     Model getModel() const
@@ -91,7 +89,7 @@ public:
     }
 
     // IO
-    bool saveMzData(const std::string &fileName)
+    bool saveMzData(const std::string &fileName) const
     {
         std::ofstream fout(fileName);
 
@@ -136,8 +134,13 @@ public:
     // first -time, second mz
     bool getMzAmplitudeIndexes()
     {
-        if (m_mz.empty())
-            return false;
+        std::cout << "getMzAmplitudeIndexes entry()\n";
+        std::cout << "\t\tm_mz size: " << m_mz.size() << "\n"; 
+
+        if (m_mz.empty()){
+            std::cerr << "WARNING m_mz is empty aborting\n";
+           return false;
+        }
 
         for (size_t i = 1; i < m_mz.size() - 1; i++)
         {
@@ -148,9 +151,45 @@ public:
         return true;
     }
 
+    bool getAngleAmplitudeIndexes()
+    {
+        std::cout << "getMzAmplitudeIndexes entry()\n";
+        std::cout << "\t\tm_mz size: " << m_angle.size() << "\n"; 
+
+        if (m_angle.empty()){
+            std::cerr << "WARNING m_angle is empty aborting\n";
+           return false;
+        }
+
+        for (size_t i = 1; i < m_angle.size(); i++)
+        {
+            if (getDangle(i - 1) <= 0 && getDangle(i) > 0)
+                m_AngleAmplitudeIndexes.emplace_back(i);
+
+            if (getDangle(i - 1) >= 0 && getDangle(i) < 0)
+                m_AngleAmplitudeIndexes.emplace_back(i);                
+        }
+
+        m_AngleAmplitudeIndexes.shrink_to_fit();
+
+        return true;
+    }
+
+    // othre
+    virtual void info() const override
+    {
+        std::cout << "WtOscillation oject\n"
+                  << "\tm_mz size: " << m_mz.size() << "\n"
+                  << "\tm_AngleAmplitudeIndexes size: " << m_AngleAmplitudeIndexes.size() << "\n"
+                  << "\tm_mzAmplitudeIndexes size: " << m_mzAmplitudeIndexes.size() << "\n";
+        
+        Oscillation::info();          
+    }
+
 private:
     std::vector<double> m_mz;
     std::vector<size_t> m_mzAmplitudeIndexes;
+    std::vector<size_t> m_AngleAmplitudeIndexes;
 
     wt_flow::Flow m_flow;
 

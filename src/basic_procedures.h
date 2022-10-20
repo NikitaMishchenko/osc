@@ -237,11 +237,10 @@ namespace basic_procedures
         // for pendulum only
         pendulum::removeOffscale(angleHistory);
         pendulum::remove0Harmonic(angleHistory);    
-        
+
         WtOscillation wt(angleHistory);
         
-
-        // angle to zero
+        wt.write("tmp");
 
         dynamic_coefficients::EqvivalentDamping eqvivalentDamping(wt);
 

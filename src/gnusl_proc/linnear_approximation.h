@@ -14,11 +14,11 @@ namespace linnear_approximation
 
     struct ApproxResult
     {
-        ApproxResult()
-        {}
+        //ApproxResult()
+        //{}
 
-        ApproxResult(const ApproxResult &rv) : xf(rv.xf), yf(rv.yf), yfErr(rv.yfErr)
-        {}
+        //ApproxResult(const ApproxResult &rv) : xf(rv.xf), yf(rv.yf), yfErr(rv.yfErr)
+        //{}
 
         void reserve(const size_t n)
         {
@@ -39,7 +39,7 @@ namespace linnear_approximation
             std::cout << "saving ApproxResult to file " << fileName << "\n";
 
             std::ofstream fout(fileName + "_coeff");
-                fout << c0 << "\t" << c1 << "\n";
+            fout << c0 << "\t" << c1 << "\n";
             fout.close();
 
             // todo if probeResult
@@ -50,15 +50,30 @@ namespace linnear_approximation
                 {
                     fout << xf.at(i) << "\t" << yf.at(i) << "\t" << yfErr.at(i) << "\n";
 
-                    //std::cout << xf.at(i) << "\t" << yf.at(i) << "\t" << yfErr.at(i) << "\n";
+                    // std::cout << xf.at(i) << "\t" << yf.at(i) << "\t" << yfErr.at(i) << "\n";
                 }
 
                 fout.close();
             }
         }
 
+        /*friend std::ostream &operator<<(std::ostream &out, const ApproxResult &D)
+        {
+
+                out << "c0: " << c0 << "\n"
+                    << "c1: " << c1 << "\n"
+                    << "cov00: " << cov00 << "\n"
+                    << "cov01: " << cov01 << "\n"
+                    << "cov11: " << cov11 << "\n"
+                    << "chisq: " << chisq << "\n";
+
+                return out;
+        }*/
+
         double c0;
         double c1;
+        double cov00, cov01, cov11, chisq;
+
         std::vector<double> xf;
         std::vector<double> yf;
         std::vector<double> yfErr;
@@ -91,9 +106,7 @@ namespace linnear_approximation
             {
                 for (size_t i = 0; i < n; ++i)
                     w[i] = 10000000; // todo make it propper
-                   
             }
-
         }
 
         ~ProceedApproximation()
@@ -112,13 +125,20 @@ namespace linnear_approximation
                             &c0, &c1, &cov00, &cov01, &cov11,
                             &chisq);
 
-            //for(size_t i = 0; i < n; ++i)
-            //    std::cout << x[i] << "\t" << y[i] << "\t" << w[i] << "\n";
+            for (size_t i = 0; i < n; ++i)
+                std::cout << x[i] << "\t" << y[i] << "\t" << w[i] << "\n";
 
             ApproxResult result;
             result.c0 = c0;
             result.c1 = c1;
             result.reserve(n);
+
+                    std::cout << "c0: " << c0 << "\n"
+                    << "c1: " << c1 << "\n"
+                    << "cov00: " << cov00 << "\n"
+                    << "cov01: " << cov01 << "\n"
+                    << "cov11: " << cov11 << "\n"
+                    << "chisq: " << chisq << "\n";
 
             for (int i = -30; i < 130; i++)
             {
@@ -129,10 +149,18 @@ namespace linnear_approximation
                                    cov00, cov01, cov11,
                                    &yf, &yf_err);
 
-                //std::cout << xf << "\t" << yf << "\t" << yf_err << "\n";
+                // std::cout << xf << "\t" << yf << "\t" << yf_err << "\n";
 
                 result.push_back(xf, yf, yf_err);
             }
+
+            std::cout << "DUFUQ\n";
+                    std::cout << "c0: " << c0 << "\n"
+                    << "c1: " << c1 << "\n"
+                    << "cov00: " << cov00 << "\n"
+                    << "cov01: " << cov01 << "\n"
+                    << "cov11: " << cov11 << "\n"
+                    << "chisq: " << chisq << "\n";
 
             return std::make_tuple(0, result);
         }
@@ -146,11 +174,14 @@ namespace linnear_approximation
 
     std::tuple<int, ApproxResult> approximate(const std::vector<double> &inputDataX,
                                               const std::vector<double> &inputDataY,
-                                              const boost::optional<std::vector<double>> &err)
+                                              const boost::optional<std::vector<double>> &err = boost::optional<std::vector<double>>())
     {
-        for (size_t i  = 0; i < inputDataX.size(); ++i)
+        std::cout << "linnear_approximation::approximate performing, xSize: "
+                  << inputDataX.size() << "ySize:" << inputDataY.size() << "\n";
+
+        for (size_t i = 0; i < inputDataX.size(); ++i)
         {
-            std::cout << inputDataX.at(i) << "\t" <<  inputDataY.at(i) << "\n";
+            std::cout << inputDataX.at(i) << "\t" << inputDataY.at(i) << "\n";
         }
 
         ProceedApproximation pA(inputDataX, inputDataY, err);

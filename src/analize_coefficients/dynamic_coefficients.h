@@ -1,6 +1,7 @@
 #pragma once
 
 #include <cmath>
+#include <cassert>
 
 #include <vector>
 #include <tuple>
@@ -80,9 +81,12 @@ namespace dynamic_coefficients
 
         /*
          *   ln(Theta(t)) = (n_c(Theta_sr)*t) + ln(c)
+         *   result = c1*t+c0
+         *   y = c1*x + c0
          *   m_wtOscillation->getAmplitude
-         *   y = ln(amplitude)
+         *   y = ln(amplitude) = ln(m_wtOscillation.getAmplitude())
          *   x = m_wtOscillation.getTime();
+         *   approximate (x , y)
          *   c1 = ln(c)
          *   c0 = n_c
          */
@@ -90,19 +94,59 @@ namespace dynamic_coefficients
         {
             std::cout << "calcMzEqvivalentCoefficient()\n";
 
-            std::vector<double> res;
+            m_wtOscillation.getAngleAmplitudeIndexes();
+
+            m_wtOscillation.info();
+
+            // todo assert(!AngleAmplitudeIndexes.empty());
 
             int resultCode;
             linnear_approximation::ApproxResult approxResult;
 
-            std::tie(resultCode, approxResult) = linnear_approximation::approximate(m_wtOscillation.getAngleAmplitude(),
-                                                                                    log(m_wtOscillation.getTimeAmplitude()),
-                                                                                    boost::optional<std::vector<double>>());
+            {
+                m_wtOscillation.write("takeAmplFromThis");
 
+                std::vector<double> x = m_wtOscillation.getTimeAmplitude();
+                std::vector<double> y = m_wtOscillation.getAngleAmplitude();
+
+                {
+
+                    //  берем часть, для тестов
+                    // todo range
+                    size_t fromIdx, toIdx;
+                    double offset = 0.1;
+
+                    fromIdx = int(x.size()*offset);
+                    toIdx = x.size() - fromIdx;
+
+                    std::vector<double> subX(x.begin() + fromIdx, x.begin() + toIdx);
+                    std::vector<double> subY(y.begin() + fromIdx, y.begin() + toIdx);
+
+                    for (auto &itm : subY)
+                    {
+                        itm = abs(itm);
+                    }
+
+                    AngleHistory a(subX, subY);
+                    a.write("approxThis");
+
+                    // fixme subY = log(subY);
+
+                    std::tie(resultCode, approxResult) = linnear_approximation::approximate(subX, subY);
+
+                    std::cout << "AproxxResult:\n"
+                              << "c0: " << approxResult.c0 << "\n"
+                              << "c1: " << approxResult.c1 << "\n"
+                              << "cov00: " << approxResult.cov00 << "\n"
+                              << "cov01: " << approxResult.cov01 << "\n"
+                              << "cov11: " << approxResult.cov11 << "\n"
+                              << "chisq: " << approxResult.chisq << "\n";
+                }
+            }
             std::cout << "performed\n";
 
             approxResult.save("outputApproxResult");
-            
+
             // manage features
             return std::make_tuple(resultCode, approxResult);
         }
@@ -112,7 +156,7 @@ namespace dynamic_coefficients
          *   Theta(t) = c*exp(-n_c(Theta_sr)*t)
          *   ln(Theta(t)) = (n_c(Theta_sr)*t) + ln(c)
          */
-        std::vector<double> calcLogAmplitude() // fixme it's calculated in m_mzAmplitudeIndexes
+        std::vector<double> calcLogAmplitude() const // fixme it's calculated in m_mzAmplitudeIndexes
         {
             std::cout << "calcLogAmplitude() ";
 
@@ -124,7 +168,7 @@ namespace dynamic_coefficients
             {
                 res.push_back(m_dimensionOfCoefficient * log(m_wtOscillation.getAngle().at(i + 1) / m_wtOscillation.getAngle().at(i + 1)));
             }
-            
+
             std::cout << res.size() << "\n";
 
             return res;
