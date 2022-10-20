@@ -13,6 +13,12 @@
 class WtOscillation : public Oscillation
 {
 public:
+    WtOscillation(AngleHistory angleHistory, wt_flow::Flow flow, Model model) : Oscillation(angleHistory),
+                                                                                m_flow(flow),
+                                                                                m_model(model),
+                                                                                m_timeStamp(getTime(1) - getTime(0)){};
+
+    // todo refactor make some arg const
     WtOscillation(Oscillation oscillation, wt_flow::Flow flow, Model model) : Oscillation(oscillation),
                                                                               m_flow(flow),
                                                                               m_model(model),
@@ -42,20 +48,40 @@ public:
         return false;
     }
 
-    // todo
-    // first -time, second mz
-    bool getMzAmplitudeIndexes()
+    std::vector<double> getTimeAmplitude() const
     {
-        if (m_mz.empty())
-            return false;
+        std::vector<double> result;
 
-        for (size_t i = 1; i < m_mz.size() - 1; i++)
-        {
-            if (getDangle(i - 1) <= 0 && getDangle(i) > 0)
-                m_mzAmplitudeIndexes.emplace_back(i);
-        }
+        result.reserve(m_mzAmplitudeIndexes.size());
 
-        return true;
+        for (size_t index = 0; index < m_mzAmplitudeIndexes.size(); ++index)
+            result.emplace_back(getTimeAmplitude(index));
+
+        return result;
+    }
+
+    std::vector<double> getAngleAmplitude() const
+    {
+        std::vector<double> result;
+
+        result.reserve(m_mzAmplitudeIndexes.size());
+
+        for (size_t index = 0; index < m_mzAmplitudeIndexes.size(); ++index)
+            result.emplace_back(getAngleAmplitude(index));
+
+        return result;
+    }
+
+    double getTimeAmplitude(const size_t index) const
+    {
+
+        return m_time.at(m_mzAmplitudeIndexes.at(index));
+    }
+
+    double getAngleAmplitude(const size_t index) const
+    {
+
+        return m_angle.at(m_mzAmplitudeIndexes.at(index));
     }
 
     // IO
@@ -100,8 +126,23 @@ public:
         return true;
     }
 
-private:
+    // todo refactor: move to private
+    // first -time, second mz
+    bool getMzAmplitudeIndexes()
+    {
+        if (m_mz.empty())
+            return false;
 
+        for (size_t i = 1; i < m_mz.size() - 1; i++)
+        {
+            if (getDangle(i - 1) <= 0 && getDangle(i) > 0)
+                m_mzAmplitudeIndexes.emplace_back(i);
+        }
+
+        return true;
+    }
+
+private:
     std::vector<double> m_mz;
     std::vector<size_t> m_mzAmplitudeIndexes;
 

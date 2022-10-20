@@ -14,6 +14,7 @@
 #include "errcodes.h"
 #include "pendulum/pendulum_analisys.h"
 #include "gnusl_proc/linnear_approximation.h"
+#include "analize_coefficients/dynamic_coefficients.h"
 
 namespace basic_procedures
 {
@@ -224,6 +225,14 @@ namespace basic_procedures
 
     ErrorCodes testFunc()
     {
+
+        AngleHistory angleHistory;
+
+        if (!angleHistory.loadRaw("input"))
+            return FAIL;
+
+        WtOscillation wt(angleHistory);
+
         return FAIL;
     }
 

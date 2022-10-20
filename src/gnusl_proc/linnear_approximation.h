@@ -148,7 +148,7 @@ namespace linnear_approximation
                                               const std::vector<double> &inputDataY,
                                               const boost::optional<std::vector<double>> &err)
     {
-        for (int i  = 0; i < inputDataX.size(); ++i)
+        for (size_t i  = 0; i < inputDataX.size(); ++i)
         {
             std::cout << inputDataX.at(i) << "\t" <<  inputDataY.at(i) << "\n";
         }

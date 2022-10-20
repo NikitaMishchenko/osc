@@ -3,6 +3,9 @@
 #include <cmath>
 
 #include <vector>
+#include <tuple>
+
+#include <boost/optional.hpp>
 
 // todo research https://www.boost.org/doc/libs/1_56_0/libs/math/doc/html/math_toolkit/internals2/minimax.html
 // #include <boost/math/tools/polynomial.hpp>
@@ -10,6 +13,24 @@
 
 #include "../oscillation/wt_oscillation.h"
 #include "../model/tr_rod_model_params.h"
+#include "../gnusl_proc/linnear_approximation.h"
+
+namespace
+{
+    std::vector<double> log(const std::vector<double> &arg)
+    {
+        std::vector<double> result;
+
+        result.reserve(arg.size());
+
+        for (size_t i = 0; i < arg.size(); ++i)
+        {
+            result.emplace_back(std::log(arg.at(i)));
+        }
+
+        return result;
+    }
+}
 
 namespace dynamic_coefficients
 {
@@ -55,7 +76,11 @@ namespace dynamic_coefficients
         }
 
     private:
-        std::vector<double> calcLogAmplitude()
+        /*
+         *   Theta(t) = c*exp(-n_c(Theta_sr)*t)
+         *   ln(Theta(t)) = (n_c(Theta_sr)*t) + ln(c)
+         */
+        std::vector<double> calcLogAmplitude() // fixme it's calculated in m_mzAmplitudeIndexes
         {
             std::vector<double> res;
 
@@ -69,16 +94,28 @@ namespace dynamic_coefficients
             return res;
         }
 
-        std::vector<double> calcMzDynamic()
+        /*
+         *   ln(Theta(t)) = (n_c(Theta_sr)*t) + ln(c)
+         *   m_wtOscillation->getAmplitude
+         *   y = ln(amplitude)
+         *   x = m_wtOscillation.getTime();
+         *   c1 = ln(c)
+         *   c0 = n_c
+         */
+        std::tuple<int, linnear_approximation::ApproxResult> calcMzEqvivalentCoefficient()
         {
             std::vector<double> res;
 
-            // approx amplitude
-        
+            int resultCode;
+            linnear_approximation::ApproxResult approxResult;
 
-            return res;
+            std::tie(resultCode, approxResult) = linnear_approximation::approximate(m_wtOscillation.getAngleAmplitude(),
+                                                                                    log(m_wtOscillation.getTimeAmplitude()),
+                                                                                    boost::optional<std::vector<double>>());
+            
+            // manage features
+            return std::make_tuple(resultCode, approxResult);
         }
-
 
         WtOscillation m_wtOscillation;
         DampingCoefficients m_coeff;
@@ -88,6 +125,7 @@ namespace dynamic_coefficients
          */
         double m_dimensionOfCoefficient; // 2I/T
     };
+
 
     class ActualDamping
     {
