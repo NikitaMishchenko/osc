@@ -15,19 +15,22 @@ namespace wt_flow
 
     class Flow
     {
-    private:
-        double m_rho = 0;
-        double m_velocity = 0;
-        double m_T0 = 0;
-
-        double m_dynamicPressure = 0;
-
-        // reference
-        double m_mach = 0;
-        double m_reynolds = 0; // normalized at 1 meter
-
-
     public:
+        Flow()
+        {
+            double m_rho = 1;
+            double m_velocity = 1;
+            double m_T0 = 1;
+            double m_dynamicPressure = 1;
+            double m_mach = 1;
+            double m_reynolds = 1; 
+        }
+
+        Flow(const std::string& fileName)
+        {
+            loadFile(fileName);
+        }
+
         ///CALCULATE FLOW
         void setToDefault()
         {
@@ -107,6 +110,16 @@ namespace wt_flow
         bool loadFile( const std::string& fileName);
         bool saveFile( const std::string& fileNmae);
 
+    private:
+        double m_rho = 0;
+        double m_velocity = 0;
+        double m_T0 = 0;
+
+        double m_dynamicPressure = 0;
+
+        // reference
+        double m_mach = 0;
+        double m_reynolds = 0; // normalized at 1 meter
     };
 
 } // namespace wt_flow

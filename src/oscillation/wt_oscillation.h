@@ -13,10 +13,11 @@
 class WtOscillation : public Oscillation
 {
 public:
-    WtOscillation(AngleHistory angleHistory, wt_flow::Flow flow, Model model) : Oscillation(angleHistory),
-                                                                                m_flow(flow),
-                                                                                m_model(model),
-                                                                                m_timeStamp(getTime(1) - getTime(0)){};
+    WtOscillation(AngleHistory angleHistory) : Oscillation(angleHistory),
+                                               m_flow(wt_flow::Flow()),
+                                               m_model(Model()),
+                                               m_timeStamp(getTime(1) - getTime(0))
+    {};
 
     // todo refactor make some arg const
     WtOscillation(Oscillation oscillation, wt_flow::Flow flow, Model model) : Oscillation(oscillation),
@@ -82,6 +83,11 @@ public:
     {
 
         return m_angle.at(m_mzAmplitudeIndexes.at(index));
+    }
+
+    Model getModel() const
+    {
+        return m_model;
     }
 
     // IO

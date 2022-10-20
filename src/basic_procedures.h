@@ -2,6 +2,7 @@
 
 #include <string>
 #include <utility>
+#include <tuple>
 
 #include "oscillation/oscillation_basic.h"
 #include "fft/fftw_impl.h"
@@ -225,13 +226,31 @@ namespace basic_procedures
 
     ErrorCodes testFunc()
     {
+        std::cout << "performing testFunc\n";
 
         AngleHistory angleHistory;
 
         if (!angleHistory.loadRaw("input"))
             return FAIL;
 
+
+        // for pendulum only
+        pendulum::removeOffscale(angleHistory);
+        pendulum::remove0Harmonic(angleHistory);    
+        
         WtOscillation wt(angleHistory);
+        
+
+        // angle to zero
+
+        dynamic_coefficients::EqvivalentDamping eqvivalentDamping(wt);
+
+        int errCode;
+        linnear_approximation::ApproxResult approxResult;
+
+        std::tie(errCode, approxResult) = eqvivalentDamping.calcMzEqvivalentCoefficient();
+
+        approxResult.save("result");
 
         return FAIL;
     }

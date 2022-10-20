@@ -82,7 +82,7 @@ int doJob(const options::Procedure procedureToPerform,
     {
         std::cout << "performing All test procedures\n";
 
-        // result = basic_procedures::testFunc();
+        result = basic_procedures::testFunc();
 
         break;
     }
@@ -148,7 +148,7 @@ int main(int argc, char *argv[])
 
     /// INIT PARAMS
     const options::Procedure procedureToPerform = opt.getProcedure();
-    std::cout << "got procedure: " << static_cast<int>(procedureToPerform) << "\n";
+    std::cout << "got procedure: " << static_cast<int>(procedureToPerform) << "\n"; // todo make string output
     const std::string fileName = opt.getFileName();
     const std::string fileName2 = opt.getFileName2();
     const std::vector<double> extraArgumentsVector = opt.getArgs();

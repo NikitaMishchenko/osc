@@ -15,12 +15,10 @@ namespace linnear_approximation
     struct ApproxResult
     {
         ApproxResult()
-        {
-        }
+        {}
 
         ApproxResult(const ApproxResult &rv) : xf(rv.xf), yf(rv.yf), yfErr(rv.yfErr)
-        {
-        }
+        {}
 
         void reserve(const size_t n)
         {
@@ -38,6 +36,8 @@ namespace linnear_approximation
 
         void save(const std::string &fileName)
         {
+            std::cout << "saving ApproxResult to file " << fileName << "\n";
+
             std::ofstream fout(fileName + "_coeff");
                 fout << c0 << "\t" << c1 << "\n";
             fout.close();

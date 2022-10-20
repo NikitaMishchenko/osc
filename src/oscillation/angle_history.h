@@ -130,6 +130,20 @@ public:
         return false;
     }
 
+    void scaleTime(const double& factor)
+    {
+        if(m_time.size() > 0)
+            for(size_t i = 0; i < m_time.size(); i++)
+                m_time[i] *= factor;
+    }
+
+    void scaleAngle(const double& factor)
+    {
+        if(m_angle.size() > 0)
+            for(size_t i = 0; i < m_angle.size(); i++)
+                m_angle[i] *= factor;
+    }
+
 protected:
 
     void push_back(const double time, const double angle)

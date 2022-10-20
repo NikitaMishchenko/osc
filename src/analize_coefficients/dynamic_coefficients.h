@@ -48,9 +48,12 @@ namespace dynamic_coefficients
     class EqvivalentDamping
     {
     public:
-        EqvivalentDamping(const WtOscillation &wtOscillation, const Model &model)
+        EqvivalentDamping(const WtOscillation &wtOscillation)
             : m_wtOscillation(wtOscillation),
-              m_dimensionOfCoefficient(2.0 * model.getI() / wtOscillation.getTimeStamp()){};
+              m_dimensionOfCoefficient(2.0 * m_wtOscillation.getModel().getI() / wtOscillation.getTimeStamp())
+        {
+            std::cout << "EqvivalentDamping ctr()\n";
+        };
 
         bool doCalc(APPROACH_DYNAMIC_COEFFICIENTS_COEFFICIENTS approach)
         {
@@ -75,25 +78,6 @@ namespace dynamic_coefficients
             return m_coeff.eqvivalentDamp;
         }
 
-    private:
-        /*
-         *   Theta(t) = c*exp(-n_c(Theta_sr)*t)
-         *   ln(Theta(t)) = (n_c(Theta_sr)*t) + ln(c)
-         */
-        std::vector<double> calcLogAmplitude() // fixme it's calculated in m_mzAmplitudeIndexes
-        {
-            std::vector<double> res;
-
-            res.reserve(m_wtOscillation.getAngle().size() - 1);
-
-            for (size_t i = 0; i < m_wtOscillation.getAngle().size() - 1; ++i)
-            {
-                res.push_back(m_dimensionOfCoefficient * log(m_wtOscillation.getAngle().at(i + 1) / m_wtOscillation.getAngle().at(i + 1)));
-            }
-
-            return res;
-        }
-
         /*
          *   ln(Theta(t)) = (n_c(Theta_sr)*t) + ln(c)
          *   m_wtOscillation->getAmplitude
@@ -104,6 +88,8 @@ namespace dynamic_coefficients
          */
         std::tuple<int, linnear_approximation::ApproxResult> calcMzEqvivalentCoefficient()
         {
+            std::cout << "calcMzEqvivalentCoefficient()\n";
+
             std::vector<double> res;
 
             int resultCode;
@@ -112,9 +98,36 @@ namespace dynamic_coefficients
             std::tie(resultCode, approxResult) = linnear_approximation::approximate(m_wtOscillation.getAngleAmplitude(),
                                                                                     log(m_wtOscillation.getTimeAmplitude()),
                                                                                     boost::optional<std::vector<double>>());
+
+            std::cout << "performed\n";
+
+            approxResult.save("outputApproxResult");
             
             // manage features
             return std::make_tuple(resultCode, approxResult);
+        }
+
+    private:
+        /*
+         *   Theta(t) = c*exp(-n_c(Theta_sr)*t)
+         *   ln(Theta(t)) = (n_c(Theta_sr)*t) + ln(c)
+         */
+        std::vector<double> calcLogAmplitude() // fixme it's calculated in m_mzAmplitudeIndexes
+        {
+            std::cout << "calcLogAmplitude() ";
+
+            std::vector<double> res;
+
+            res.reserve(m_wtOscillation.getAngle().size() - 1);
+
+            for (size_t i = 0; i < m_wtOscillation.getAngle().size() - 1; ++i)
+            {
+                res.push_back(m_dimensionOfCoefficient * log(m_wtOscillation.getAngle().at(i + 1) / m_wtOscillation.getAngle().at(i + 1)));
+            }
+            
+            std::cout << res.size() << "\n";
+
+            return res;
         }
 
         WtOscillation m_wtOscillation;
@@ -125,7 +138,6 @@ namespace dynamic_coefficients
          */
         double m_dimensionOfCoefficient; // 2I/T
     };
-
 
     class ActualDamping
     {

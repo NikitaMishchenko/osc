@@ -151,11 +151,9 @@ public:
 
             const double h = m_time[1] - m_time[0];
 
-            ///dangle calc
             for(size_t i = 0; i < size(); ++i)
                 dangle.emplace_back(derevativeOrd1N2(m_angle, h, i));
 
-            ///ddangle calc
             for(size_t i = 0; i < size(); ++i)
                 ddangle.emplace_back(derevativeOrd2N2(m_angle, h, i));
 
@@ -439,20 +437,6 @@ public:
     }
 
     /// SPECIAL
-
-    void scaleTime(const double& factor)
-    {
-        if(m_time.size() > 0)
-            for(size_t i = 0; i < m_time.size(); i++)
-                m_time[i] *= factor;
-    }
-
-    void scaleAngle(const double& factor)
-    {
-        if(m_angle.size() > 0)
-            for(size_t i = 0; i < m_angle.size(); i++)
-                m_angle[i] *= factor;
-    }
 
     void scaleDAngle(const double& factor)
     {
