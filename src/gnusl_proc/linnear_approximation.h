@@ -14,10 +14,10 @@ namespace linnear_approximation
 
     struct ApproxResult
     {
-        //ApproxResult()
+        // ApproxResult()
         //{}
 
-        //ApproxResult(const ApproxResult &rv) : xf(rv.xf), yf(rv.yf), yfErr(rv.yfErr)
+        // ApproxResult(const ApproxResult &rv) : xf(rv.xf), yf(rv.yf), yfErr(rv.yfErr)
         //{}
 
         void reserve(const size_t n)
@@ -83,7 +83,7 @@ namespace linnear_approximation
 
     struct ApproxResultVector // todo base on AngleHistory Refactored
     {
-        
+
         void emplace_back(ApproxResult approxResult) // todo refactor
         {
             approxResultVector.emplace_back(approxResult);
@@ -99,13 +99,13 @@ namespace linnear_approximation
             std::cout << "saving ApproxResult to file " << fileName << "\n";
 
             std::ofstream fout(fileName + "_coeff");
-            
+
             int i = 0;
-            for(const auto& res : approxResultVector)
+            for (const auto &res : approxResultVector)
 
                 // if (res.c1 > -1 && res.c1 < 0) // fixme for testing
-                    fout << i++ << "\t" << res.xOfMiddle << "\t" << res.c0 << "\t" << res.c1 << "\n";
-            
+                fout << i++ << "\t" << res.xOfMiddle << "\t" << res.c0 << "\t" << res.c1 << "\n";
+
             fout.close();
         }
 
@@ -155,9 +155,9 @@ namespace linnear_approximation
             double c0, c1, cov00, cov01, cov11, chisq;
 
             gsl_fit_wlinear(x, 1, w, 1, y, 1, n,
-                            &c0, &c1, 
+                            &c0, &c1,
                             &cov00, &cov01, &cov11, &chisq);
-        
+
             for (size_t i = 0; i < n; ++i)
                 std::cout << "n:" << n << " x: " << x[i] << " y: " << y[i] << " w: " << w[i] << "\n";
 
@@ -170,16 +170,16 @@ namespace linnear_approximation
             result.cov11 = cov11;
             result.chisq = chisq;
 
-            result.xOfMiddle = x[n/2];
+            result.xOfMiddle = x[n / 2];
 
             result.reserve(n);
 
-                    /*std::cout << "c0: " << c0 << "\n"
-                    << "c1: " << c1 << "\n"
-                    << "cov00: " << cov00 << "\n"
-                    << "cov01: " << cov01 << "\n"
-                    << "cov11: " << cov11 << "\n"
-                    << "chisq: " << chisq << "\n";*/
+            /*std::cout << "c0: " << c0 << "\n"
+            << "c1: " << c1 << "\n"
+            << "cov00: " << cov00 << "\n"
+            << "cov01: " << cov01 << "\n"
+            << "cov11: " << cov11 << "\n"
+            << "chisq: " << chisq << "\n";*/
 
             for (int i = -30; i < 130; i++)
             {
@@ -226,6 +226,130 @@ namespace linnear_approximation
         ProceedApproximation pA(inputDataX, inputDataY, err);
 
         return pA.act();
+    }
+
+    namespace
+    {
+        bool correctRangesAndWarn(const size_t maxSize,
+                                  size_t &fromIndex,
+                                  size_t &finishIndex,
+                                  size_t &windowWidth,
+                                  size_t &stepSize)
+        {
+            std::cout << "correctRangesAngWarnentry()\n";
+
+            bool wasCorrected = false;
+
+            if (fromIndex > maxSize)
+            {
+                std::cerr << "\tfromIndex > max size, fromIndex to 0, "
+                          << fromIndex << " > " << maxSize << "\n";
+
+                fromIndex = 0;
+
+                std::cerr << "\tfromIndex has beeng set to: " << fromIndex << "\n";
+
+                wasCorrected = true;
+            }
+
+            if (finishIndex > maxSize)
+            {
+                std::cerr << "\tfinishIndex > max size, setting finishIndex to maxSize, "
+                          << finishIndex << " > " << maxSize << "\n";
+
+                finishIndex = maxSize;
+
+                std::cerr << "\tfinishIndex has beeng set to: " << finishIndex << "\n";
+
+                wasCorrected = true;
+            }
+
+            if (fromIndex + windowWidth > maxSize)
+            {
+                std::cerr << "fromIndex + windowWidth > max size, setting windowWidth to maximum possible, "
+                          << fromIndex + windowWidth << " > " << maxSize << "\n";
+
+                windowWidth = maxSize - fromIndex;
+
+                std::cerr << "\twindowWidth has beeng set to: " << windowWidth << "\n";
+
+                wasCorrected = true;
+            }
+
+            if (fromIndex + stepSize > maxSize)
+            {
+                std::cerr << "\tfromIndex + stepSize > max size, setting stepSize to maximum possible, "
+                          << fromIndex + stepSize << " > " << maxSize << "\n";
+
+                stepSize = maxSize - fromIndex;
+
+                std::cerr << "\tstepSize has beeng set to: " << stepSize << "\n";
+
+                wasCorrected = true;
+            }
+
+            return wasCorrected;
+        }
+        
+    } // namespace
+
+    std::tuple<int, ApproxResultVector> f(const size_t indexFromData,
+                                          const size_t indexToData,
+                                          const size_t windowSize,
+                                          const size_t stepSize,
+                                          const std::vector<double> &x,
+                                          const std::vector<double> &y)
+    {
+        int resultCode; // todo badCode
+
+        size_t FROM_INDEX_X = indexFromData; // 400; // начинаем с
+
+        size_t FINISH_INDEX = indexToData; // 10000; // кончаем
+
+        size_t WINDOW_WIDTH = windowSize; // 100; // апрроксимация на
+        size_t STEP_SIZE = stepSize;      // WINDOW_WIDTH * 1;
+
+        // based on data
+        const size_t MAX_SIZE_DATA = x.size();
+
+        correctRangesAndWarn(MAX_SIZE_DATA, FROM_INDEX_X, FINISH_INDEX, WINDOW_WIDTH, STEP_SIZE);
+
+        linnear_approximation::ApproxResultVector approxResultVector;
+
+        {
+            // PARAMETERS FOR STEP
+            size_t stepFromIdx = FROM_INDEX_X;
+            size_t stepToIdx = stepFromIdx + WINDOW_WIDTH;
+
+            linnear_approximation::ApproxResult approxResult;
+
+            for (; stepToIdx < FINISH_INDEX;)
+            {
+                std::vector<double> subX(x.begin() + stepFromIdx, x.begin() + stepToIdx);
+                std::vector<double> subY(y.begin() + stepFromIdx, y.begin() + stepToIdx);
+
+                // prepare for approx
+                for (auto &itm : subY)
+                {
+                    itm = abs(itm);
+                }
+
+                // AngleHistory a(subX, subY);
+                // a.write("approxThis");
+
+                // fixme subY = log(subY);
+
+                std::tie(resultCode, approxResult) = linnear_approximation::approximate(subX, subY);
+
+                approxResultVector.emplace_back(approxResult);
+                std::cout << "approxResultVector.size: " << approxResultVector.size() << "\n";
+
+                stepFromIdx += STEP_SIZE;
+                stepToIdx += STEP_SIZE;
+            } // loop
+        }
+
+        return std::make_tuple(resultCode, approxResultVector);
     }
 
 } // linnear_approximation
