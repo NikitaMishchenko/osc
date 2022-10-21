@@ -233,7 +233,6 @@ namespace basic_procedures
         if (!angleHistory.loadRaw("input"))
             return FAIL;
 
-
         // for pendulum only
         pendulum::removeOffscale(angleHistory);
         pendulum::remove0Harmonic(angleHistory);    
@@ -245,11 +244,19 @@ namespace basic_procedures
         dynamic_coefficients::EqvivalentDamping eqvivalentDamping(wt);
 
         int errCode;
-        linnear_approximation::ApproxResult approxResult;
+        linnear_approximation::ApproxResultVector approxResultVector;
 
-        std::tie(errCode, approxResult) = eqvivalentDamping.calcMzEqvivalentCoefficient();
+        // todo get from arguments. also get fileName for inputData
+        size_t indexFromData = 400;
+        size_t indexToData = 10000;
+        size_t windowSize = 100;
+        size_t stepSize = windowSize;
 
-        approxResult.save("result");
+        // todo get from argumnts
+
+        std::tie(errCode, approxResultVector) = eqvivalentDamping.calcMzEqvivalentCoefficient(indexFromData, indexToData, windowSize, stepSize);
+
+        approxResultVector.save("result");
 
         return FAIL;
     }

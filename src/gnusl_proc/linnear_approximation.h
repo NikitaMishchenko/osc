@@ -48,7 +48,7 @@ namespace linnear_approximation
 
                 for (size_t i = 0; i < xf.size(); ++i)
                 {
-                    fout << xf.at(i) << "\t" << yf.at(i) << "\t" << yfErr.at(i) << "\n";
+                    fout << xOfMiddle << "\t" << xf.at(i) << "\t" << yf.at(i) << "\t" << yfErr.at(i) << "\n";
 
                     // std::cout << xf.at(i) << "\t" << yf.at(i) << "\t" << yfErr.at(i) << "\n";
                 }
@@ -77,6 +77,39 @@ namespace linnear_approximation
         std::vector<double> xf;
         std::vector<double> yf;
         std::vector<double> yfErr;
+
+        double xOfMiddle;
+    };
+
+    struct ApproxResultVector // todo base on AngleHistory Refactored
+    {
+        
+        void emplace_back(ApproxResult approxResult) // todo refactor
+        {
+            approxResultVector.emplace_back(approxResult);
+        }
+
+        size_t size() const
+        {
+            return approxResultVector.size();
+        }
+
+        void save(const std::string &fileName)
+        {
+            std::cout << "saving ApproxResult to file " << fileName << "\n";
+
+            std::ofstream fout(fileName + "_coeff");
+            
+            int i = 0;
+            for(const auto& res : approxResultVector)
+
+                // if (res.c1 > -1 && res.c1 < 0) // fixme for testing
+                    fout << i++ << "\t" << res.xOfMiddle << "\t" << res.c0 << "\t" << res.c1 << "\n";
+            
+            fout.close();
+        }
+
+        std::vector<ApproxResult> approxResultVector;
     };
 
     class ProceedApproximation
@@ -122,23 +155,31 @@ namespace linnear_approximation
             double c0, c1, cov00, cov01, cov11, chisq;
 
             gsl_fit_wlinear(x, 1, w, 1, y, 1, n,
-                            &c0, &c1, &cov00, &cov01, &cov11,
-                            &chisq);
-
+                            &c0, &c1, 
+                            &cov00, &cov01, &cov11, &chisq);
+        
             for (size_t i = 0; i < n; ++i)
-                std::cout << x[i] << "\t" << y[i] << "\t" << w[i] << "\n";
+                std::cout << "n:" << n << " x: " << x[i] << " y: " << y[i] << " w: " << w[i] << "\n";
 
             ApproxResult result;
+
             result.c0 = c0;
             result.c1 = c1;
+            result.cov00 = cov00;
+            result.cov01 = cov01;
+            result.cov11 = cov11;
+            result.chisq = chisq;
+
+            result.xOfMiddle = x[n/2];
+
             result.reserve(n);
 
-                    std::cout << "c0: " << c0 << "\n"
+                    /*std::cout << "c0: " << c0 << "\n"
                     << "c1: " << c1 << "\n"
                     << "cov00: " << cov00 << "\n"
                     << "cov01: " << cov01 << "\n"
                     << "cov11: " << cov11 << "\n"
-                    << "chisq: " << chisq << "\n";
+                    << "chisq: " << chisq << "\n";*/
 
             for (int i = -30; i < 130; i++)
             {
@@ -154,13 +195,13 @@ namespace linnear_approximation
                 result.push_back(xf, yf, yf_err);
             }
 
-            std::cout << "DUFUQ\n";
+            /*std::cout << "DUFUQ\n";
                     std::cout << "c0: " << c0 << "\n"
                     << "c1: " << c1 << "\n"
                     << "cov00: " << cov00 << "\n"
                     << "cov01: " << cov01 << "\n"
                     << "cov11: " << cov11 << "\n"
-                    << "chisq: " << chisq << "\n";
+                    << "chisq: " << chisq << "\n";*/
 
             return std::make_tuple(0, result);
         }
@@ -176,13 +217,11 @@ namespace linnear_approximation
                                               const std::vector<double> &inputDataY,
                                               const boost::optional<std::vector<double>> &err = boost::optional<std::vector<double>>())
     {
-        std::cout << "linnear_approximation::approximate performing, xSize: "
-                  << inputDataX.size() << "ySize:" << inputDataY.size() << "\n";
+        // std::cout << "linnear_approximation::approximate performing, xSize: "
+        //          << inputDataX.size() << ", ySize:" << inputDataY.size() << "\n";
 
-        for (size_t i = 0; i < inputDataX.size(); ++i)
-        {
-            std::cout << inputDataX.at(i) << "\t" << inputDataY.at(i) << "\n";
-        }
+        // for (size_t i = 0; i < inputDataX.size(); ++i)
+        //    std::cout << inputDataX.at(i) << "\t" << inputDataY.at(i) << "\n";
 
         ProceedApproximation pA(inputDataX, inputDataY, err);
 

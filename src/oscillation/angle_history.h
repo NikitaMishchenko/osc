@@ -43,7 +43,13 @@ public:
 
         return *this;
     }
-
+    
+    // std-like
+    void clear()
+    {
+        m_angle.clear();
+        m_time.clear();
+    }
 
     std::vector<double> getAngle() const 
     {
@@ -84,8 +90,8 @@ public:
     {
         for(size_t i = 0; i < D.size(); i++)
         {
-             out << D.m_time[i] << "\t"
-                 << D.m_angle[i] << "\t"
+             out << D.m_time.at(i) << "\t"
+                 << D.m_angle.at(i) << "\t"
                  << "\n";
         }
 
