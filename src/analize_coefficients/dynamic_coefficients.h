@@ -99,7 +99,7 @@ namespace dynamic_coefficients
             return m_coeff.eqvivalentDamp;
         }
 
-        /*
+        /*  TODO
          *   ln(Theta(t)) = (n_c(Theta_sr)*t) + ln(c)
          *   result = c1*t+c0
          *   y = c1*x + c0
@@ -115,22 +115,41 @@ namespace dynamic_coefficients
                                                                                                const size_t windowSize,
                                                                                                const size_t stepSize)
         {
-            std::cout << "calcMzEqvivalentCoefficient()\n";
+            // todo implementation
 
-            m_wtOscillation.getAngleAmplitudeIndexes();
-            
+
+        }
+
+
+
+        std::tuple<int, linnear_approximation::ApproxResultVector> calcAmplitudeLinnarApproxCoeff(const size_t indexFromData,
+                                                                                               const size_t indexToData,
+                                                                                               const size_t windowSize,
+                                                                                               const size_t stepSize)
+        {
+            std::cout << "calcAmplitudeLinnarApproxCoeff()\n";
+
+            m_wtOscillation.calcAngleAmplitudeIndexes();
+
             int resultCode;
             linnear_approximation::ApproxResultVector approxResultVector;
 
             {
-                m_wtOscillation.write("takeAmplFromThis");
+                // m_wtOscillation.write("takeAmplFromThis");
 
                 std::vector<double> x = m_wtOscillation.getTimeAmplitude();
                 std::vector<double> y = m_wtOscillation.getAngleAmplitude();
                 if (x.size() != x.size())
-                    throw "err ranges in approx preparation";                
+                    throw "err ranges in approx preparation";
 
-                std::tie(resultCode, approxResultVector) = linnear_approximation::f(indexFromData, indexToData, windowSize, stepSize, x, y);
+                // fixme y = log(y);
+
+                std::tie(resultCode, approxResultVector) = linnear_approximation::windowApproximation(indexFromData,
+                                                                                                      indexToData,
+                                                                                                      windowSize,
+                                                                                                      stepSize,
+                                                                                                      x,
+                                                                                                      y);
             }
 
             return std::make_tuple(resultCode, approxResultVector);

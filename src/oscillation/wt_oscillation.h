@@ -151,7 +151,7 @@ public:
         return true;
     }
 
-    bool getAngleAmplitudeIndexes()
+    bool calcAngleAmplitudeIndexes()
     {
         std::cout << "getMzAmplitudeIndexes entry()\n";
         std::cout << "\t\tm_mz size: " << m_angle.size() << "\n"; 

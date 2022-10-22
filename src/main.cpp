@@ -4,7 +4,6 @@
 #include "options.h"
 #include "basic_procedures.h"
 
-
 const double Pi = 3.14159265359;
 
 int doJob(const options::Procedure procedureToPerform,
@@ -75,6 +74,39 @@ int doJob(const options::Procedure procedureToPerform,
     case options::APPROXIMATION:
     {
         result = basic_procedures::performProcedureLinnearApproximation(fileName);
+        break;
+    }
+
+    case ::options::COEFFICINETS_WINDOW:
+    {
+        if (extraArgumentsVector.size() < 3) // or default arguments?
+        {
+            std::cerr << "Too few arguments int extraArgumentsVector! Aborting...\n";
+            
+            result = basic_procedures::FAIL;
+            
+            break;
+        }
+
+        const size_t indexFromData = extraArgumentsVector.at(0);
+        const size_t indexToData = extraArgumentsVector.at(1);
+        const size_t windowSize = extraArgumentsVector.at(2);
+        const size_t stepSize = extraArgumentsVector.at(3);
+
+        linnear_approximation::ApproxResultVector approxResultVector;
+
+        std::tie(result, approxResultVector) = basic_procedures::performProcedurecCoefficientsFromWindow(fileName,
+                                                                                                         indexFromData,
+                                                                                                         indexToData,
+                                                                                                         windowSize,
+                                                                                                         stepSize);
+
+        const std::string resultFileName = fileName + "_reult_coefficients";
+        
+        std::cout << "Saving ApproxResultVector to file: " << resultFileName << "\n";
+
+        approxResultVector.save("result");                                                                                                            
+
         break;
     }
 

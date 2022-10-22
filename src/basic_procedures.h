@@ -184,26 +184,26 @@ namespace basic_procedures
         pendulum::removeOffscale(angleHistory);
 
         pendulum::remove0Harmonic(angleHistory); // todo config file to basic procedures // based on boost::property_tree
-        
+
         bool noErr;
         std::vector<pendulum::Frequency> freqs;
 
         if (windowStep)
         {
-                std::tie(noErr, freqs) = pendulum::getFrequenciesViaFft(angleHistory, 
+            std::tie(noErr, freqs) = pendulum::getFrequenciesViaFft(angleHistory,
                                                                     static_cast<uint32_t>(arg1),
                                                                     windowStep); // to config or external params
         }
         else
         {
             std::tie(noErr, freqs) = pendulum::getFrequenciesViaDerevative(angleHistory, arg1); // todo coefficient to params or config
-            //std::tie(noErr, freqs) = pendulum::getFrequenciesViaSignal(angleHistory);
+            // std::tie(noErr, freqs) = pendulum::getFrequenciesViaSignal(angleHistory);
         }
         saveFile(fileName + "_freqs", freqs);
 
         if (!noErr)
             return FAIL;
-        
+
         return SUCCESS;
     }
 
@@ -224,6 +224,41 @@ namespace basic_procedures
         return SUCCESS;
     }
 
+    std::tuple<int, linnear_approximation::ApproxResultVector>
+    performProcedurecCoefficientsFromWindow(const std::string fileName,
+                                            const size_t indexFromData,
+                                            const size_t indexToData,
+                                            const size_t windowSize,
+                                            const size_t stepSize)
+    {
+        std::cout << "performing performProcedureWindow()\n";
+
+        AngleHistory angleHistory;
+
+        int errCode = FAIL;
+        linnear_approximation::ApproxResultVector approxResultVector;
+
+        if (!angleHistory.loadRaw(fileName))
+            return std::make_tuple(errCode, approxResultVector);
+
+        // for pendulum only
+        pendulum::removeOffscale(angleHistory);
+        pendulum::remove0Harmonic(angleHistory);
+
+        WtOscillation wt(angleHistory);
+
+        wt.write(fileName + "_prepared_for_arpx");
+
+        dynamic_coefficients::EqvivalentDamping eqvivalentDamping(wt);
+
+        std::tie(errCode, approxResultVector) = eqvivalentDamping.calcAmplitudeLinnarApproxCoeff(indexFromData,
+                                                                                                 indexToData,
+                                                                                                 windowSize,
+                                                                                                 stepSize);
+
+        return std::make_tuple(ErrorCodes(errCode), approxResultVector);
+    }
+
     ErrorCodes testFunc()
     {
         std::cout << "performing testFunc\n";
@@ -235,10 +270,10 @@ namespace basic_procedures
 
         // for pendulum only
         pendulum::removeOffscale(angleHistory);
-        pendulum::remove0Harmonic(angleHistory);    
+        pendulum::remove0Harmonic(angleHistory);
 
         WtOscillation wt(angleHistory);
-        
+
         wt.write("tmp");
 
         dynamic_coefficients::EqvivalentDamping eqvivalentDamping(wt);
@@ -251,8 +286,6 @@ namespace basic_procedures
         size_t indexToData = 10000;
         size_t windowSize = 100;
         size_t stepSize = windowSize;
-
-        // todo get from argumnts
 
         std::tie(errCode, approxResultVector) = eqvivalentDamping.calcMzEqvivalentCoefficient(indexFromData, indexToData, windowSize, stepSize);
 

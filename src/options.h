@@ -17,9 +17,9 @@ namespace options
         WT,
         PENDULUM,
         APPROXIMATION,
+        COEFFICINETS_WINDOW,
         TEST,
         UNKNOWN
-
     };
 
     class Options
@@ -85,6 +85,9 @@ namespace options
 
             if ("approximation" == mode || "ap" == mode)
                 return Procedure::APPROXIMATION;
+
+            if ("coeffWindow" == mode)
+                return Procedure::COEFFICINETS_WINDOW;
 
             // todo readme
 

@@ -293,7 +293,7 @@ namespace linnear_approximation
         
     } // namespace
 
-    std::tuple<int, ApproxResultVector> f(const size_t indexFromData,
+    std::tuple<int, ApproxResultVector> windowApproximation(const size_t indexFromData,
                                           const size_t indexToData,
                                           const size_t windowSize,
                                           const size_t stepSize,
@@ -337,7 +337,7 @@ namespace linnear_approximation
                 // AngleHistory a(subX, subY);
                 // a.write("approxThis");
 
-                // fixme subY = log(subY);
+
 
                 std::tie(resultCode, approxResult) = linnear_approximation::approximate(subX, subY);
 
