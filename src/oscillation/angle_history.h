@@ -51,6 +51,8 @@ public:
         m_time.clear();
     }
 
+
+
     std::vector<double> getAngle() const 
     {
         return m_angle;
@@ -66,9 +68,29 @@ public:
         m_angle.at(index) = value;
     }
 
+    void setAngle(const std::vector<double>& newAngle)
+    {
+        m_angle = newAngle;
+    }
+
     std::vector<double> getTime() const 
     {
         return m_time;
+    }
+
+    double getTime(int index) const 
+    {
+        return m_time.at(index);
+    }
+    
+    void setTime(size_t index, const double value)
+    {
+        m_time.at(index) = value;
+    }
+
+    void setTime(const std::vector<double>& newTime)
+    {
+        m_time = newTime;
     }
 
     void moveAngle(const double A)

@@ -31,6 +31,45 @@ namespace
 
         return result;
     }
+
+    // todo AmplitudeHistory : public AngleHistory() // move this method to public section
+    // bugged a lot
+    void iterativeAmplitudeRemove0Harmonic(AngleHistory& amplitude)
+    {
+        std::cout << "iterativeAmplitudeRemove0Harmonic entry()\n";
+
+        double prevSum = 360; // max posible 360 - 0.01
+        double sum = prevSum;
+        double diff = prevSum, prevDiff = prevSum;
+
+        size_t size = ((amplitude.size() % 2 == 0) ? amplitude.size() : (amplitude.size() - 1));
+
+        for(int i = 0; i < 10; i++)
+        {
+            std::cout << "i: " << i << " ";
+
+            for(size_t i = 0; i < size; ++i)
+            {
+                sum += amplitude.getAngle(i);
+            }
+
+            std::cout << " sum: " << sum;
+            diff = sum - prevSum;
+
+            std::cout << " diff: " << diff;
+
+            if ( abs( abs(diff) - abs(prevDiff)) < 0.000001)
+            {
+                return;
+            }
+
+            prevDiff = diff;
+
+            amplitude.moveAngle(-1.0 *prevDiff);
+
+            std::cout << "\n";
+        }
+    }
 }
 
 namespace dynamic_coefficients
@@ -45,26 +84,6 @@ namespace dynamic_coefficients
         std::vector<double> eqvivalentDamp;
         std::vector<double> actualDamp;
     };
-
-    namespace
-    {
-
-        // todo move to linnear_apptroximation
-        bool isRangesCorrect(const size_t maxSize,
-                             const size_t fromIndex,
-                             const size_t finishIndex,
-                             const size_t windowWidth,
-                             const size_t stepSize)
-        {
-            std::cout << "isRangesCorrect entry()\n";
-
-            if ((fromIndex > maxSize) || (finishIndex > maxSize) || (fromIndex + windowWidth > maxSize) || (fromIndex + stepSize > maxSize))
-                return false;
-
-            return true;
-        }
-
-    } // namespace
 
     class EqvivalentDamping
     {
@@ -99,57 +118,74 @@ namespace dynamic_coefficients
             return m_coeff.eqvivalentDamp;
         }
 
-        /*  TODO
-         *   ln(Theta(t)) = (n_c(Theta_sr)*t) + ln(c)
-         *   result = c1*t+c0
-         *   y = c1*x + c0
-         *   m_wtOscillation->getAmplitude
-         *   y = ln(amplitude) = ln(m_wtOscillation.getAmplitude())
-         *   x = m_wtOscillation.getTime();
-         *   approximate (x , y)
-         *   c1 = ln(c)
-         *   c0 = n_c
-         */
-        std::tuple<int, linnear_approximation::ApproxResultVector> calcMzEqvivalentCoefficient(const size_t indexFromData,
-                                                                                               const size_t indexToData,
-                                                                                               const size_t windowSize,
-                                                                                               const size_t stepSize)
+
+        void prepareAmplitude(bool isWtOsc = false)
         {
-            // todo implementation
+            m_wtOscillation.calcAngleAmplitudeIndexes();
+            calcAmplitudeData();
 
+            if (false) // (isWtOsc)
+            {
+                iterativeAmplitudeRemove0Harmonic(m_amplitudeData); // todo move method
+            }
+        }
 
+        void calcAmplitudeData()
+        {
+            AngleHistory newAmplitude(m_wtOscillation.getTimeAmplitude(), m_wtOscillation.getAngleAmplitude());
+
+            m_amplitudeData = newAmplitude;
+
+            // todo
+            // if (m_aplitudeTime.size() != m_aplitudeAngle.size())
+            //    throw "err ranges in calcAmplitudeData";
         }
 
 
+        std::tuple<int, linnear_approximation::ApproxResultVector> calcLogAmplitudeLinnarApproxCoeff(const size_t indexFromData,
+                                                                                                     const size_t indexToData,
+                                                                                                     const size_t windowSize,
+                                                                                                     const size_t stepSize)
+        {
+            // todo implementation
+
+            int resultCode = 666;
+            linnear_approximation::ApproxResultVector approxResultVector;
+
+            {
+                std::tie(resultCode, approxResultVector) = linnear_approximation::windowApproximation(indexFromData,
+                                                                                                      indexToData,
+                                                                                                      windowSize,
+                                                                                                      stepSize,
+                                                                                                      m_amplitudeData.getTime(),
+                                                                                                      m_amplitudeData.getAngle());
+            }
+
+            return std::make_tuple(resultCode, approxResultVector);
+        }
+
 
         std::tuple<int, linnear_approximation::ApproxResultVector> calcAmplitudeLinnarApproxCoeff(const size_t indexFromData,
-                                                                                               const size_t indexToData,
-                                                                                               const size_t windowSize,
-                                                                                               const size_t stepSize)
+                                                                                                  const size_t indexToData,
+                                                                                                  const size_t windowSize,
+                                                                                                  const size_t stepSize)
         {
             std::cout << "calcAmplitudeLinnarApproxCoeff()\n";
 
-            m_wtOscillation.calcAngleAmplitudeIndexes();
-
-            int resultCode;
+            int resultCode = 666;
             linnear_approximation::ApproxResultVector approxResultVector;
 
             {
                 // m_wtOscillation.write("takeAmplFromThis");
-
-                std::vector<double> x = m_wtOscillation.getTimeAmplitude();
-                std::vector<double> y = m_wtOscillation.getAngleAmplitude();
-                if (x.size() != x.size())
-                    throw "err ranges in approx preparation";
-
+                
                 // fixme y = log(y);
 
                 std::tie(resultCode, approxResultVector) = linnear_approximation::windowApproximation(indexFromData,
                                                                                                       indexToData,
                                                                                                       windowSize,
                                                                                                       stepSize,
-                                                                                                      x,
-                                                                                                      y);
+                                                                                                      m_amplitudeData.getTime(),
+                                                                                                      m_amplitudeData.getAngle());
             }
 
             return std::make_tuple(resultCode, approxResultVector);
@@ -181,6 +217,10 @@ namespace dynamic_coefficients
         WtOscillation m_wtOscillation;
         DampingCoefficients m_coeff;
         std::vector<double> coefficient;
+
+        AngleHistory m_amplitudeData;
+        // std::vector<double> m_aplitudeTime;
+        // std::vector<double> m_aplitudeAngle;
 
         /** Коэффициент, обезразмеривающий динамический коэффициент
          */

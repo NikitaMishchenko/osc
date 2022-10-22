@@ -18,6 +18,7 @@ namespace options
         PENDULUM,
         APPROXIMATION,
         COEFFICINETS_WINDOW,
+        DYN_COEFFICINETS_WINDOW_WT_TEST,
         TEST,
         UNKNOWN
     };
@@ -89,6 +90,9 @@ namespace options
             if ("coeffWindow" == mode)
                 return Procedure::COEFFICINETS_WINDOW;
 
+            if ("dynCoeffWindowWtTest" == mode)
+                return Procedure::DYN_COEFFICINETS_WINDOW_WT_TEST;
+
             // todo readme
 
             if ("test" == mode)
@@ -109,7 +113,7 @@ namespace options
 
         std::vector<double> getArgs()
         {
-            return value<std::vector<double>>("args");
+            return value<std::vector<double> >("args");
         }
 
         bool exist(const char *name) const

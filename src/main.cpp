@@ -78,13 +78,16 @@ int doJob(const options::Procedure procedureToPerform,
     }
 
     case ::options::COEFFICINETS_WINDOW:
+    case ::options::DYN_COEFFICINETS_WINDOW_WT_TEST:
     {
+        using namespace options;
+
         if (extraArgumentsVector.size() < 3) // or default arguments?
         {
             std::cerr << "Too few arguments int extraArgumentsVector! Aborting...\n";
-            
+
             result = basic_procedures::FAIL;
-            
+
             break;
         }
 
@@ -95,17 +98,42 @@ int doJob(const options::Procedure procedureToPerform,
 
         linnear_approximation::ApproxResultVector approxResultVector;
 
-        std::tie(result, approxResultVector) = basic_procedures::performProcedurecCoefficientsFromWindow(fileName,
-                                                                                                         indexFromData,
-                                                                                                         indexToData,
-                                                                                                         windowSize,
-                                                                                                         stepSize);
+        if (COEFFICINETS_WINDOW == procedureToPerform)
+        {
+            std::tie(result, approxResultVector) = basic_procedures::performProcedurecCoefficientsFromWindow(fileName,
+                                                                                                             indexFromData,
+                                                                                                             indexToData,
+                                                                                                             windowSize,
+                                                                                                             stepSize);
+        }
+        else if (DYN_COEFFICINETS_WINDOW_WT_TEST == procedureToPerform)
+        {
+            boost::optional<double> moveAngeleAmplitudeValue = boost::none;
+
+            if (extraArgumentsVector.size() < 4)
+            {
+                std::cerr << "Too few arguments int extraArgumentsVector! moveAngeleAmplitudeValue will unitilalised\n";
+            }
+            else
+            {
+                // to get negative value
+                moveAngeleAmplitudeValue = (!extraArgumentsVector.at(4) ? -1.0*extraArgumentsVector.at(5) : extraArgumentsVector.at(4));
+                std::cout << "Got moveAngleAmplitudeValue: " << moveAngeleAmplitudeValue.get() << "\n";
+            }
+
+            std::tie(result, approxResultVector) = basic_procedures::performProcedurecDynCoefficientsFromWindowForWtTest(fileName,
+                                                                                                                         indexFromData,
+                                                                                                                         indexToData,
+                                                                                                                         windowSize,
+                                                                                                                         stepSize,
+                                                                                                                         moveAngeleAmplitudeValue);
+        }
 
         const std::string resultFileName = fileName + "_reult_coefficients";
-        
+
         std::cout << "Saving ApproxResultVector to file: " << resultFileName << "\n";
 
-        approxResultVector.save("result");                                                                                                            
+        approxResultVector.save("result");
 
         break;
     }

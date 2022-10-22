@@ -4,6 +4,8 @@
 #include <utility>
 #include <tuple>
 
+#include <boost/optional.hpp>
+
 #include "oscillation/oscillation_basic.h"
 #include "fft/fftw_impl.h"
 #include "periods/periods_base.h"
@@ -251,6 +253,9 @@ namespace basic_procedures
 
         dynamic_coefficients::EqvivalentDamping eqvivalentDamping(wt);
 
+        eqvivalentDamping.prepareAmplitude();
+    
+
         std::tie(errCode, approxResultVector) = eqvivalentDamping.calcAmplitudeLinnarApproxCoeff(indexFromData,
                                                                                                  indexToData,
                                                                                                  windowSize,
@@ -258,6 +263,64 @@ namespace basic_procedures
 
         return std::make_tuple(ErrorCodes(errCode), approxResultVector);
     }
+
+    /*  TODO
+    *   ln(Theta(t)) = (n_c(Theta_sr)*t) + ln(c)
+    *   result = c1*t+c0
+    *   y = c1*x + c0
+    *   m_wtOscillation->getAmplitude
+    *   y = ln(amplitude) = ln(m_wtOscillation.getAmplitude())
+    *   x = m_wtOscillation.getTime();
+    *   approximate (x , y)
+    *   c1 = ln(c)
+    *   c0 = n_c
+    */
+    std::tuple<int, linnear_approximation::ApproxResultVector>
+    performProcedurecDynCoefficientsFromWindowForWtTest(const std::string fileName,
+                                            const size_t indexFromData,
+                                            const size_t indexToData,
+                                            const size_t windowSize,
+                                            const size_t stepSize,
+                                            boost::optional<double> moveAngleValue)
+    {
+           std::cout << "performing performProcedureWindow()\n";
+
+        AngleHistory angleHistory;
+
+        int errCode = FAIL;
+        linnear_approximation::ApproxResultVector approxResultVector;
+
+        if (!angleHistory.loadRaw(fileName))
+            return std::make_tuple(errCode, approxResultVector);
+
+        /// PREPARE DATA
+
+
+
+        if (moveAngleValue)
+            angleHistory.moveAngle(moveAngleValue.get());
+
+        // actually no need not used
+        pendulum::removeOffscale(angleHistory);
+        
+        // for pendulum only
+        ///pendulum::remove0Harmonic(angleHistory);
+
+        WtOscillation wt(angleHistory);
+
+        dynamic_coefficients::EqvivalentDamping eqvivalentDamping(wt);
+
+        const bool isWtOscillation = true;
+        eqvivalentDamping.prepareAmplitude(isWtOscillation);
+
+        std::tie(errCode, approxResultVector) = eqvivalentDamping.calcAmplitudeLinnarApproxCoeff(indexFromData,
+                                                                                                 indexToData,
+                                                                                                 windowSize,
+                                                                                                 stepSize);
+
+        return std::make_tuple(ErrorCodes(errCode), approxResultVector);
+    }
+
 
     ErrorCodes testFunc()
     {
@@ -287,7 +350,7 @@ namespace basic_procedures
         size_t windowSize = 100;
         size_t stepSize = windowSize;
 
-        std::tie(errCode, approxResultVector) = eqvivalentDamping.calcMzEqvivalentCoefficient(indexFromData, indexToData, windowSize, stepSize);
+        std::tie(errCode, approxResultVector) = eqvivalentDamping.calcAmplitudeLinnarApproxCoeff(indexFromData, indexToData, windowSize, stepSize);
 
         approxResultVector.save("result");
 

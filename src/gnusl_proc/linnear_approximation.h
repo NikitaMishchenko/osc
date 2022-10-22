@@ -158,8 +158,8 @@ namespace linnear_approximation
                             &c0, &c1,
                             &cov00, &cov01, &cov11, &chisq);
 
-            for (size_t i = 0; i < n; ++i)
-                std::cout << "n:" << n << " x: " << x[i] << " y: " << y[i] << " w: " << w[i] << "\n";
+            //for (size_t i = 0; i < n; ++i)
+            //    std::cout << "n:" << n << " x: " << x[i] << " y: " << y[i] << " w: " << w[i] << "\n";
 
             ApproxResult result;
 
