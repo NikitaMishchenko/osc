@@ -129,11 +129,13 @@ int doJob(const options::Procedure procedureToPerform,
                                                                                                                          moveAngeleAmplitudeValue);
         }
 
-        const std::string resultFileName = fileName + "_reult_coefficients";
+        
+        const std::string suffix = fileName2;
+        const std::string resultFileName = fileName + "_" + suffix + "_result";
 
         std::cout << "Saving ApproxResultVector to file: " << resultFileName << "\n";
 
-        approxResultVector.save("result");
+        approxResultVector.save(resultFileName);
 
         break;
     }

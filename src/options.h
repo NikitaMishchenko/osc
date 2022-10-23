@@ -31,7 +31,10 @@ namespace options
             descr.reset(new po::options_description("Base_Oscillation_Analisys build 23.04.22\nAllowed options"));
 
             descr->add_options()("help,h", " - show basic info, help etc.")("mode,m", po::value<std::string>()->default_value("none"),
-                                                                            "P to perform periods, cut - to  cut realisation, pendullum - to perform p* osc analysis, approximation - to perform approx")("file,f", po::value<std::string>()->default_value("file"), " - name of file")("file2", po::value<std::string>()->default_value(""), " - name of file2")("args,a", po::value<std::vector<double>>()->multitoken()->default_value(std::vector<double>{0}, ""), " - list of args");
+                                                                            "P to perform periods, cut - to  cut realisation, pendullum - to perform p* osc analysis, approximation - to perform approx")
+                                                                            ("file,f", po::value<std::string>()->default_value("file"), " - name of file")
+                                                                            ("file2", po::value<std::string>()->default_value(""), " - name of file2")
+                                                                            ("args,a", po::value<std::vector<double>>()->multitoken()->default_value(std::vector<double>{0}, ""), " - list of args");
         }
 
         bool parse_options(int ac, char *av[]);

@@ -296,7 +296,6 @@ namespace basic_procedures
         /// PREPARE DATA
 
 
-
         if (moveAngleValue)
             angleHistory.moveAngle(moveAngleValue.get());
 
