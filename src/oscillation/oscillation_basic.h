@@ -40,7 +40,7 @@ public:
     }
 
 
-    Oscillation(const std::string file_name) : AngleHistory(file_name)
+    Oscillation(const std::string& file_name) : AngleHistory(file_name)
     {
         std::cout << "Oscillation( " << file_name << ") constructor\n";
         this->recalculate();

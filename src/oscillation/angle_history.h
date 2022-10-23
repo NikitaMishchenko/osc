@@ -8,30 +8,32 @@
 #include "core/function.h"
 
 /*
-* Assumed constant timeStep
-*/
+ * Assumed constant timeStep
+ */
 class AngleHistory : public Function // todo rename it's better be like TwoVectors // on the higher lvl make it angle and time
 {
 public:
-
     AngleHistory() : Function(), m_timeStep(0.0)
-    {}
+    {
+    }
 
-    AngleHistory(const std::vector<double>& timeIn, const std::vector<double>& angleIn) 
+    AngleHistory(const std::vector<double> &timeIn,
+                 const std::vector<double> &angleIn)
         : Function(timeIn, angleIn)
     {
         calculateTimeStep();
     }
 
-    AngleHistory(const std::string& file_name)
+    AngleHistory(const std::string &file_name)
     {
         this->loadRaw(file_name);
-        
+
         calculateTimeStep();
     }
 
     virtual ~AngleHistory()
-    {}
+    {
+    }
 
     /*
     //copy
@@ -54,43 +56,43 @@ public:
         return m_timeStep;
     }
 
-    std::vector<double> getAngle() const 
+    std::vector<double> getAngle() const
     {
         return m_codomain;
     }
 
-    double getAngle(int index) const 
+    double getAngle(int index) const
     {
         return m_codomain.at(index);
     }
-    
+
     void setAngle(size_t index, const double value)
     {
         m_codomain.at(index) = value;
     }
 
     // todo remove? it's unsafe
-    void setAngle(const std::vector<double>& newAngle)
+    void setAngle(const std::vector<double> &newAngle)
     {
         m_codomain = newAngle;
     }
 
-    std::vector<double> getTime() const 
+    std::vector<double> getTime() const
     {
         return m_domain;
     }
 
-    double getTime(int index) const 
+    double getTime(int index) const
     {
         return m_domain.at(index);
     }
-    
+
     void setTime(size_t index, const double value)
     {
         m_domain.at(index) = value;
     }
 
-    void setTime(const std::vector<double>& newTime)
+    void setTime(const std::vector<double> &newTime)
     {
         m_domain = newTime;
     }
@@ -101,15 +103,15 @@ public:
     }
 
     /*
-    * TODO make overload for operator>>
-    */
-    friend std::ostream& operator<< (std::ostream& out, const AngleHistory& D)
+     * TODO make overload for operator>>
+     */
+    friend std::ostream &operator<<(std::ostream &out, const AngleHistory &D)
     {
-        for(size_t i = 0; i < D.size(); i++)
+        for (size_t i = 0; i < D.size(); i++)
         {
-             out << D.m_domain.at(i) << "\t"
-                 << D.m_codomain.at(i) << "\t"
-                 << "\n";
+            out << D.m_domain.at(i) << "\t"
+                << D.m_codomain.at(i) << "\t"
+                << "\n";
         }
 
         return out;
@@ -118,28 +120,27 @@ public:
     virtual void info() const
     {
         std::cout << "AngleHistory object \n"
-                  << "time size: " << m_domain.size() << "\n"  
-                  << "angle size: " <<  m_codomain.size() << "\n"
+                  << "time size: " << m_domain.size() << "\n"
+                  << "angle size: " << m_codomain.size() << "\n"
                   << "timeStep: " << m_timeStep << "\n";
     }
 
-    virtual bool loadRaw(const std::string& file_name)
+    virtual bool loadRaw(const std::string &file_name)
     {
         std::ifstream fin(file_name);
         std::cout << "trying open file: " << file_name << std::endl;
 
-        if(fin.is_open())
+        if (fin.is_open())
         {
-            while(!fin.eof())
+            while (!fin.eof())
             {
                 double b_angle, b_time;
 
                 fin >> b_time >> b_angle;
 
                 this->push_back(b_time, b_angle);
-
             }
-            
+
             std::cout << "file " << file_name << " loaded! Closing\n";
             fin.close();
             return true;
@@ -153,7 +154,7 @@ public:
         return false;
     }
 
-    virtual void write(const std::string& fileName) const
+    virtual void write(const std::string &fileName) const
     {
         std::ofstream fout(fileName);
 
@@ -165,7 +166,7 @@ public:
 protected:
     void calculateTimeStep()
     {
-        m_timeStep = ((size() >= 2) ? (m_domain.at(1) - m_domain.at(0)) : 0.0); 
+        m_timeStep = ((size() >= 2) ? (m_domain.at(1) - m_domain.at(0)) : 0.0);
     }
 
     double m_timeStep;

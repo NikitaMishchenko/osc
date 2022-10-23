@@ -13,24 +13,22 @@
 class WtOscillation : public Oscillation
 {
 public:
-    WtOscillation(AngleHistory angleHistory) : Oscillation(angleHistory),
+    WtOscillation(const AngleHistory& angleHistory) : Oscillation(angleHistory),
                                                m_flow(wt_flow::Flow()),
-                                               m_model(Model()),
-                                               m_timeStamp(getTime(1) - getTime(0))
+                                               m_model(Model())
     {};
 
     // todo refactor make some arg const
-    WtOscillation(Oscillation oscillation, wt_flow::Flow flow, Model model) : Oscillation(oscillation),
-                                                                              m_flow(flow),
-                                                                              m_model(model),
-                                                                              m_timeStamp(getTime(1) - getTime(0)){};
+    WtOscillation(const Oscillation &oscillation,
+                  const wt_flow::Flow &flow,
+                  const Model &model)
+        : Oscillation(oscillation),
+          m_flow(flow),
+          m_model(model)
+    {};
 
     virtual ~WtOscillation(){};
 
-    virtual double getTimeStamp() const
-    {
-        return m_timeStamp;
-    }
 
     // SPECIFIC METHODS
     bool getMz()
@@ -135,11 +133,12 @@ public:
     bool getMzAmplitudeIndexes()
     {
         std::cout << "getMzAmplitudeIndexes entry()\n";
-        std::cout << "\t\tm_mz size: " << m_mz.size() << "\n"; 
+        std::cout << "\t\tm_mz size: " << m_mz.size() << "\n";
 
-        if (m_mz.empty()){
+        if (m_mz.empty())
+        {
             std::cerr << "WARNING m_mz is empty aborting\n";
-           return false;
+            return false;
         }
 
         for (size_t i = 1; i < m_mz.size() - 1; i++)
@@ -154,11 +153,12 @@ public:
     bool calcAngleAmplitudeIndexes()
     {
         std::cout << "getMzAmplitudeIndexes entry()\n";
-        std::cout << "\t\tm_mz size: " << m_mz.size() << "\n"; 
+        std::cout << "\t\tm_mz size: " << m_mz.size() << "\n";
 
-        if (AngleHistory::empty()){
+        if (AngleHistory::empty())
+        {
             std::cerr << "WARNING AngleHistory is empty aborting\n";
-           return false;
+            return false;
         }
 
         for (size_t i = 1; i < AngleHistory::size(); i++)
@@ -167,7 +167,7 @@ public:
                 m_AngleAmplitudeIndexes.emplace_back(i);
 
             if (getDangle(i - 1) >= 0 && getDangle(i) < 0)
-                m_AngleAmplitudeIndexes.emplace_back(i);                
+                m_AngleAmplitudeIndexes.emplace_back(i);
         }
 
         m_AngleAmplitudeIndexes.shrink_to_fit();
@@ -182,8 +182,8 @@ public:
                   << "\tm_mz size: " << m_mz.size() << "\n"
                   << "\tm_AngleAmplitudeIndexes size: " << m_AngleAmplitudeIndexes.size() << "\n"
                   << "\tm_mzAmplitudeIndexes size: " << m_mzAmplitudeIndexes.size() << "\n";
-        
-        Oscillation::info();          
+
+        Oscillation::info();
     }
 
 private:
@@ -194,6 +194,4 @@ private:
     wt_flow::Flow m_flow;
 
     Model m_model;
-
-    double m_timeStamp;
 };

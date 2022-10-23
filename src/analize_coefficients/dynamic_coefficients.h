@@ -90,7 +90,7 @@ namespace dynamic_coefficients
     public:
         EqvivalentDamping(const WtOscillation &wtOscillation)
             : m_wtOscillation(wtOscillation),
-              m_dimensionOfCoefficient(2.0 * m_wtOscillation.getModel().getI() / wtOscillation.getTimeStamp())
+              m_dimensionOfCoefficient(2.0 * m_wtOscillation.getModel().getI() / wtOscillation.getTimeStep())
         {
             std::cout << "EqvivalentDamping ctr()\n";
         };

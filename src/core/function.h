@@ -10,7 +10,8 @@ public:
     Function(){};
 
     // todo check is sizes equal
-    Function(const std::vector<double>& domain, const std::vector<double>& codomain)
+    Function(const std::vector<double> &domain,
+             const std::vector<double> &codomain)
         : m_domain(domain),
           m_codomain(codomain)
     {
@@ -18,12 +19,13 @@ public:
             throw "cant construct Function with different domain and codomain sizes!";
     }
 
-    Function (const Function& d) : m_domain(d.m_domain), m_codomain(d.m_codomain)
-    {}
+    Function(const Function &d) : m_domain(d.m_domain), m_codomain(d.m_codomain)
+    {
+    }
 
     virtual ~Function(){};
 
-    virtual Function& operator= (const Function& d)
+    virtual Function &operator=(const Function &d)
     {
         m_domain = d.m_domain;
         m_codomain = d.m_codomain;
@@ -34,9 +36,8 @@ public:
     virtual std::vector<double> getDomain() const { return m_domain; };
     virtual std::vector<double> getCodomain() const { return m_codomain; };
 
-
     /// STL-like
-    virtual size_t size() const {return m_domain.size();};
+    virtual size_t size() const { return m_domain.size(); };
 
     virtual void clear()
     {
@@ -74,7 +75,7 @@ public:
                         std::vector<double>::const_iterator codomainTo)
     {
         const size_t actualIndexTo = (indexTo < m_domain.size() ? indexTo : m_domain.size());
-        
+
         m_domain.insert(m_domain.begin() + actualIndexTo, domainFrom, domainTo);
         m_codomain.insert(m_codomain.begin() + actualIndexTo, codomainFrom, codomainTo);
     }
@@ -82,32 +83,32 @@ public:
     // FUNC // move to helpers
     void domainAdd(const double value)
     {
-        for(auto& valDomain : m_domain)
+        for (auto &valDomain : m_domain)
             valDomain += value;
     }
 
     void codomainAdd(const double value)
     {
-        for(auto& valCodomain : m_codomain)
+        for (auto &valCodomain : m_codomain)
             valCodomain += value;
     }
 
     void domainMultiply(const double value)
     {
-        for(auto& valDomain : m_domain)
+        for (auto &valDomain : m_domain)
             valDomain *= value;
     }
 
     void codomainMultiply(const double value)
     {
-        for(auto& valCodomain : m_codomain)
+        for (auto &valCodomain : m_codomain)
             valCodomain *= value;
     }
 
     // todo move somewhere?
     void codomainLog()
     {
-        for(auto& valCodomain : m_codomain)
+        for (auto &valCodomain : m_codomain)
             valCodomain = log(valCodomain);
     }
 
