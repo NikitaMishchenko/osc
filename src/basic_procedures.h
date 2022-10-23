@@ -297,7 +297,7 @@ namespace basic_procedures
 
 
         if (moveAngleValue)
-            angleHistory.moveAngle(moveAngleValue.get());
+            angleHistory.codomainAdd(moveAngleValue.get());
 
         // actually no need not used
         pendulum::removeOffscale(angleHistory);

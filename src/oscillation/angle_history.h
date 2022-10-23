@@ -5,33 +5,37 @@
 #include <vector>
 #include <string>
 
+#include "core/function.h"
 
-class AngleHistory // todo rename it's better be like TwoVectors // on the higher lvl make it angle and time
+/*
+* Assumed constant timeStep
+*/
+class AngleHistory : public Function // todo rename it's better be like TwoVectors // on the higher lvl make it angle and time
 {
 public:
 
-    AngleHistory()
+    AngleHistory() : Function(), m_timeStep(0.0)
     {}
 
-    AngleHistory(const std::vector<double>& timeIn, const std::vector<double>& angleIn) : m_time(timeIn), m_angle(angleIn)
-    {}
+    AngleHistory(const std::vector<double>& timeIn, const std::vector<double>& angleIn) 
+        : Function(timeIn, angleIn)
+    {
+        calculateTimeStep();
+    }
 
     AngleHistory(const std::string& file_name)
     {
-        std::cerr << "AngleHistory( " << file_name << ") constructor\n";
-
         this->loadRaw(file_name);
-            this->info();
+        
+        calculateTimeStep();
     }
 
     virtual ~AngleHistory()
-    {
-        m_angle.clear();
-        m_time.clear();
-    }
+    {}
 
+    /*
     //copy
-    AngleHistory(const AngleHistory& d) : m_time(d.m_time), m_angle(d.m_angle)
+    AngleHistory(const AngleHistory& d) : m_domain(d.m_domain), m_codomain(d.m_codomain)
     {
         //std::cout << "AngleHistory copy constructor\n";
     }
@@ -43,67 +47,58 @@ public:
 
         return *this;
     }
-    
-    // std-like
-    void clear()
+    */
+
+    double getTimeStep() const
     {
-        m_angle.clear();
-        m_time.clear();
+        return m_timeStep;
     }
-
-
 
     std::vector<double> getAngle() const 
     {
-        return m_angle;
+        return m_codomain;
     }
 
     double getAngle(int index) const 
     {
-        return m_angle.at(index);
+        return m_codomain.at(index);
     }
     
     void setAngle(size_t index, const double value)
     {
-        m_angle.at(index) = value;
+        m_codomain.at(index) = value;
     }
 
+    // todo remove? it's unsafe
     void setAngle(const std::vector<double>& newAngle)
     {
-        m_angle = newAngle;
+        m_codomain = newAngle;
     }
 
     std::vector<double> getTime() const 
     {
-        return m_time;
+        return m_domain;
     }
 
     double getTime(int index) const 
     {
-        return m_time.at(index);
+        return m_domain.at(index);
     }
     
     void setTime(size_t index, const double value)
     {
-        m_time.at(index) = value;
+        m_domain.at(index) = value;
     }
 
     void setTime(const std::vector<double>& newTime)
     {
-        m_time = newTime;
-    }
-
-    void moveAngle(const double A)
-    {
-        for(auto& a : m_angle)
-            a += A;
+        m_domain = newTime;
     }
 
     virtual void print()
     {
         std::cout << *this;
     }
-
 
     /*
     * TODO make overload for operator>>
@@ -112,21 +107,20 @@ public:
     {
         for(size_t i = 0; i < D.size(); i++)
         {
-             out << D.m_time.at(i) << "\t"
-                 << D.m_angle.at(i) << "\t"
+             out << D.m_domain.at(i) << "\t"
+                 << D.m_codomain.at(i) << "\t"
                  << "\n";
         }
 
         return out;
     }
 
-    virtual const size_t size() const { return m_angle.size();}
-
     virtual void info() const
     {
         std::cout << "AngleHistory object \n"
-                  << "m_time size: " << m_time.size() << "\n"  
-                  << "m_angle size: " <<  m_angle.size() << "\n";
+                  << "time size: " << m_domain.size() << "\n"  
+                  << "angle size: " <<  m_codomain.size() << "\n"
+                  << "timeStep: " << m_timeStep << "\n";
     }
 
     virtual bool loadRaw(const std::string& file_name)
@@ -168,28 +162,11 @@ public:
         fout.close();
     }
 
-    void scaleTime(const double& factor)
-    {
-        if(m_time.size() > 0)
-            for(size_t i = 0; i < m_time.size(); i++)
-                m_time[i] *= factor;
-    }
-
-    void scaleAngle(const double& factor)
-    {
-        if(m_angle.size() > 0)
-            for(size_t i = 0; i < m_angle.size(); i++)
-                m_angle[i] *= factor;
-    }
-
 protected:
-
-    void push_back(const double time, const double angle)
+    void calculateTimeStep()
     {
-        m_time.push_back(time);
-        m_angle.push_back(angle);
+        m_timeStep = ((size() >= 2) ? (m_domain.at(1) - m_domain.at(0)) : 0.0); 
     }
 
-    std::vector<double> m_time;
-    std::vector<double> m_angle;
+    double m_timeStep;
 };

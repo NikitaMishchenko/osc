@@ -65,7 +65,7 @@ namespace
 
             prevDiff = diff;
 
-            amplitude.moveAngle(-1.0 *prevDiff);
+            amplitude.codomainAdd(-1.0 *prevDiff);
 
             std::cout << "\n";
         }

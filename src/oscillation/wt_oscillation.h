@@ -75,12 +75,12 @@ public:
 
     double getTimeAmplitude(const size_t index) const
     {
-        return m_time.at(m_AngleAmplitudeIndexes.at(index));
+        return m_domain.at(m_AngleAmplitudeIndexes.at(index));
     }
 
     double getAngleAmplitude(const size_t index) const
     {
-        return m_angle.at(m_AngleAmplitudeIndexes.at(index));
+        return m_codomain.at(m_AngleAmplitudeIndexes.at(index));
     }
 
     Model getModel() const
@@ -154,14 +154,14 @@ public:
     bool calcAngleAmplitudeIndexes()
     {
         std::cout << "getMzAmplitudeIndexes entry()\n";
-        std::cout << "\t\tm_mz size: " << m_angle.size() << "\n"; 
+        std::cout << "\t\tm_mz size: " << m_mz.size() << "\n"; 
 
-        if (m_angle.empty()){
-            std::cerr << "WARNING m_angle is empty aborting\n";
+        if (AngleHistory::empty()){
+            std::cerr << "WARNING AngleHistory is empty aborting\n";
            return false;
         }
 
-        for (size_t i = 1; i < m_angle.size(); i++)
+        for (size_t i = 1; i < AngleHistory::size(); i++)
         {
             if (getDangle(i - 1) <= 0 && getDangle(i) > 0)
                 m_AngleAmplitudeIndexes.emplace_back(i);

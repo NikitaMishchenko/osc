@@ -67,7 +67,7 @@ namespace pendulum
         const double shiftAngle = angleHistory.getAngle().at(angleHistory.size() - 1);
         std::cout << "shiftAngle = " << shiftAngle << "\n";
 
-        angleHistory.moveAngle(-1.0 * shiftAngle);
+        angleHistory.codomainAdd(-1.0 * shiftAngle);
     }
 
     namespace

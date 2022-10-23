@@ -35,68 +35,43 @@ public:
     Oscillation(const AngleHistory& angleHistory) : AngleHistory(angleHistory)
     {
         std::cout << "Oscillation(AngleHistory) constructor()\n";
-        std::cout << "angle size = " << m_angle.size() << "\n";
 
-        if(0 != m_angle.size())
-        {
-            dangle.reserve(this->size());
-            ddangle.reserve(this->size());
-
-            const double h = m_time[1] - m_time[0];
-
-            ///dangle calc
-            for(size_t i = 0; i < size(); ++i)
-                dangle.emplace_back(derevativeOrd1N2(m_angle, h, i));
-
-            ///ddangle calc
-            for(size_t i = 0; i < size(); ++i)
-                ddangle.emplace_back(derevativeOrd2N2(m_angle, h, i));
-
-        }
-        else
-        {
-            std::cout << "empty AngleHistory -> empty Oscillation \n";
-            dangle.reserve(0);
-            ddangle.reserve(0);
-        }
-
+        this->recalculate();
     }
 
 
     Oscillation(const std::string file_name) : AngleHistory(file_name)
     {
         std::cout << "Oscillation( " << file_name << ") constructor\n";
-        std::cout << "angle size = " << m_angle.size() << "\n";
         this->recalculate();
     }
 
 
-    virtual void reserve(size_t s)
+    virtual void reserve(const size_t s) override
     {
-        m_time.reserve(s);
-        m_angle.reserve(s);
+        AngleHistory::reserve(s);
         dangle.reserve(s);
         ddangle.reserve(s);
     }
 
     virtual std::vector<double>::const_iterator timeBegin() const
     {
-        return m_time.begin();
+        return m_domain.begin();
     }
 
     virtual std::vector<double>::const_iterator timeEnd() const
     {
-        return m_time.end();
+        return m_domain.end();
     }
 
     virtual std::vector<double>::const_iterator angleBegin() const
     {
-        return m_angle.begin();
+        return m_codomain.begin();
     }
 
     virtual std::vector<double>::const_iterator angleEnd() const
     {
-        return m_angle.end();
+        return m_codomain.end();
     }
 
     virtual std::vector<double>::const_iterator dangleBegin() const
@@ -119,16 +94,6 @@ public:
         return ddangle.end();
     }
 
-    virtual double getTime(size_t index) const
-    {
-        return m_time.at(index);
-    }
-
-    virtual double getAngle(size_t index) const
-    {
-        return m_angle.at(index);
-    }
-
     virtual double getDangle(size_t index) const
     {
         return dangle.at(index);
@@ -141,21 +106,20 @@ public:
 
     virtual void recalculate()
     {
-        if(0 != m_angle.size())
+        if(!AngleHistory::empty())
         {
-            dangle.clear();
-            ddangle.clear();
-
             dangle.reserve(this->size());
             ddangle.reserve(this->size());
 
-            const double h = m_time[1] - m_time[0];
+            const double h = getTimeStep();
 
+            ///dangle calc
             for(size_t i = 0; i < size(); ++i)
-                dangle.emplace_back(derevativeOrd1N2(m_angle, h, i));
+                dangle.emplace_back(derevativeOrd1N2(m_codomain, h, i));
 
+            ///ddangle calc
             for(size_t i = 0; i < size(); ++i)
-                ddangle.emplace_back(derevativeOrd2N2(m_angle, h, i));
+                ddangle.emplace_back(derevativeOrd2N2(m_codomain, h, i));
 
         }
         else
@@ -166,6 +130,7 @@ public:
         }
     }
 
+    // todo move to function helpers // todo use GNU SL
     static double derevativeOrd1N2(std::vector<double>& func, const double& h, const size_t index)
     {
         //std::cout << index << " derevative \n";
@@ -205,107 +170,91 @@ public:
         ddangle.clear();
     }
 
-    Oscillation(const Oscillation& d) :
-                                        dangle(d.dangle),
+    Oscillation(const Oscillation& d) : dangle(d.dangle),
                                         ddangle(d.ddangle)
     {
-        m_time = d.m_time;
-        m_angle = d.m_angle;
+        m_domain = d.m_domain;
+        m_codomain = d.m_codomain;
     }
 
     Oscillation& operator= (const Oscillation& d)
     {
-        //time = d.time;
-        //angle = d.angle;
+        m_domain = d.m_domain;
+        m_codomain = d.m_codomain;
         dangle = d.dangle;
         ddangle = d.ddangle;
 
         return *this;
     }
 
+    // todo refactor
     virtual void insertAllFieldsFromTo(const Oscillation A, size_t from, size_t to)
     {
-        m_time.insert(timeBegin(), A.timeBegin()+from, A.timeBegin()+to);
-        m_angle.insert(angleBegin(), A.angleBegin()+from, A.angleBegin()+to);
+        m_domain.insert(timeBegin(), A.timeBegin()+from, A.timeBegin()+to);
+        m_codomain.insert(angleBegin(), A.angleBegin()+from, A.angleBegin()+to);
         dangle.insert(dangleBegin(), A.dangleBegin()+from, A.dangleBegin()+to);
         ddangle.insert(ddangleBegin(), A.ddangleBegin()+from, A.ddangleBegin()+to);
     }
 
 
     //BASIC
-    virtual const size_t size() const override {return m_angle.size();}
-
     virtual void push_back(const double& t, const double& a, const double& da, const double& dda)
     {
-        m_time.push_back(t);
-        m_angle.push_back(a);
+        AngleHistory::push_back(t, a);
         dangle.push_back(da);
         ddangle.push_back(dda);
     }
 
-    virtual void clear()
+    virtual void clear() override
     {
-        m_time.clear();
-        m_angle.clear();
+        AngleHistory::clear();
         dangle.clear();
         ddangle.clear();
     }
 
-    virtual const std::vector<double> getTime() const
-    {
-        return m_time;
-    }
-
-    virtual const std::vector<double> getAngle() const
-    {
-        return m_angle;
-    }
-
-    virtual const double getTime(int i) const
-    {
-        return m_time.at(i);
-    }
-
-    virtual const double getAngle(int i) const
-    {
-        return m_angle.at(i);
-    }
 
     virtual const double getDangle(int i) const
     {
         return dangle.at(i);
     }
 
+    virtual const std::vector<double> getDangle() const {return dangle;}
+
     virtual double getDdangle(int i) const
     {
         return dangle.at(i);
     }
 
+    virtual const std::vector<double> getDdangle() const {return ddangle;}
+
 
     //IO
-    virtual void print() const
+    virtual void print() const // todo override
     {
         for(size_t i = 0; i < size(); i++)
         {
             std::cerr
-                << m_time[i] << "\t"
-                << m_angle[i] << "\t"
+                << m_domain[i] << "\t"
+                << m_codomain[i] << "\t"
                 << dangle[i] << "\t"
                 << ddangle[i] << "\n";
         }
 
     }
 
-    virtual void write(const std::string& file_name) const
+    // todo rename
+    virtual void write(const std::string& file_name) const override
     {
         std::cout << "Oscillation write to file: " << file_name << "\n";
+        
         this->info();
-        //angle_history.print();
+        
         std::ofstream fout(file_name);
+        
         for(size_t i = 0; i < this->size(); i++){
             fout
-                << m_time[i] << "\t"
-                << m_angle[i] << "\t"
+                << m_domain[i] << "\t"
+                << m_codomain[i] << "\t"
                 << dangle[i] << "\t"
                 << ddangle[i] << "\n";
             //std::cout << time[i] << std::endl;
@@ -315,12 +264,12 @@ public:
 
     /*
     *   Load Oscillation file saved in 'write"-form
+    *   TODO refactor
     */
     virtual bool loadFile(const std::string& fileName,
                   oscillation_helpers::FileType mode = oscillation_helpers::DEFAULT)
     {
         this->clear();
-
 
         switch (mode)
         {
@@ -341,8 +290,8 @@ public:
                 Oscillation result(fileName);
 
                 // todo rewrite
-                m_time = result.m_time;
-                m_angle = result.m_angle;
+                AngleHistory::setTime(result.m_domain);
+                AngleHistory::setAngle(result.m_codomain);
                 dangle = result.dangle;
                 ddangle = result.ddangle;
 
@@ -367,7 +316,8 @@ public:
                     this->push_back(tBuff, aBuff, daBuff, 0);
                 }
 
-                double h = this->m_time.at(1) - m_time.at(0);
+                AngleHistory::calculateTimeStep();
+                double h = AngleHistory::getTimeStep();
 
                 ///ddangle calc
                 //for(size_t i = 0; i < size(); ++i)
@@ -429,32 +379,30 @@ public:
     friend std::ostream& operator<< (std::ostream& out, const Oscillation& D)
     {
         for(size_t i = 0; i < D.size(); i++)
-            out << D.m_time[i] << "\t"
-                << D.m_angle[i] << "\t"
+            out << D.m_domain[i] << "\t"
+                << D.m_codomain[i] << "\t"
                 << D.dangle[i] << "\t"
                 << D.ddangle[i] << "\n";
         return out;
     }
 
     /// SPECIAL
-
+    // use vector helpers
     void scaleDAngle(const double& factor)
     {
-        if(dangle.size() > 0)
-            for(size_t i = 0; i < dangle.size(); i++)
-                dangle[i] *= factor;
+        for(size_t i = 0; i < dangle.size(); i++)
+            dangle[i] *= factor;
     }
 
     void scaleDDAngle(const double& factor)
     {
-        if(ddangle.size() > 0)
-            for(size_t i = 0; i < ddangle.size(); i++)
-                ddangle[i] *= factor;
+        for(size_t i = 0; i < ddangle.size(); i++)
+            ddangle[i] *= factor;
     }
 
+    // todo move to helpers
     std::vector<double> makeScaledDDAngle(const double& factor)
     {
-
         std::vector<double> scaledDDAngle;
 
         if(ddangle.size() > 0)
