@@ -343,7 +343,7 @@ namespace basic_procedures
         int errCode;
         linnear_approximation::ApproxResultVector approxResultVector;
 
-        // todo get from arguments. also get fileName for inputData
+        // get from arguments. also get fileName for inputData
         size_t indexFromData = 400;
         size_t indexToData = 10000;
         size_t windowSize = 100;

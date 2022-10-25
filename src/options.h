@@ -23,6 +23,48 @@ namespace options
         UNKNOWN
     };
 
+    namespace helpers
+    {
+        inline std::string toString(Procedure procedure)
+        {
+            switch(procedure)
+            {
+                case CUT:
+                return std::string("CUT");
+
+                case FLOW:
+                return "FLOW";
+                
+                case PERIODS:
+                return "PERIODS";
+
+                case WT:
+                return "WT";                
+
+                case PENDULUM:
+                return "PENDULUM";
+
+                case APPROXIMATION:
+                return "APPROXIMATION";
+
+                case COEFFICINETS_WINDOW:
+                return "COEFFICINETS_WINDOW";
+
+                case DYN_COEFFICINETS_WINDOW_WT_TEST:
+                return "DYN_COEFFICINETS_WINDOW_WT_TEST";                                
+
+                case TEST:
+                return "TEST"; 
+
+                case UNKNOWN:
+                return "UNKNOWN";                                 
+
+                default:
+                return "err: can't provide procedure name!";
+            }
+        }
+    }
+    
     class Options
     {
     public:

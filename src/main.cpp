@@ -210,7 +210,10 @@ int main(int argc, char *argv[])
 
     /// INIT PARAMS
     const options::Procedure procedureToPerform = opt.getProcedure();
-    std::cout << "got procedure: " << static_cast<int>(procedureToPerform) << "\n"; // todo make string output
+    
+    std::cout << "got procedure: " << static_cast<int>(procedureToPerform)
+    << " which is " << options::helpers::toString(procedureToPerform)<< "\n"; // todo make string output
+    
     const std::string fileName = opt.getFileName();
     const std::string fileName2 = opt.getFileName2();
     const std::vector<double> extraArgumentsVector = opt.getArgs();
