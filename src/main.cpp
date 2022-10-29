@@ -1,6 +1,10 @@
 #include <string>
 #include <utility>
 
+#include <boost/log/trivial.hpp>
+#include <boost/log/core.hpp>
+#include <boost/log/expressions.hpp>
+
 #include "options.h"
 #include "basic_procedures.h"
 

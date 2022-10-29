@@ -18,6 +18,7 @@
 #include "pendulum/pendulum_analisys.h"
 #include "gnusl_proc/linnear_approximation.h"
 #include "analize_coefficients/dynamic_coefficients.h"
+#include "oscillation/signal_generator.h"
 
 namespace basic_procedures
 {
@@ -325,34 +326,17 @@ namespace basic_procedures
     {
         std::cout << "performing testFunc\n";
 
-        AngleHistory angleHistory;
+        signal_generator::SignalGenerator signalGenerator;
+        
+        signalGenerator.info();
 
-        if (!angleHistory.loadRaw("input"))
-            return FAIL;
+        (&signalGenerator)->makeConstantSignal(1.0, 1000, 0.001)
+                          ->multiplyHarmonic(boost::none, boost::none, 10, 10, 0.0);
 
-        // for pendulum only
-        pendulum::removeOffscale(angleHistory);
-        pendulum::remove0Harmonic(angleHistory);
+        signalGenerator.info();
 
-        WtOscillation wt(angleHistory);
-
-        wt.write("tmp");
-
-        dynamic_coefficients::EqvivalentDamping eqvivalentDamping(wt);
-
-        int errCode;
-        linnear_approximation::ApproxResultVector approxResultVector;
-
-        // get from arguments. also get fileName for inputData
-        size_t indexFromData = 400;
-        size_t indexToData = 10000;
-        size_t windowSize = 100;
-        size_t stepSize = windowSize;
-
-        std::tie(errCode, approxResultVector) = eqvivalentDamping.calcAmplitudeLinnarApproxCoeff(indexFromData, indexToData, windowSize, stepSize);
-
-        approxResultVector.save("result");
-
+        signalGenerator.save("generatedSignal");
+        
         return FAIL;
     }
 

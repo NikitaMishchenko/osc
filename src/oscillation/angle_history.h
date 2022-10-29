@@ -32,8 +32,7 @@ public:
     }
 
     virtual ~AngleHistory()
-    {
-    }
+    {}
 
     /*
     //copy

@@ -7,7 +7,8 @@
 class Function
 {
 public:
-    Function(){};
+    Function() : m_domain(std::vector<double>()), m_codomain(std::vector<double>())
+    {}
 
     // todo check is sizes equal
     Function(const std::vector<double> &domain,
@@ -43,6 +44,12 @@ public:
     {
         m_domain.clear();
         m_codomain.clear();
+    }
+
+    virtual void shrink_to_fit()
+    {
+        m_domain.shrink_to_fit();
+        m_codomain.shrink_to_fit();
     }
 
     virtual void reserve(const size_t sizeToReserve)
