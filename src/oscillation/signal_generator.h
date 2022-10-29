@@ -67,13 +67,49 @@ namespace signal_generator
             std::cout << "indexFrom: " << indexFrom.get() << " ,indexTo: " << indexTo.get() << "\n";
 
             for (size_t i = indexFrom.get(); i < indexTo.get(); ++i)
-            {
-                std::cout << i << "\n";
                 m_codomain.at(i) *= amplitude * sin(w * m_domain.at(i) + phase);
-            }
 
             return this;
         };
+
+        SignalGenerator *addHarmonic(boost::optional<size_t> indexFrom,
+                                     boost::optional<size_t> indexTo,
+                                     double amplitude,
+                                     double w,
+                                     double phase)
+        {
+            std::cout << "multiplyHarmonic(), ";
+
+            indexFrom = (indexFrom ? indexFrom.get() : 0);
+            indexTo = (indexTo ? indexTo.get() : size());
+
+            std::cout << "indexFrom: " << indexFrom.get() << " ,indexTo: " << indexTo.get() << "\n";
+
+            for (size_t i = indexFrom.get(); i < indexTo.get(); ++i)
+                m_codomain.at(i) += amplitude * sin(w * m_domain.at(i) + phase);
+
+            return this;
+        };
+
+        SignalGenerator* slopeLinnear(boost::optional<size_t> indexFrom,
+                                     boost::optional<size_t> indexTo,
+                                     double slopeA,
+                                     double slopeB)
+        {
+            std::cout << "slopeLinnear(), ";
+
+            indexFrom = (indexFrom ? indexFrom.get() : 0);
+            indexTo = (indexTo ? indexTo.get() : size());
+
+            std::cout << "indexFrom: " << indexFrom.get() << " ,indexTo: " << indexTo.get() 
+                      << ", slopeA: " <<  slopeA << ", slopeB: " << slopeB << "\n";
+
+            for (size_t i = indexFrom.get(); i < indexTo.get(); ++i)
+                m_codomain.at(i) *= slopeA*m_domain.at(i) + slopeB; 
+
+            return this;
+
+        }
 
         // todo
         SignalGenerator *scaleAmplitude(boost::optional<size_t> indexFrom,

@@ -165,7 +165,37 @@ public:
 protected:
     void calculateTimeStep()
     {
-        m_timeStep = ((size() >= 2) ? (m_domain.at(1) - m_domain.at(0)) : 0.0);
+        if (size())
+            m_timeStep = ((size() >= 2) ? (m_domain.at(1) - m_domain.at(0)) : 0.0);
+        else
+            m_timeStep = 0.0;    
+    }
+
+    double indexToTime(const size_t index) const
+    {
+        if(index < size())
+            return m_domain.at(index);
+
+        return m_domain.at(size()-1);    
+    }
+
+    size_t timeToIndex(const double timeValue) const
+    {
+        // time assumed started at 0.0
+        if (!size() && !m_timeStep)
+            return 0;    
+
+        return timeValue/m_timeStep;
+    }
+
+    std::vector<double>::iterator timeIterator(const double timeValue) const
+    {
+        return (m_domain.begin() + timeToIndex(timeValue));
+    }
+
+    std::vector<double>::const_iterator timeIterator(const double timeValue)
+    {
+        return m_domain.cbegin() + timeToIndex(timeValue);
     }
 
     double m_timeStep;

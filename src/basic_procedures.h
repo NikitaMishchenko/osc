@@ -330,8 +330,10 @@ namespace basic_procedures
         
         signalGenerator.info();
 
-        (&signalGenerator)->makeConstantSignal(1.0, 1000, 0.001)
-                          ->multiplyHarmonic(boost::none, boost::none, 10, 10, 0.0);
+        (&signalGenerator)->makeConstantSignal(1.0, 5000, 0.001)
+                          ->multiplyHarmonic(boost::none, boost::none, 10, 10, 0.0)
+                          ->addHarmonic(boost::none, boost::none, 1, 100, 0.0)
+                          ->slopeLinnear(boost::none, boost::none, -10, 10);
 
         signalGenerator.info();
 
