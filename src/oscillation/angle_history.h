@@ -188,12 +188,12 @@ protected:
         return timeValue/m_timeStep;
     }
 
-    std::vector<double>::iterator timeIterator(const double timeValue) const
+    /*std::vector<double>::iterator timeIterator(const double timeValue) const
     {
         return (m_domain.begin() + timeToIndex(timeValue));
-    }
+    }*/
 
-    std::vector<double>::const_iterator timeIterator(const double timeValue)
+    std::vector<double>::const_iterator timeIterator(const double timeValue) const
     {
         return m_domain.cbegin() + timeToIndex(timeValue);
     }

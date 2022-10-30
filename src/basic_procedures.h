@@ -18,7 +18,9 @@
 #include "pendulum/pendulum_analisys.h"
 #include "gnusl_proc/linnear_approximation.h"
 #include "analize_coefficients/dynamic_coefficients.h"
-#include "oscillation/signal_generator.h"
+
+#include "signal_generator/signal_generator_base.h"
+#include "signal_generator/signal_generator_manager.h"
 
 namespace basic_procedures
 {
@@ -326,7 +328,7 @@ namespace basic_procedures
     {
         std::cout << "performing testFunc\n";
 
-        signal_generator::SignalGenerator signalGenerator;
+        /*signal_generator::SignalGenerator signalGenerator;
         
         signalGenerator.info();
 
@@ -337,8 +339,12 @@ namespace basic_procedures
 
         signalGenerator.info();
 
-        signalGenerator.save("generatedSignal");
+        signalGenerator.save("generatedSignal");*/
         
+        SignalGeneratorManager mngr;
+
+        mngr.loadSignalConfiguaration("signalToGenerate");
+
         return FAIL;
     }
 

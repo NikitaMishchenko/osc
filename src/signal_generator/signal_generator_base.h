@@ -4,10 +4,54 @@
 
 #include <boost/optional.hpp>
 
-#include "angle_history.h"
+#include "oscillation/angle_history.h"
 
 namespace signal_generator
 {
+
+    enum Operations
+    {
+        MAKE_CONSTANT_SIGNAL,
+        MULTIPLY_HARMONIC,
+        ADD_MAKE_HARMONIC,
+        SLOPE_LINNERAR,
+        SCALE_TIME,
+        SCALE_ANGLE,
+        END,
+        UNHANDLED
+    };
+
+    struct DataForConstantSignal
+    {
+        double ammplitude;
+        int size;
+        double timeStep;
+    };
+
+    struct DataForMultiplyAddHarmonic
+    {
+        size_t indexFrom;
+        size_t indexTo;
+        double amplitude;
+        double w;
+        double phase;
+    };
+
+    struct DataForScale
+    {
+        size_t indexFrom;
+        size_t indexTo;
+        double scaleFactor;
+    };
+
+    struct DataForSlopeLinnear
+    {
+        size_t indexFrom;
+        size_t indexTo;
+        double slopeA;
+        double slopeB;
+    };
+
     // todo to helpers time to index
     /**
      * int getIndex(double time){std::find() return index };
@@ -33,6 +77,11 @@ namespace signal_generator
         {
         }
 
+        SignalGenerator *makeConstantSignal(const DataForConstantSignal &data)
+        {
+            return makeConstantSignal(data.ammplitude, data.size, data.timeStep);
+        }
+
         SignalGenerator *makeConstantSignal(double amplitude, size_t size, double timeStep)
         {
             std::cout << "makeNoSignal(size: " << size << ", timeStep: " << timeStep << ")\n";
@@ -40,17 +89,22 @@ namespace signal_generator
             Function::reserve(size);
             Function::shrink_to_fit();
 
-            info();
-
             for (size_t i = 0; i < size; ++i)
             {
                 m_domain.emplace_back(i * timeStep);
                 m_codomain.emplace_back(amplitude);
             }
 
-            info();
-
             return this;
+        }
+
+        SignalGenerator *multiplyHarmonic(const DataForMultiplyAddHarmonic &data)
+        {
+            return multiplyHarmonic(data.indexFrom,
+                                    data.indexTo,
+                                    data.amplitude,
+                                    data.w,
+                                    data.phase);
         }
 
         SignalGenerator *multiplyHarmonic(boost::optional<size_t> indexFrom,
@@ -72,6 +126,15 @@ namespace signal_generator
             return this;
         };
 
+        SignalGenerator *addHarmonic(const DataForMultiplyAddHarmonic &data)
+        {
+            return addHarmonic(data.indexFrom,
+                               data.indexTo,
+                               data.amplitude,
+                               data.w,
+                               data.phase);
+        }
+
         SignalGenerator *addHarmonic(boost::optional<size_t> indexFrom,
                                      boost::optional<size_t> indexTo,
                                      double amplitude,
@@ -91,42 +154,61 @@ namespace signal_generator
             return this;
         };
 
-        SignalGenerator* slopeLinnear(boost::optional<size_t> indexFrom,
-                                     boost::optional<size_t> indexTo,
-                                     double slopeA,
-                                     double slopeB)
+        SignalGenerator *slopeLinnear(boost::optional<size_t> indexFrom,
+                                      boost::optional<size_t> indexTo,
+                                      double slopeA,
+                                      double slopeB)
         {
             std::cout << "slopeLinnear(), ";
 
             indexFrom = (indexFrom ? indexFrom.get() : 0);
             indexTo = (indexTo ? indexTo.get() : size());
 
-            std::cout << "indexFrom: " << indexFrom.get() << " ,indexTo: " << indexTo.get() 
-                      << ", slopeA: " <<  slopeA << ", slopeB: " << slopeB << "\n";
+            std::cout << "indexFrom: " << indexFrom.get() << " ,indexTo: " << indexTo.get()
+                      << ", slopeA: " << slopeA << ", slopeB: " << slopeB << "\n";
 
             for (size_t i = indexFrom.get(); i < indexTo.get(); ++i)
-                m_codomain.at(i) *= slopeA*m_domain.at(i) + slopeB; 
+                m_codomain.at(i) *= slopeA * m_domain.at(i) + slopeB;
 
             return this;
+        }
 
+        SignalGenerator *scaleAngle(DataForScale data)
+        {
+            return scaleAngle(data.indexFrom,
+                              data.indexTo,
+                              data.scaleFactor);
         }
 
         // todo
-        SignalGenerator *scaleAmplitude(boost::optional<size_t> indexFrom,
-                                        boost::optional<size_t> indexTo,
-                                        double scaleFactor)
+        SignalGenerator *scaleAngle(boost::optional<size_t> indexFrom,
+                                    boost::optional<size_t> indexTo,
+                                    double scaleFactor)
         {
-            for (size_t i = (indexFrom ? indexFrom.get() : 0); i < (indexTo ? indexTo.get() : size()); ++i)
+            indexFrom = (indexFrom ? indexFrom.get() : 0);
+            indexTo = (indexTo ? indexTo.get() : size());
+
+            for (size_t i = indexFrom.get(); i < indexTo.get(); ++i)
                 m_codomain.at(i) *= scaleFactor * (m_codomain.at(i));
 
             return this;
         };
 
+        SignalGenerator *scaleTime(DataForScale data)
+        {
+            return scaleTime(data.indexFrom,
+                             data.indexTo,
+                             data.scaleFactor);
+        }
+
         SignalGenerator *scaleTime(boost::optional<size_t> indexFrom,
                                    boost::optional<size_t> indexTo,
                                    double scaleFactor)
         {
-            for (size_t i = (indexFrom ? indexFrom.get() : 0); i < (indexTo ? indexTo.get() : size()); ++i)
+            indexFrom = (indexFrom ? indexFrom.get() : 0);
+            indexTo = (indexTo ? indexTo.get() : size());
+
+            for (size_t i = indexFrom.get(); i < indexTo.get(); ++i)
                 m_domain.at(i) *= scaleFactor * (m_domain.at(i));
 
             return this;
