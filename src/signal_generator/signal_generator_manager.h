@@ -4,6 +4,9 @@
 #include <fstream>
 #include <queue>
 
+#include <boost/shared_ptr.hpp>
+#include <boost/make_shared.hpp>
+
 #include "signal_generator_manager.h"
 
 namespace
@@ -21,8 +24,11 @@ namespace
         else if ("addHarmonic:" == operationString)
             return signal_generator::Operations::ADD_MAKE_HARMONIC;
 
-        else if ("slopeLinnear:" == operationString)
-            return signal_generator::Operations::SLOPE_LINNERAR;
+        else if ("multiplySlopeLinnear:" == operationString)
+            return signal_generator::Operations::MULTIPLY_SLOPE_LINNEAR;
+
+        else if ("addSlopeLinnear:" == operationString)
+            return signal_generator::Operations::ADD_SLOPE_LINNEAR;    
 
         else if ("scaleTime:" == operationString)
             return signal_generator::Operations::SCALE_TIME;
@@ -41,86 +47,87 @@ namespace
     {
         switch (operationToPerform)
         {
-            case (signal_generator::Operations::MAKE_CONSTANT_SIGNAL):
+        case (signal_generator::Operations::MAKE_CONSTANT_SIGNAL):
+        {
+            std::vector<double> dataForConstantSignal;
+
+            double d_buff;
+            std::string s_buff;
+
+            for (int i = 0; i < 3; ++i) // hardcode
             {
-                std::vector<double> dataForConstantSignal;
+                source >> s_buff >> d_buff;
+                std::cout << s_buff << " " << d_buff << "\n";
 
-                double d_buff;
-                std::string s_buff;
-
-                for (int i = 0; i < 3; ++i) // hardcode
-                {   
-                    source >> s_buff >> d_buff;
-                    std::cout << s_buff << " " << d_buff << "\n";
-
-                    dataForConstantSignal.push_back(d_buff);
-                }
-
-                return dataForConstantSignal;
+                dataForConstantSignal.push_back(d_buff);
             }
 
-            case (signal_generator::Operations::MULTIPLY_HARMONIC):
-            case (signal_generator::Operations::ADD_MAKE_HARMONIC):
+            return dataForConstantSignal;
+        }
+
+        case (signal_generator::Operations::MULTIPLY_HARMONIC):
+        case (signal_generator::Operations::ADD_MAKE_HARMONIC):
+        {
+            std::vector<double> dataForMultiplyAddHarmonic;
+
+            double d_buff;
+            std::string s_buff;
+
+            for (int i = 0; i < 5; ++i) // hardcode
             {
-                std::vector<double> dataForMultiplyAddHarmonic;
+                source >> s_buff >> d_buff;
+                std::cout << s_buff << " " << d_buff << "\n";
 
-                double d_buff;
-                std::string s_buff;
-
-                for (int i = 0; i < 5; ++i) // hardcode
-                {   
-                    source >> s_buff >> d_buff;
-                    std::cout << s_buff << " " << d_buff << "\n";
-
-                    dataForMultiplyAddHarmonic.push_back(d_buff);
-                }
-
-                return dataForMultiplyAddHarmonic;
+                dataForMultiplyAddHarmonic.push_back(d_buff);
             }
 
-            case (signal_generator::Operations::SLOPE_LINNERAR):
+            return dataForMultiplyAddHarmonic;
+        }
+
+        case (signal_generator::Operations::ADD_SLOPE_LINNEAR):
+        case (signal_generator::Operations::MULTIPLY_SLOPE_LINNEAR):
+        {
+
+            std::vector<double> dataForSlopeLinnear;
+
+            double d_buff;
+            std::string s_buff;
+
+            for (int i = 0; i < 4; ++i) // hardcode
             {
+                source >> s_buff >> d_buff;
+                std::cout << s_buff << " " << d_buff << "\n";
 
-                std::vector<double> dataForSlopeLinnear;
-
-                double d_buff;
-                std::string s_buff;
-
-                for (int i = 0; i < 4; ++i) // hardcode
-                {   
-                    source >> s_buff >> d_buff;
-                    std::cout << s_buff << " " << d_buff << "\n";
-
-                    dataForSlopeLinnear.push_back(d_buff);
-                }
-
-                return dataForSlopeLinnear;
+                dataForSlopeLinnear.push_back(d_buff);
             }
 
-            case (signal_generator::Operations::SCALE_TIME):
-            case (signal_generator::Operations::SCALE_ANGLE):
+            return dataForSlopeLinnear;
+        }
+
+        case (signal_generator::Operations::SCALE_TIME):
+        case (signal_generator::Operations::SCALE_ANGLE):
+        {
+            std::vector<double> dataForScale;
+
+            double d_buff;
+            std::string s_buff;
+
+            for (int i = 0; i < 3; ++i) // hardcode
             {
-                std::vector<double> dataForScale;
+                source >> s_buff >> d_buff;
+                std::cout << s_buff << " " << d_buff << "\n";
 
-                double d_buff;
-                std::string s_buff;
-
-                for (int i = 0; i < 3; ++i) // hardcode
-                {   
-                    source >> s_buff >> d_buff;
-                    std::cout << s_buff << " " << d_buff << "\n";
-                    
-                    dataForScale.push_back(d_buff);
-                }
-
-                return dataForScale;
+                dataForScale.push_back(d_buff);
             }
 
-            case (signal_generator::Operations::END):
-            {
+            return dataForScale;
+        }
 
-                break;
-            }
+        case (signal_generator::Operations::END):
+        {
+
+            break;
+        }
         }
 
         return std::vector<double>();
@@ -130,6 +137,12 @@ namespace
 class SignalGeneratorManager
 {
 public:
+
+    SignalGeneratorManager()
+    {
+        m_signalGenerator = boost::make_shared<signal_generator::SignalGenerator>();
+    }
+
     class SignalConfiguration
     {
     public:
@@ -146,9 +159,9 @@ public:
             std::cout << "stringBuff: " << stringBuff << "\n";
 
             m_operation = operationFromString(stringBuff);
-            
+
             std::cout << "operationFound: " << m_operation << "\n";
-            
+
             m_parameters = argumentsFromStream(source, m_operation);
 
             return m_operation;
@@ -157,6 +170,11 @@ public:
         int getOperation() const
         {
             return m_operation;
+        }
+
+        std::vector<double> getParameters() const
+        {
+            return m_parameters;
         }
 
         // DataForConstantSignal getDataForConstantSignal()
@@ -179,60 +197,91 @@ public:
                 {
                 case (signal_generator::Operations::MAKE_CONSTANT_SIGNAL):
                 {
-                    signal_generator::DataForConstantSignal dataForConstantSignal;
+                    signal_generator::DataForConstantSignal dataForConstantSignal(m_signalConfigurationQueue.front().getParameters());
 
-                    m_signalConfigurationQueue.front().getOperation();
+                    m_signalGenerator->makeConstantSignal(dataForConstantSignal);
 
-                    signalGenerator->makeConstantSignal(dataForConstantSignal); // m_signalConfigurationQueue.front();
                     break;
                 }
 
                 case (signal_generator::Operations::MULTIPLY_HARMONIC):
                 {
-                    m_signalConfigurationQueue.front();
+                    signal_generator::DataForMultiplyAddHarmonic dataForMultiplyAddHarmonic(m_signalConfigurationQueue.front().getParameters());
+
+                    m_signalGenerator->multiplyHarmonic(dataForMultiplyAddHarmonic);
+
                     break;
                 }
 
                 case (signal_generator::Operations::ADD_MAKE_HARMONIC):
                 {
-                    m_signalConfigurationQueue.front();
+                    signal_generator::DataForMultiplyAddHarmonic dataForMultiplyAddHarmonic(m_signalConfigurationQueue.front().getParameters());
+
+                    m_signalGenerator->addHarmonic(dataForMultiplyAddHarmonic);
+
                     break;
                 }
 
-                case (signal_generator::Operations::SLOPE_LINNERAR):
+                case (signal_generator::Operations::ADD_SLOPE_LINNEAR):
                 {
-                    m_signalConfigurationQueue.front();
+                    signal_generator::DataForSlopeLinnear dataForSlopeLinnear(m_signalConfigurationQueue.front().getParameters());
+
+                    m_signalGenerator->addSlopeLinnear(dataForSlopeLinnear);
+
+                    break;
+                }
+
+                case (signal_generator::Operations::MULTIPLY_SLOPE_LINNEAR):
+                {
+                    signal_generator::DataForSlopeLinnear dataForSlopeLinnear(m_signalConfigurationQueue.front().getParameters());
+
+                    m_signalGenerator->multiplySlopeLinnear(dataForSlopeLinnear);
+
                     break;
                 }
 
                 case (signal_generator::Operations::SCALE_TIME):
                 {
-                    m_signalConfigurationQueue.front();
+                    signal_generator::DataForScale dataForScale(m_signalConfigurationQueue.front().getParameters());
+
+                    m_signalGenerator->scaleTime(dataForScale);
+
                     break;
                 }
 
                 case (signal_generator::Operations::SCALE_ANGLE):
                 {
-                    m_signalConfigurationQueue.front();
+                    signal_generator::DataForScale dataForScale(m_signalConfigurationQueue.front().getParameters());
+
+                    m_signalGenerator->scaleAngle(dataForScale);
+
                     break;
                 }
 
                 case (signal_generator::Operations::END):
                 {
                     m_signalConfigurationQueue.front();
-                    break;
+
+                    std::cout << "Operation queue has been proceeded\n";
+
+                    m_signalGenerator->save("signalGeneratorResult");
+
+                    return true;
                 }
 
                 case (signal_generator::Operations::UNHANDLED):
+                default:
                 {
-                    m_signalConfigurationQueue.front();
+                    std::cerr << "Unhandled operation in queue from file singal configuration skipping...\n";
                     break;
                 }
+                } // switch
 
-                default:
 
-                    m_signalConfigurationQueue.pop();
-                }
+                // todo SAVE make string to outputFileName
+
+
+                m_signalConfigurationQueue.pop();
             }
 
             return true;
@@ -246,9 +295,9 @@ public:
         std::ifstream fin(fileName);
 
         std::cout << fileName;
-        
-        if (fin.is_open()) 
-            std::cout << "opend succesfully\n"; 
+
+        if (fin.is_open())
+            std::cout << "opend succesfully\n";
         else
             std::cout << "not opend\n";
 
@@ -272,5 +321,5 @@ public:
 
 private:
     std::queue<SignalConfiguration> m_signalConfigurationQueue;
-    boost::shared_ptr<signal_generator::SignalGenerator> signalGenerator;
+    boost::shared_ptr<signal_generator::SignalGenerator> m_signalGenerator;
 };

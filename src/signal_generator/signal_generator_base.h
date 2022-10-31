@@ -14,7 +14,8 @@ namespace signal_generator
         MAKE_CONSTANT_SIGNAL,
         MULTIPLY_HARMONIC,
         ADD_MAKE_HARMONIC,
-        SLOPE_LINNERAR,
+        MULTIPLY_SLOPE_LINNEAR,
+        ADD_SLOPE_LINNEAR,
         SCALE_TIME,
         SCALE_ANGLE,
         END,
@@ -23,13 +24,27 @@ namespace signal_generator
 
     struct DataForConstantSignal
     {
-        double ammplitude;
+        DataForConstantSignal(const std::vector<double> &data) : amplitude(data.at(0)),
+                                                                 size(int(data.at(1))),
+                                                                 timeStep(data.at(2))
+        {
+        }
+
+        double amplitude;
         int size;
         double timeStep;
     };
 
     struct DataForMultiplyAddHarmonic
     {
+        DataForMultiplyAddHarmonic(const std::vector<double> &data) : indexFrom(size_t(data.at(0))),
+                                                                      indexTo(size_t(data.at(1))),
+                                                                      amplitude(data.at(2)),
+                                                                      w(data.at(3)),
+                                                                      phase(data.at(4))
+        {
+        }
+
         size_t indexFrom;
         size_t indexTo;
         double amplitude;
@@ -39,6 +54,12 @@ namespace signal_generator
 
     struct DataForScale
     {
+        DataForScale(const std::vector<double> &data) : indexFrom(size_t(data.at(0))),
+                                                        indexTo(size_t(data.at(1))),
+                                                        scaleFactor(data.at(2))
+        {
+        }
+
         size_t indexFrom;
         size_t indexTo;
         double scaleFactor;
@@ -46,6 +67,13 @@ namespace signal_generator
 
     struct DataForSlopeLinnear
     {
+        DataForSlopeLinnear(const std::vector<double> &data) : indexFrom(size_t(data.at(0))),
+                                                               indexTo(size_t(data.at(1))),
+                                                               slopeA(data.at(2)),
+                                                               slopeB(data.at(3))
+        {
+        }
+
         size_t indexFrom;
         size_t indexTo;
         double slopeA;
@@ -79,12 +107,14 @@ namespace signal_generator
 
         SignalGenerator *makeConstantSignal(const DataForConstantSignal &data)
         {
-            return makeConstantSignal(data.ammplitude, data.size, data.timeStep);
+            return makeConstantSignal(data.amplitude, data.size, data.timeStep);
         }
 
         SignalGenerator *makeConstantSignal(double amplitude, size_t size, double timeStep)
         {
-            std::cout << "makeNoSignal(size: " << size << ", timeStep: " << timeStep << ")\n";
+            std::cout << "makeNoSignal:" 
+                      << " size: " << size 
+                      << ", timeStep: " << timeStep << ")\n";
 
             Function::reserve(size);
             Function::shrink_to_fit();
@@ -118,7 +148,12 @@ namespace signal_generator
             indexFrom = (indexFrom ? indexFrom.get() : 0);
             indexTo = (indexTo ? indexTo.get() : size());
 
-            std::cout << "indexFrom: " << indexFrom.get() << " ,indexTo: " << indexTo.get() << "\n";
+            std::cout << "indexFrom: " << indexFrom.get()
+                      << ", indexTo: " << indexTo.get() 
+                      << ", amplitude: " << amplitude
+                      << ", w: " << w
+                      << ", phase: " << phase   
+                      << "\n";
 
             for (size_t i = indexFrom.get(); i < indexTo.get(); ++i)
                 m_codomain.at(i) *= amplitude * sin(w * m_domain.at(i) + phase);
@@ -141,12 +176,17 @@ namespace signal_generator
                                      double w,
                                      double phase)
         {
-            std::cout << "multiplyHarmonic(), ";
+            std::cout << "addHarmonic(), ";
 
             indexFrom = (indexFrom ? indexFrom.get() : 0);
             indexTo = (indexTo ? indexTo.get() : size());
 
-            std::cout << "indexFrom: " << indexFrom.get() << " ,indexTo: " << indexTo.get() << "\n";
+            std::cout << "indexFrom: " << indexFrom.get()
+                      << ", indexTo: " << indexTo.get() 
+                      << ", amplitude: " << amplitude
+                      << ", w: " << w   
+                      << ", phase: " << phase
+                      << "\n";
 
             for (size_t i = indexFrom.get(); i < indexTo.get(); ++i)
                 m_codomain.at(i) += amplitude * sin(w * m_domain.at(i) + phase);
@@ -154,22 +194,85 @@ namespace signal_generator
             return this;
         };
 
-        SignalGenerator *slopeLinnear(boost::optional<size_t> indexFrom,
+        SignalGenerator *addSlopeLinnear(const DataForSlopeLinnear& data)
+        {
+            return addSlopeLinnear(data.indexFrom,
+                               data.indexTo,
+                               data.slopeA,
+                               data.slopeB);
+        }
+
+        SignalGenerator *addSlopeLinnear(boost::optional<size_t> indexFrom,
                                       boost::optional<size_t> indexTo,
                                       double slopeA,
                                       double slopeB)
         {
-            std::cout << "slopeLinnear(), ";
+            std::cout << "addSlopeLinnear(), ";
 
             indexFrom = (indexFrom ? indexFrom.get() : 0);
             indexTo = (indexTo ? indexTo.get() : size());
 
-            std::cout << "indexFrom: " << indexFrom.get() << " ,indexTo: " << indexTo.get()
-                      << ", slopeA: " << slopeA << ", slopeB: " << slopeB << "\n";
+            std::cout << "indexFrom: " << indexFrom.get() 
+                      << ", indexTo: " << indexTo.get()
+                      << ", slopeA: " << slopeA 
+                      << ", slopeB: " << slopeB << "\n";
+
+            for (size_t i = indexFrom.get(); i < indexTo.get(); ++i)
+                m_codomain.at(i) += slopeA * m_domain.at(i) + slopeB;
+
+            return this;
+        }
+
+        SignalGenerator *multiplySlopeLinnear(const DataForSlopeLinnear& data)
+        {
+            return multiplySlopeLinnear(data.indexFrom,
+                               data.indexTo,
+                               data.slopeA,
+                               data.slopeB);
+        }
+
+        SignalGenerator *multiplySlopeLinnear(boost::optional<size_t> indexFrom,
+                                      boost::optional<size_t> indexTo,
+                                      double slopeA,
+                                      double slopeB)
+        {
+            std::cout << "multiplySlopeLinnear(), ";
+
+            indexFrom = (indexFrom ? indexFrom.get() : 0);
+            indexTo = (indexTo ? indexTo.get() : size());
+
+            std::cout << "indexFrom: " << indexFrom.get() 
+                      << ", indexTo: " << indexTo.get()
+                      << ", slopeA: " << slopeA 
+                      << ", slopeB: " << slopeB << "\n";
 
             for (size_t i = indexFrom.get(); i < indexTo.get(); ++i)
                 m_codomain.at(i) *= slopeA * m_domain.at(i) + slopeB;
 
+            return this;
+        }
+
+
+        SignalGenerator *AmplitudeDecreaseLinnear(boost::optional<size_t> indexFrom,
+                                      boost::optional<size_t> indexTo,
+                                      double slopeA,
+                                      double slopeB)
+        {
+            std::cout << "multiplySlopeLinnear(), ";
+
+            indexFrom = (indexFrom ? indexFrom.get() : 0);
+            indexTo = (indexTo ? indexTo.get() : size());
+
+            std::cout << "indexFrom: " << indexFrom.get() 
+                      << ", indexTo: " << indexTo.get()
+                      << ", slopeA: " << slopeA 
+                      << ", slopeB: " << slopeB << "\n";
+
+            for (size_t i = indexFrom.get(); i < indexTo.get(); ++i)
+            {
+                int amplDirection = (m_codomain.at(i) > 0 ? +1 : -1); 
+                m_codomain.at(i) *= double(amplDirection)*slopeA * m_domain.at(i) + slopeB; // todo remove slope b
+            }
             return this;
         }
 
@@ -236,6 +339,8 @@ namespace signal_generator
                       << "\t"
                       << "m_codomain size: " << m_codomain.size() << "\n";
         }
+
+        // todo make Config Example
 
     private:
     };

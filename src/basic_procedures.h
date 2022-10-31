@@ -345,6 +345,11 @@ namespace basic_procedures
 
         mngr.loadSignalConfiguaration("signalToGenerate");
 
+        std::cout << "doWork started\n";
+        std::cout << "**************************************************\n";
+
+        mngr.doWork();
+
         return FAIL;
     }
 
