@@ -21,6 +21,9 @@
 
 #include "signal_generator/signal_generator_base.h"
 #include "signal_generator/signal_generator_manager.h"
+//#include "signal_generator/signal_generator_operation.h"
+
+#include "signal_generator/operations_queue.h"
 
 namespace basic_procedures
 {
@@ -341,6 +344,8 @@ namespace basic_procedures
 
         signalGenerator.save("generatedSignal");*/
         
+        /*
+        fixme refactored
         SignalGeneratorManager mngr;
 
         mngr.loadSignalConfiguaration("signalToGenerate");
@@ -348,7 +353,12 @@ namespace basic_procedures
         std::cout << "doWork started\n";
         std::cout << "**************************************************\n";
 
-        mngr.doWork();
+        mngr.doWork();*/
+
+        OperationsQueue operationQueue("signalToGenerate");
+
+        operationQueue.doWork();
+
 
         return FAIL;
     }

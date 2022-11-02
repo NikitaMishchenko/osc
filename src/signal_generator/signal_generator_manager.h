@@ -9,131 +9,8 @@
 
 #include "signal_generator_manager.h"
 
-namespace
-{
-    int operationFromString(const std::string &operationString)
-    {
-        int operationEnum;
 
-        if ("constantSignal:" == operationString)
-            return signal_generator::Operations::MAKE_CONSTANT_SIGNAL;
-
-        else if ("multiplyHarmonic:" == operationString)
-            return signal_generator::Operations::MULTIPLY_HARMONIC;
-
-        else if ("addHarmonic:" == operationString)
-            return signal_generator::Operations::ADD_MAKE_HARMONIC;
-
-        else if ("multiplySlopeLinnear:" == operationString)
-            return signal_generator::Operations::MULTIPLY_SLOPE_LINNEAR;
-
-        else if ("addSlopeLinnear:" == operationString)
-            return signal_generator::Operations::ADD_SLOPE_LINNEAR;    
-
-        else if ("scaleTime:" == operationString)
-            return signal_generator::Operations::SCALE_TIME;
-
-        else if ("scaleAngle:" == operationString)
-            return signal_generator::Operations::SCALE_ANGLE;
-
-        else if ("End." == operationString)
-            return signal_generator::Operations::END;
-
-        else
-            return signal_generator::Operations::UNHANDLED;
-    };
-
-    std::vector<double> argumentsFromStream(std::ifstream &source, const int operationToPerform)
-    {
-        switch (operationToPerform)
-        {
-        case (signal_generator::Operations::MAKE_CONSTANT_SIGNAL):
-        {
-            std::vector<double> dataForConstantSignal;
-
-            double d_buff;
-            std::string s_buff;
-
-            for (int i = 0; i < 3; ++i) // hardcode
-            {
-                source >> s_buff >> d_buff;
-                std::cout << s_buff << " " << d_buff << "\n";
-
-                dataForConstantSignal.push_back(d_buff);
-            }
-
-            return dataForConstantSignal;
-        }
-
-        case (signal_generator::Operations::MULTIPLY_HARMONIC):
-        case (signal_generator::Operations::ADD_MAKE_HARMONIC):
-        {
-            std::vector<double> dataForMultiplyAddHarmonic;
-
-            double d_buff;
-            std::string s_buff;
-
-            for (int i = 0; i < 5; ++i) // hardcode
-            {
-                source >> s_buff >> d_buff;
-                std::cout << s_buff << " " << d_buff << "\n";
-
-                dataForMultiplyAddHarmonic.push_back(d_buff);
-            }
-
-            return dataForMultiplyAddHarmonic;
-        }
-
-        case (signal_generator::Operations::ADD_SLOPE_LINNEAR):
-        case (signal_generator::Operations::MULTIPLY_SLOPE_LINNEAR):
-        {
-
-            std::vector<double> dataForSlopeLinnear;
-
-            double d_buff;
-            std::string s_buff;
-
-            for (int i = 0; i < 4; ++i) // hardcode
-            {
-                source >> s_buff >> d_buff;
-                std::cout << s_buff << " " << d_buff << "\n";
-
-                dataForSlopeLinnear.push_back(d_buff);
-            }
-
-            return dataForSlopeLinnear;
-        }
-
-        case (signal_generator::Operations::SCALE_TIME):
-        case (signal_generator::Operations::SCALE_ANGLE):
-        {
-            std::vector<double> dataForScale;
-
-            double d_buff;
-            std::string s_buff;
-
-            for (int i = 0; i < 3; ++i) // hardcode
-            {
-                source >> s_buff >> d_buff;
-                std::cout << s_buff << " " << d_buff << "\n";
-
-                dataForScale.push_back(d_buff);
-            }
-
-            return dataForScale;
-        }
-
-        case (signal_generator::Operations::END):
-        {
-
-            break;
-        }
-        }
-
-        return std::vector<double>();
-    }
-}
-
+/*
 class SignalGeneratorManager
 {
 public:
@@ -323,3 +200,4 @@ private:
     std::queue<SignalConfiguration> m_signalConfigurationQueue;
     boost::shared_ptr<signal_generator::SignalGenerator> m_signalGenerator;
 };
+*/
