@@ -355,9 +355,11 @@ namespace basic_procedures
 
         mngr.doWork();*/
 
-        OperationsQueue operationQueue("signalToGenerate");
+        OperationsQueue operationQueue;
 
-        operationQueue.doWork();
+        operationQueue.loadOperationsConfiguration("signalToGenerate");
+
+        operationQueue.performOperations();
 
 
         return FAIL;

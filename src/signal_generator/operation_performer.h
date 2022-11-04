@@ -4,7 +4,9 @@
 #include <istream>
 
 #include "operation_types.h"
+#include "signal_generator_base.h"
 
+//template<class Derived> 
 class OperationPerformer
 {
 public:
@@ -27,8 +29,10 @@ public:
         return m_type;
     }
 
-    virtual void perform(){};
-    virtual void load(std::istream &source){};
+    virtual signal_generator::SignalGenerator* perform(signal_generator::SignalGenerator* signalGenerator)
+    {
+        return signalGenerator;
+    };
 
 protected:
     std::vector<double> m_data;
@@ -38,7 +42,7 @@ protected:
 class MakeConstantSignal : public OperationPerformer
 {
 public:
-    MakeConstantSignal(std::vector<double> data)
+    MakeConstantSignal(const std::vector<double>& data)
         : OperationPerformer(data, Operations::MAKE_CONSTANT_SIGNAL),
           m_prepData(data)
     {
@@ -49,9 +53,10 @@ public:
     {
     }
 
-    virtual void perform()
+    virtual signal_generator::SignalGenerator* perform(signal_generator::SignalGenerator* signalGenerator)
     {
         // performance using data interpretation
+        return signalGenerator->makeConstantSignal(m_prepData);
     }
 
 private:
@@ -71,7 +76,7 @@ public:
 
     virtual ~MultiplyHarmonic() {}
 
-    virtual void perform()
+    virtual signal_generator::SignalGenerator* perform(signal_generator::SignalGenerator* signalGenerator)
     {
         // performance using data interpretation
     }
@@ -92,7 +97,7 @@ public:
 
     virtual ~AddHarmonic() {}
 
-    virtual void perform()
+    virtual signal_generator::SignalGenerator* perform(signal_generator::SignalGenerator* signalGenerator)
     {
         // performance using data interpretation
     }
@@ -113,7 +118,7 @@ public:
 
     virtual ~MultiplySlopeLinnear() {}
 
-    virtual void perform()
+    virtual signal_generator::SignalGenerator* perform(signal_generator::SignalGenerator* signalGenerator)
     {
         // performance using data interpretation
     }
@@ -134,7 +139,7 @@ public:
 
     virtual ~AddSlopeLinnear() {}
 
-    virtual void perform()
+    virtual signal_generator::SignalGenerator* perform(signal_generator::SignalGenerator* signalGenerator)
     {
         // performance using data interpretation
     }
@@ -155,7 +160,7 @@ public:
 
     virtual ~ScaleTime() {}
 
-    virtual void perform()
+    virtual signal_generator::SignalGenerator* perform(signal_generator::SignalGenerator* signalGenerator)
     {
         // performance using data interpretation
     }
@@ -177,7 +182,7 @@ public:
 
     virtual ~ScaleAngle() {}
 
-    virtual void perform()
+    virtual signal_generator::SignalGenerator* perform(signal_generator::SignalGenerator* signalGenerator)
     {
         // performance using data interpretation
     }

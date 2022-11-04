@@ -2,48 +2,63 @@
 
 #include <istream>
 #include <queue>
+#include <memory>
 
 #include "operation_type_parsers.h"
+#include "signal_generator_base.h"
+#include "operations_factory.h"
 
 class OperationsQueue
 {
 public:
-    OperationsQueue(const std::string &fileName)
+    OperationsQueue() : m_signalGenerator(signal_generator::SignalGenerator())
     {
-        std::cout << "constucting OperationQueue() loading config file: \"" << fileName << "\"\n";  
+    }
 
+    bool loadOperationsConfiguration(const std::string &fileName)
+    {
         std::ifstream fin(fileName);
 
         if (!fin.is_open())
             throw std::string("OperationQueue cant load file:" + fileName);
 
-        OperationType type;
+        OperationsFactory factory(fileName);
+
+        std::shared_ptr<OperationPerformer> operationPerformerPtr;
+        int factoryErrCode;
 
         do
         {
-            type.clear();
+            std::tie(factoryErrCode, operationPerformerPtr) = factory.createOperation();
 
-            if(!type.loadFromSource(fin))
-                break;
+            std::cout << "factory createOperation errCode: " << factoryErrCode << "\n";
 
-            m_operations.push(type.getOperationPerformer());
+            m_operations.push(operationPerformerPtr);
 
-        }  while (type.getOperationType() != Operations::END);
+        } while (FactoryCode::WORK_SUCCEED == factoryErrCode);
 
-        std::cout << "queue loaded\n";
+        std::cout << "OperationsQueue loaded with size of " << m_operations.size() << "\n";
+
+        fin.close();
+
+        return true;
     }
 
-    void doWork()
+    void performOperations()
     {
         std::cout << "performing queue Operations\n";
-        
+
+        signal_generator::SignalGenerator *signalGeneratorPtr;
+
         while (!m_operations.empty() || m_operations.front().getOperationType() != Operations::END)
         {
-            m_operations.front().perform();
+            signalGeneratorPtr = m_operations.front().perform(signalGeneratorPtr);
+
             m_operations.pop();
         }
     }
 
 private:
-    std::queue<OperationPerformer> m_operations;
+    std::queue<std::shared_ptr<OperationPerformer> > m_operations;
+    signal_generator::SignalGenerator m_signalGenerator;
 };

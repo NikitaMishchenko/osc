@@ -8,7 +8,7 @@
 #include "operation_types.h"
 #include "operation_performer.h"
 
-namespace
+/*namespace
 {
     Operations operationFromString(const std::string &operationString)
     {
@@ -155,12 +155,12 @@ namespace
         return 0;
     }
 
-}
-
-class OperationType
+}*/
+/*
+class OperationParser // former OperationType
 {
 public:
-    OperationType()
+    OperationParser()
     {
         m_operationRepresentation = std::string();
         m_specOperation = Operations::UNHANDLED;
@@ -178,7 +178,7 @@ public:
         isOk = argumentsFromSource(source);
 
         if (!isOk)
-            std::cerr << "dailed to load operation trying to load other!";
+            std::cerr << "failed to load operation trying to load other!";
 
         return true;
     }
@@ -285,4 +285,4 @@ private:
     std::vector<double> m_operationData; // share data
 
     // OperationPerformer m_operationPerformer; // shared data
-};
+};*/
