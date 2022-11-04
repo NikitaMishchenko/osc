@@ -48,7 +48,6 @@ namespace signal_generator
                       << ", timeStep: " << timeStep << ")\n";
 
             Function::reserve(size);
-            Function::shrink_to_fit();
 
             for (size_t i = 0; i < size; ++i)
             {
@@ -272,6 +271,13 @@ namespace signal_generator
         }
 
         // todo make Config Example
+
+        AngleHistory getAngleHistory() const
+        {
+            AngleHistory angleHistory = static_cast<AngleHistory>(*this);
+
+            return angleHistory;
+        }
 
     private:
     };

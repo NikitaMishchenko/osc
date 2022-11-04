@@ -71,6 +71,8 @@ enum ParserCode
 {
     NEGATIVE,
     POSITIVE,
+    END_OPERATION_ACQUIRED,
+    
     // bad codes
     NO_DATA_IN_SOURCE,
     NOT_ENOUGH_DATA_IN_SOURCE
@@ -80,7 +82,9 @@ namespace parser
 {
     inline bool isBadCode(int errCode)
     {
-        return (NEGATIVE != errCode && POSITIVE != errCode);
+        return (NEGATIVE != errCode
+        && POSITIVE != errCode
+        && END_OPERATION_ACQUIRED != errCode);
     }
 } // namespace parser
 
@@ -92,12 +96,20 @@ public:
 
     std::tuple<int, OperationContainer> getNextOperationData(std::fstream &source)
     {
+        std::cout << "getNextOperationData() ";
+
         int errCode = parseSingle(source);
 
         OperationContainer operationContainer;
 
         operationContainer.type = m_operationType;
         operationContainer.data = m_operationData;
+
+        if ( Operations::END == m_operationType)
+            errCode = ParserCode::END_OPERATION_ACQUIRED;
+
+        std::cout << "errCode: " << errCode << "\n";
+
 
         return std::make_tuple(errCode, operationContainer); // report err and source info
     }
@@ -159,7 +171,7 @@ private:
         std::string s_buff;
         double d_buff;
 
-        for (int i = 0; i < m_operationData.size(); ++i)
+        for (int i = 0; i < m_operationDataPortionsToGet; ++i)
         {
             if (source.eof())
                 return ParserCode::NOT_ENOUGH_DATA_IN_SOURCE;

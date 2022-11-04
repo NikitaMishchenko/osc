@@ -67,7 +67,7 @@ private:
 class MultiplyHarmonic : public OperationPerformer
 {
 public:
-    MultiplyHarmonic(std::vector<double> data)
+    MultiplyHarmonic(const std::vector<double>& data)
         : OperationPerformer(data, Operations::MULTIPLY_HARMONIC),
           m_prepData(data)
     {
@@ -78,7 +78,7 @@ public:
 
     virtual signal_generator::SignalGenerator* perform(signal_generator::SignalGenerator* signalGenerator)
     {
-        // performance using data interpretation
+        return signalGenerator->multiplyHarmonic(m_prepData);
     }
 
 private:
@@ -88,7 +88,7 @@ private:
 class AddHarmonic : public OperationPerformer
 {
 public:
-    AddHarmonic(std::vector<double> data)
+    AddHarmonic(const std::vector<double>& data)
         : OperationPerformer(data, Operations::ADD_MAKE_HARMONIC),
           m_prepData(data)
     {
@@ -99,7 +99,7 @@ public:
 
     virtual signal_generator::SignalGenerator* perform(signal_generator::SignalGenerator* signalGenerator)
     {
-        // performance using data interpretation
+        return signalGenerator->addHarmonic(m_prepData);
     }
 
 private:
@@ -109,7 +109,7 @@ private:
 class MultiplySlopeLinnear : public OperationPerformer
 {
 public:
-    MultiplySlopeLinnear(std::vector<double> data)
+    MultiplySlopeLinnear(const std::vector<double>& data)
         : OperationPerformer(data, Operations::MULTIPLY_SLOPE_LINNEAR),
           m_prepData(data)
     {
@@ -120,7 +120,7 @@ public:
 
     virtual signal_generator::SignalGenerator* perform(signal_generator::SignalGenerator* signalGenerator)
     {
-        // performance using data interpretation
+        return signalGenerator->multiplySlopeLinnear(m_prepData);
     }
 
 private:
@@ -130,7 +130,7 @@ private:
 class AddSlopeLinnear : public OperationPerformer
 {
 public:
-    AddSlopeLinnear(std::vector<double> data)
+    AddSlopeLinnear(const std::vector<double>& data)
         : OperationPerformer(data, Operations::ADD_SLOPE_LINNEAR),
           m_prepData(data)
     {
@@ -141,7 +141,7 @@ public:
 
     virtual signal_generator::SignalGenerator* perform(signal_generator::SignalGenerator* signalGenerator)
     {
-        // performance using data interpretation
+        return signalGenerator->addSlopeLinnear(m_prepData); // performance using data interpretation
     }
 
 private:
@@ -151,7 +151,7 @@ private:
 class ScaleTime : public OperationPerformer
 {
 public:
-    ScaleTime(std::vector<double> data)
+    ScaleTime(const std::vector<double>& data)
         : OperationPerformer(data, Operations::SCALE_TIME),
           m_prepData(data)
     {
@@ -162,7 +162,7 @@ public:
 
     virtual signal_generator::SignalGenerator* perform(signal_generator::SignalGenerator* signalGenerator)
     {
-        // performance using data interpretation
+        return signalGenerator->scaleTime(m_prepData);
     }
 
 private:
@@ -173,7 +173,7 @@ private:
 class ScaleAngle : public OperationPerformer
 {
 public:
-    ScaleAngle(std::vector<double> data)
+    ScaleAngle(const std::vector<double>& data)
         : OperationPerformer(data, Operations::SCALE_ANGLE),
           m_prepData(data)
     {
@@ -184,7 +184,7 @@ public:
 
     virtual signal_generator::SignalGenerator* perform(signal_generator::SignalGenerator* signalGenerator)
     {
-        // performance using data interpretation
+        return signalGenerator->scaleAngle(m_prepData);
     }
 
 private:

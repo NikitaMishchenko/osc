@@ -157,6 +157,8 @@ int doJob(const options::Procedure procedureToPerform,
     {
         result = basic_procedures::UNEXPECTED;
 
+        result = basic_procedures::testFunc();
+
         break;
     }
     }

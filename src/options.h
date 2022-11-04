@@ -76,7 +76,7 @@ namespace options
                                                                             "P to perform periods, cut - to  cut realisation, pendullum - to perform p* osc analysis, approximation - to perform approx")
                                                                             ("file,f", po::value<std::string>()->default_value("file"), " - name of file")
                                                                             ("file2", po::value<std::string>()->default_value(""), " - name of file2")
-                                                                            ("args,a", po::value<std::vector<double>>()->multitoken()->default_value(std::vector<double>{0}, ""), " - list of args");
+                                                                            ("args,a", po::value<std::vector<double>>()->multitoken()->default_value(std::vector<double>(), ""), " - list of args");
         }
 
         bool parse_options(int ac, char *av[]);

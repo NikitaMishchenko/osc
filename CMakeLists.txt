@@ -5,13 +5,13 @@ set(CMAKE_INCLUDE_CURRENT_DIR ON)
 
 include(CTest)
 
-enable_testing()
+#enable_testing()
 
 include_directories (src/)
 #include_directories (/home/mishnic/gsl/include/gsl/)
 
 #add_subdirectory(tests build/tests)
-add_subdirectory(tests)
+#add_subdirectory(tests)
 
 
 #find_package(Boost 1.67 COMPONENTS program_options REQUIRED)

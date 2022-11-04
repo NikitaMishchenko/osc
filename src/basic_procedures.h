@@ -361,6 +361,7 @@ namespace basic_procedures
 
         operationQueue.performOperations();
 
+        operationQueue.getAngleHistory().write("resultSignalGenerator");
 
         return FAIL;
     }

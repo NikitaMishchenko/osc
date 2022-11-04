@@ -35,7 +35,7 @@ public:
 
             m_operations.push(operationPerformerPtr);
 
-        } while (FactoryCode::WORK_SUCCEED == factoryErrCode);
+        } while (FactoryCode::WORK_DONE != factoryErrCode);
 
         std::cout << "OperationsQueue loaded with size of " << m_operations.size() << "\n";
 
@@ -48,14 +48,24 @@ public:
     {
         std::cout << "performing queue Operations\n";
 
-        signal_generator::SignalGenerator *signalGeneratorPtr;
+        signal_generator::SignalGenerator *signalGeneratorPtr = &m_signalGenerator; // todo use smart ptr
 
-        while (!m_operations.empty() || m_operations.front().getOperationType() != Operations::END)
+        while (!m_operations.empty())
         {
-            signalGeneratorPtr = m_operations.front().perform(signalGeneratorPtr);
+            if (m_operations.front()->getOperationType() == Operations::END)
+                break;
+
+            signalGeneratorPtr = m_operations.front()->perform(signalGeneratorPtr);
+
+            signalGeneratorPtr->info();
 
             m_operations.pop();
         }
+    }
+
+    AngleHistory getAngleHistory() const
+    {
+        return m_signalGenerator.getAngleHistory();
     }
 
 private:
