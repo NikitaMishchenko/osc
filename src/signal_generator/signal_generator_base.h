@@ -13,6 +13,7 @@ namespace signal_generator
 
     // todo to helpers time to index
     /**
+     * Realisation of basic operations
      * int getIndex(double time){std::find() return index };
      *  std::tuple<int, int> getTimeRangeIndex(double timeForm, double timeTod);
      * std::tuple<iterator, iterator>(double timeFrom, timeTo);
@@ -269,8 +270,6 @@ namespace signal_generator
                       << "\t"
                       << "m_codomain size: " << m_codomain.size() << "\n";
         }
-
-        // todo make Config Example
 
         AngleHistory getAngleHistory() const
         {

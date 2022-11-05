@@ -4,10 +4,12 @@
 #include <queue>
 #include <memory>
 
-#include "operation_type_parsers.h"
 #include "signal_generator_base.h"
 #include "operations_factory.h"
-
+/**
+ * Aplying of operatoions over signalGenerator data
+ * accorfing to config file (see OperationsFactory)
+ */
 class OperationsQueue
 {
 public:
@@ -69,6 +71,6 @@ public:
     }
 
 private:
-    std::queue<std::shared_ptr<OperationPerformer> > m_operations;
+    std::queue<std::shared_ptr<OperationPerformer>> m_operations;
     signal_generator::SignalGenerator m_signalGenerator;
 };

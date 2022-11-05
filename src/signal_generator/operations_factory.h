@@ -11,48 +11,6 @@
 #include "operation_performer.h"
 #include "operation_parser.h"
 
-namespace
-{
-    std::shared_ptr<OperationPerformer>
-    getOperationPerformer(const std::vector<double> &operationData,
-                          Operations type)
-    {
-        std::cout << "getOperationPerformer()";
-
-        switch (type)
-        {
-        case (Operations::MAKE_CONSTANT_SIGNAL):
-            return std::make_shared<MakeConstantSignal>(operationData);
-
-        case (Operations::SCALE_TIME):
-            return std::make_shared<ScaleTime>(operationData);
-
-        case (Operations::SCALE_ANGLE):
-            return std::make_shared<ScaleAngle>(operationData);
-
-        case (Operations::MULTIPLY_HARMONIC):
-            return std::make_shared<MultiplyHarmonic>(operationData);
-
-        case (Operations::ADD_MAKE_HARMONIC):
-            return std::make_shared<AddHarmonic>(operationData);
-
-        case (Operations::ADD_SLOPE_LINNEAR):
-            return std::make_shared<AddSlopeLinnear>(operationData);
-
-        case (Operations::MULTIPLY_SLOPE_LINNEAR):
-            return std::make_shared<MultiplySlopeLinnear>(operationData);
-
-        case (Operations::END):
-            return std::make_shared<OperationPerformer>();
-
-        default:
-            std::cerr << "smth wrong!";
-        }
-
-        return std::make_shared<OperationPerformer>();
-    }
-}
-
 enum FactoryCode
 {
     WORK_DONE,

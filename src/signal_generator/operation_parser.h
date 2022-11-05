@@ -41,30 +41,6 @@ namespace
             return Operations::UNHANDLED;
     };
 
-    int getOperationDataPortionCount(Operations type)
-    {
-        switch (type)
-        {
-        case (Operations::MAKE_CONSTANT_SIGNAL):
-        case (Operations::SCALE_TIME):
-        case (Operations::SCALE_ANGLE):
-            return 3;
-
-        case (Operations::ADD_SLOPE_LINNEAR):
-        case (Operations::MULTIPLY_SLOPE_LINNEAR):
-            return 4;
-
-        case (Operations::MULTIPLY_HARMONIC):
-        case (Operations::ADD_MAKE_HARMONIC):
-            return 5;
-
-        case (Operations::END):
-        default:
-            return 0;
-        }
-        return 0;
-    }
-
 } // namespace
 
 enum ParserCode
