@@ -9,7 +9,6 @@
 
 namespace signal_generator
 {
-   
 
     // todo to helpers time to index
     /**
@@ -44,8 +43,8 @@ namespace signal_generator
 
         SignalGenerator *makeConstantSignal(double amplitude, size_t size, double timeStep)
         {
-            std::cout << "makeNoSignal:" 
-                      << " size: " << size 
+            std::cout << "makeNoSignal:"
+                      << " size: " << size
                       << ", timeStep: " << timeStep << ")\n";
 
             Function::reserve(size);
@@ -80,10 +79,10 @@ namespace signal_generator
             indexTo = (indexTo ? indexTo.get() : size());
 
             std::cout << "indexFrom: " << indexFrom.get()
-                      << ", indexTo: " << indexTo.get() 
+                      << ", indexTo: " << indexTo.get()
                       << ", amplitude: " << amplitude
                       << ", w: " << w
-                      << ", phase: " << phase   
+                      << ", phase: " << phase
                       << "\n";
 
             for (size_t i = indexFrom.get(); i < indexTo.get(); ++i)
@@ -113,9 +112,9 @@ namespace signal_generator
             indexTo = (indexTo ? indexTo.get() : size());
 
             std::cout << "indexFrom: " << indexFrom.get()
-                      << ", indexTo: " << indexTo.get() 
+                      << ", indexTo: " << indexTo.get()
                       << ", amplitude: " << amplitude
-                      << ", w: " << w   
+                      << ", w: " << w
                       << ", phase: " << phase
                       << "\n";
 
@@ -125,27 +124,27 @@ namespace signal_generator
             return this;
         };
 
-        SignalGenerator *addSlopeLinnear(const DataForSlopeLinnear& data)
+        SignalGenerator *addSlopeLinnear(const DataForSlopeLinnear &data)
         {
             return addSlopeLinnear(data.indexFrom,
-                               data.indexTo,
-                               data.slopeA,
-                               data.slopeB);
+                                   data.indexTo,
+                                   data.slopeA,
+                                   data.slopeB);
         }
 
         SignalGenerator *addSlopeLinnear(boost::optional<size_t> indexFrom,
-                                      boost::optional<size_t> indexTo,
-                                      double slopeA,
-                                      double slopeB)
+                                         boost::optional<size_t> indexTo,
+                                         double slopeA,
+                                         double slopeB)
         {
             std::cout << "addSlopeLinnear(), ";
 
             indexFrom = (indexFrom ? indexFrom.get() : 0);
             indexTo = (indexTo ? indexTo.get() : size());
 
-            std::cout << "indexFrom: " << indexFrom.get() 
+            std::cout << "indexFrom: " << indexFrom.get()
                       << ", indexTo: " << indexTo.get()
-                      << ", slopeA: " << slopeA 
+                      << ", slopeA: " << slopeA
                       << ", slopeB: " << slopeB << "\n";
 
             for (size_t i = indexFrom.get(); i < indexTo.get(); ++i)
@@ -154,27 +153,27 @@ namespace signal_generator
             return this;
         }
 
-        SignalGenerator *multiplySlopeLinnear(const DataForSlopeLinnear& data)
+        SignalGenerator *multiplySlopeLinnear(const DataForSlopeLinnear &data)
         {
             return multiplySlopeLinnear(data.indexFrom,
-                               data.indexTo,
-                               data.slopeA,
-                               data.slopeB);
+                                        data.indexTo,
+                                        data.slopeA,
+                                        data.slopeB);
         }
 
         SignalGenerator *multiplySlopeLinnear(boost::optional<size_t> indexFrom,
-                                      boost::optional<size_t> indexTo,
-                                      double slopeA,
-                                      double slopeB)
+                                              boost::optional<size_t> indexTo,
+                                              double slopeA,
+                                              double slopeB)
         {
             std::cout << "multiplySlopeLinnear(), ";
 
             indexFrom = (indexFrom ? indexFrom.get() : 0);
             indexTo = (indexTo ? indexTo.get() : size());
 
-            std::cout << "indexFrom: " << indexFrom.get() 
+            std::cout << "indexFrom: " << indexFrom.get()
                       << ", indexTo: " << indexTo.get()
-                      << ", slopeA: " << slopeA 
+                      << ", slopeA: " << slopeA
                       << ", slopeB: " << slopeB << "\n";
 
             for (size_t i = indexFrom.get(); i < indexTo.get(); ++i)
@@ -183,26 +182,33 @@ namespace signal_generator
             return this;
         }
 
-
-        SignalGenerator *AmplitudeDecreaseLinnear(boost::optional<size_t> indexFrom,
-                                      boost::optional<size_t> indexTo,
-                                      double slopeA,
-                                      double slopeB)
+        SignalGenerator *amplitudeDecreaseLinnear(const DataForSlopeLinnear &data)
         {
-            std::cout << "multiplySlopeLinnear(), ";
+            return amplitudeDecreaseLinnear(data.indexFrom,
+                                            data.indexTo,
+                                            data.slopeA,
+                                            data.slopeB);
+        }
+
+        SignalGenerator *amplitudeDecreaseLinnear(boost::optional<size_t> indexFrom,
+                                                  boost::optional<size_t> indexTo,
+                                                  double slopeA,
+                                                  double slopeB)
+        {
+            std::cout << "amplitudeDecreaseLinnear(), ";
 
             indexFrom = (indexFrom ? indexFrom.get() : 0);
             indexTo = (indexTo ? indexTo.get() : size());
 
-            std::cout << "indexFrom: " << indexFrom.get() 
+            std::cout << "indexFrom: " << indexFrom.get()
                       << ", indexTo: " << indexTo.get()
-                      << ", slopeA: " << slopeA 
+                      << ", slopeA: " << slopeA
                       << ", slopeB: " << slopeB << "\n";
 
             for (size_t i = indexFrom.get(); i < indexTo.get(); ++i)
             {
-                int amplDirection = (m_codomain.at(i) > 0 ? +1 : -1); 
-                m_codomain.at(i) *= double(amplDirection)*slopeA * m_domain.at(i) + slopeB; // todo remove slope b
+                int amplDirection = (m_codomain.at(i) > 0 ? +1 : -1);
+                m_codomain.at(i) *= double(amplDirection) * slopeA * m_domain.at(i) + slopeB; // todo remove slope b
             }
             return this;
         }

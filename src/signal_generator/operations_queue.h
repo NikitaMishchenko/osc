@@ -6,6 +6,7 @@
 
 #include "signal_generator_base.h"
 #include "operations_factory.h"
+
 /**
  * Aplying of operatoions over signalGenerator data
  * accorfing to config file (see OperationsFactory)

@@ -28,6 +28,9 @@ namespace
         else if ("addSlopeLinnear:" == operationString)
             return Operations::ADD_SLOPE_LINNEAR;
 
+        else if ("amplitudeDecreaseLinnear:" == operationString)
+            return Operations::AMPLITUDE_DECREASE_LINNEAR;    
+
         else if ("scaleTime:" == operationString)
             return Operations::SCALE_TIME;
 

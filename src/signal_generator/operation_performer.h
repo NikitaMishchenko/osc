@@ -148,6 +148,28 @@ private:
     DataForSlopeLinnear m_prepData;
 };
 
+class AmplitudeDecreasLinnear : public OperationPerformer
+{
+public:
+    AmplitudeDecreasLinnear(const std::vector<double> &data)
+        : OperationPerformer(data, Operations::AMPLITUDE_DECREASE_LINNEAR),
+          m_prepData(data)
+    {
+        std::cout << "AmplitudeDecreaseLinnear ctr\n";
+    }
+
+    virtual ~AmplitudeDecreasLinnear() {}
+
+    virtual signal_generator::SignalGenerator *perform(signal_generator::SignalGenerator *signalGenerator)
+    {
+        return signalGenerator->amplitudeDecreaseLinnear(m_prepData); 
+    }
+
+private:
+    DataForSlopeLinnear m_prepData;
+};
+
+
 class ScaleTime : public OperationPerformer
 {
 public:
@@ -218,6 +240,9 @@ getOperationPerformer(const std::vector<double> &operationData,
 
     case (Operations::MULTIPLY_SLOPE_LINNEAR):
         return std::make_shared<MultiplySlopeLinnear>(operationData);
+    
+    case (Operations::AMPLITUDE_DECREASE_LINNEAR):
+        return std::make_shared<AmplitudeDecreasLinnear>(operationData);
 
     case (Operations::END):
         return std::make_shared<OperationPerformer>();
