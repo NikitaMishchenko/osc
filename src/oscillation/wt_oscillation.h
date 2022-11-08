@@ -18,7 +18,6 @@ public:
                                                m_model(Model())
     {};
 
-    // todo refactor make some arg const
     WtOscillation(const Oscillation &oscillation,
                   const wt_flow::Flow &flow,
                   const Model &model)
@@ -28,7 +27,6 @@ public:
     {};
 
     virtual ~WtOscillation(){};
-
 
     // SPECIFIC METHODS
     bool getMz()

@@ -21,6 +21,10 @@
 
 #include "signal_generator/operations_queue.h"
 
+// for testing
+#include "io_helpers/naive.h"
+#include "filtration/gsl_filters.h"
+
 namespace basic_procedures
 {
 
@@ -333,7 +337,13 @@ namespace basic_procedures
 
         operationQueue.getAngleHistory().write("resultSignalGenerator");*/
 
-        // internal::derevaiveAtPoint();
+        FourVector res = actGaussFilter(10000, 50, 0.5, 1, 10);
+
+        std::ofstream fout("gaussFilterResult");
+
+        fout << res;
+
+        fout.close();
 
         return FAIL;
     }

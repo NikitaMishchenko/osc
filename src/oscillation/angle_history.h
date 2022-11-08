@@ -32,7 +32,8 @@ public:
     }
 
     virtual ~AngleHistory()
-    {}
+    {
+    }
 
     /*
     //copy
@@ -101,9 +102,7 @@ public:
         std::cout << *this;
     }
 
-    /*
-     * TODO make overload for operator>>
-     */
+
     friend std::ostream &operator<<(std::ostream &out, const AngleHistory &D)
     {
         for (size_t i = 0; i < D.size(); i++)
@@ -114,6 +113,20 @@ public:
         }
 
         return out;
+    }
+
+    friend std::istream &operator>>(std::ifstream &inSource, AngleHistory& Data)
+    {
+        double b_angle, b_time;
+
+        while (!inSource.eof())
+        {
+            inSource >> b_time >> b_angle;
+
+            Data.push_back(b_time, b_angle);
+        }
+
+        return inSource;
     }
 
     virtual void info() const
@@ -131,14 +144,7 @@ public:
 
         if (fin.is_open())
         {
-            while (!fin.eof())
-            {
-                double b_angle, b_time;
-
-                fin >> b_time >> b_angle;
-
-                this->push_back(b_time, b_angle);
-            }
+            fin >> *this;
 
             std::cout << "file " << file_name << " loaded! Closing\n";
             fin.close();
@@ -168,24 +174,24 @@ protected:
         if (size())
             m_timeStep = ((size() >= 2) ? (m_domain.at(1) - m_domain.at(0)) : 0.0);
         else
-            m_timeStep = 0.0;    
+            m_timeStep = 0.0;
     }
 
     double indexToTime(const size_t index) const
     {
-        if(index < size())
+        if (index < size())
             return m_domain.at(index);
 
-        return m_domain.at(size()-1);    
+        return m_domain.at(size() - 1);
     }
 
     size_t timeToIndex(const double timeValue) const
     {
         // time assumed started at 0.0
         if (!size() && !m_timeStep)
-            return 0;    
+            return 0;
 
-        return timeValue/m_timeStep;
+        return timeValue / m_timeStep;
     }
 
     /*std::vector<double>::iterator timeIterator(const double timeValue) const
