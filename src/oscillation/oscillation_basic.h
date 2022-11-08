@@ -8,6 +8,7 @@
 #include <iterator>
 #include <algorithm>
 
+#include "core/math.h"
 #include "angle_history.h"
 #include "oscillation_helpers.h"
 
@@ -128,41 +129,6 @@ public:
             dangle.reserve(0);
             ddangle.reserve(0);
         }
-    }
-
-    // todo move to function helpers // todo use GNU SL
-    static double derevativeOrd1N2(std::vector<double>& func, const double& h, const size_t index)
-    {
-        //std::cout << index << " derevative \n";
-        double d = 0.0;
-        // left border
-        if (0 == index)
-        {
-            d = (-3.0*func.at(0) + 4.0*func.at(1) - func.at(2))/2.0/h;
-            //std::cout << d << "\n";
-            return d;
-        }
-
-        // center
-        if (index > 0 && index < func.size()-1)
-        {
-            d =  (func.at(index+1) - func.at(index-1))/2.0/h; // ~h^2/6(f''')
-            //std::cout << d << "\n";
-            return d;
-        }
-        //if (index == func.size()-1)
-        //    return (func.at())
-        // right border
-        return 0;
-    }
-
-    static double derevativeOrd2N2(std::vector<double>& func, const double& h, const size_t index)
-    {
-        if (index > 0 && index < func.size()-2)
-            return (func.at(index+2) - 2.0*func.at(index+1) + func.at(index))/h/h;
-
-        std::cout << "derevativeOrd2N2:: 0 returned\n";
-        return 0;
     }
 
     virtual ~Oscillation(){

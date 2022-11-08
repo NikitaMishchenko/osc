@@ -256,7 +256,6 @@ namespace basic_procedures
         dynamic_coefficients::EqvivalentDamping eqvivalentDamping(wt);
 
         eqvivalentDamping.prepareAmplitude();
-    
 
         std::tie(errCode, approxResultVector) = eqvivalentDamping.calcAmplitudeLinnarApproxCoeff(indexFromData,
                                                                                                  indexToData,
@@ -267,25 +266,25 @@ namespace basic_procedures
     }
 
     /*  TODO
-    *   ln(Theta(t)) = (n_c(Theta_sr)*t) + ln(c)
-    *   result = c1*t+c0
-    *   y = c1*x + c0
-    *   m_wtOscillation->getAmplitude
-    *   y = ln(amplitude) = ln(m_wtOscillation.getAmplitude())
-    *   x = m_wtOscillation.getTime();
-    *   approximate (x , y)
-    *   c1 = ln(c)
-    *   c0 = n_c
-    */
+     *   ln(Theta(t)) = (n_c(Theta_sr)*t) + ln(c)
+     *   result = c1*t+c0
+     *   y = c1*x + c0
+     *   m_wtOscillation->getAmplitude
+     *   y = ln(amplitude) = ln(m_wtOscillation.getAmplitude())
+     *   x = m_wtOscillation.getTime();
+     *   approximate (x , y)
+     *   c1 = ln(c)
+     *   c0 = n_c
+     */
     std::tuple<int, linnear_approximation::ApproxResultVector>
     performProcedurecDynCoefficientsFromWindowForWtTest(const std::string fileName,
-                                            const size_t indexFromData,
-                                            const size_t indexToData,
-                                            const size_t windowSize,
-                                            const size_t stepSize,
-                                            boost::optional<double> moveAngleValue)
+                                                        const size_t indexFromData,
+                                                        const size_t indexToData,
+                                                        const size_t windowSize,
+                                                        const size_t stepSize,
+                                                        boost::optional<double> moveAngleValue)
     {
-           std::cout << "performing performProcedureWindow()\n";
+        std::cout << "performing performProcedureWindow()\n";
 
         AngleHistory angleHistory;
 
@@ -297,15 +296,14 @@ namespace basic_procedures
 
         /// PREPARE DATA
 
-
         if (moveAngleValue)
             angleHistory.codomainAdd(moveAngleValue.get());
 
         // actually no need not used
         pendulum::removeOffscale(angleHistory);
-        
+
         // for pendulum only
-        ///pendulum::remove0Harmonic(angleHistory);
+        /// pendulum::remove0Harmonic(angleHistory);
 
         WtOscillation wt(angleHistory);
 
@@ -327,37 +325,15 @@ namespace basic_procedures
     {
         std::cout << "performing testFunc\n";
 
-        /*signal_generator::SignalGenerator signalGenerator;
-        
-        signalGenerator.info();
-
-        (&signalGenerator)->makeConstantSignal(1.0, 5000, 0.001)
-                          ->multiplyHarmonic(boost::none, boost::none, 10, 10, 0.0)
-                          ->addHarmonic(boost::none, boost::none, 1, 100, 0.0)
-                          ->slopeLinnear(boost::none, boost::none, -10, 10);
-
-        signalGenerator.info();
-
-        signalGenerator.save("generatedSignal");*/
-        
-        /*
-        fixme refactored
-        SignalGeneratorManager mngr;
-
-        mngr.loadSignalConfiguaration("signalToGenerate");
-
-        std::cout << "doWork started\n";
-        std::cout << "**************************************************\n";
-
-        mngr.doWork();*/
-
-        OperationsQueue operationQueue;
+        /*OperationsQueue operationQueue;
 
         operationQueue.loadOperationsConfiguration("signalToGenerate");
 
         operationQueue.performOperations();
 
-        operationQueue.getAngleHistory().write("resultSignalGenerator");
+        operationQueue.getAngleHistory().write("resultSignalGenerator");*/
+
+        // internal::derevaiveAtPoint();
 
         return FAIL;
     }
