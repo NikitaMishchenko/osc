@@ -327,7 +327,7 @@ namespace basic_procedures
 
     ErrorCodes testFunc()
     {
-        std::cout << "performing testFunc\n";
+        std::cout << "performing testFunc from basic procedures\n";
 
         /*OperationsQueue operationQueue;
 
@@ -337,7 +337,15 @@ namespace basic_procedures
 
         operationQueue.getAngleHistory().write("resultSignalGenerator");*/
 
-        FourVector res = actGaussFilter(10000, 50, 0.5, 1, 10);
+        //Oscillation oscillation;
+        //oscillation.loadFile("4471");//, oscillation_helpers::TIME_ANGLE_DANGLE_DDANGLE);
+        AngleHistory angleHistory("input");
+
+        std::vector<double> signal = angleHistory.getAngle(); // oscillation.getAngle();
+        
+        std::cout << "data size(): " << signal.size() << "\n"; 
+
+        FourVector res = actLinnearGaussFilter(50, 0.5, 1, 10, signal);
 
         std::ofstream fout("gaussFilterResult");
 
