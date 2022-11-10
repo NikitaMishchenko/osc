@@ -13,61 +13,9 @@
 #include <gsl/gsl_randist.h>
 #include <gsl/gsl_vector.h>
 
-// todo make template class
-class FourVector
-{
-public:
-    FourVector()
-    {
-    }
+#include "core/gsl_wrapper.h"
+#include "filtration/helpers.h"
 
-    FourVector(const size_t size) : m_d0(size), m_d1(size), m_d2(size), m_d3(size)
-    {
-    }
-
-    FourVector(const std::vector<double> &v0,
-               const std::vector<double> &v1,
-               const std::vector<double> &v2,
-               const std::vector<double> &v3)
-        : m_d0(v0), m_d1(v1), m_d2(v2), m_d3(v3){};
-
-    friend std::ostream &operator<<(std::ostream &foutSource, const FourVector &data)
-    {
-        // for (size_t i = data.size(); i < data.size()/2 + data.size()%2; ++i)
-        for (size_t i = 0; i < data.size(); ++i)
-        {
-            // std::cout << data.m_0.at(i) << "\t" << data.m_1.at(i) << "\t" << data.m_2.at(i) << "\t" << data.m_3.at(i) << "\n";
-            foutSource << data.m_d0.at(i)<< " " << data.m_d1.at(i) << " " << data.m_d2.at(i) << " " << data.m_d3.at(i) << "\n";
-        }
-        return foutSource;
-    }
-
-    void reserve(const size_t size)
-    {
-        m_d0.reserve(size);
-        m_d1.reserve(size);
-        m_d2.reserve(size);
-        m_d3.reserve(size);
-    }
-
-    void push_back(double d0, double d1, double d2, double d3)
-    {
-        m_d0.push_back(d0);
-        m_d1.push_back(d1);
-        m_d2.push_back(d2);
-        m_d3.push_back(d3);
-    }
-
-    size_t size() const
-    {
-        return m_d1.size();
-    }
-
-    std::vector<double> m_d0;
-    std::vector<double> m_d1;
-    std::vector<double> m_d2;
-    std::vector<double> m_d3;
-};
 
 // todo start here and fill with external Data // leave basic realisation for testing
 void generateTestSignal(gsl_vector *x, const size_t totalSize)
@@ -91,84 +39,8 @@ void generateTestSignal(gsl_vector *x, const size_t totalSize)
     gsl_rng_free(r);
 }
 
-namespace gsl_to_stl
+namespace gsl_wrapper
 {
-    class GslWrapper
-    {
-    public:
-        GslWrapper(const size_t size) : m_sizeGsl(size), m_initialised(false)
-        {
-            std::cout << "GslWrapper ctr() empty() size: " << m_sizeGsl << "\n";
-
-            m_gsl = gsl_vector_alloc(m_sizeGsl);
-        }
-
-        GslWrapper(const std::vector<double> &stlVector) : m_sizeGsl(stlVector.size()), m_initialised(true)
-        {
-            std::cout << "GslWrapper ctr() via std::cector size: " << m_sizeGsl << "\n";
-
-            m_gsl = gsl_vector_alloc(m_sizeGsl);
-
-            for (size_t i = 0; i < m_sizeGsl; ++i)
-                gsl_vector_set(m_gsl, i, stlVector.at(i));
-        }
-
-        ~GslWrapper()
-        {
-            gsl_vector_free(m_gsl);
-        }
-
-        std::vector<double> getStlVector()
-        {
-            if (!m_initialised)
-                initialiseStl();
-
-            return m_stlVector;
-        }
-
-        gsl_vector *getGslVector() // what about const would it work ok in const usage cases?
-        {
-            m_initialised = false;
-
-            return m_gsl;
-        }
-
-        double getGsl(size_t i)
-        {
-            m_initialised = false;
-
-            return double(gsl_vector_get(m_gsl, i));
-        }
-
-    private:
-        void initialiseStl()
-        {
-            std::cout << "initialiseStl()\n";
-
-            m_stlVector.reserve(m_sizeGsl);
-
-            for (size_t i = 0; i < m_sizeGsl; ++i)
-                m_stlVector.push_back(gsl_vector_get(m_gsl, i));
-        }
-
-        std::vector<double> m_stlVector; // mutable
-        gsl_vector *m_gsl;
-        size_t m_sizeGsl;
-        bool m_initialised; // mutable
-    };
-
-    void gslVectorFromStlVector(gsl_vector *gslVector, const size_t gslVectorSize, const std::vector<double> &stlVector)
-    {
-        // gsl_vector *x = gsl_vector_alloc(stlVector.size()); /* input vector */
-
-        if (stlVector.size() < gslVectorSize)
-            throw "data vector size() for GaussFilter err ";
-
-        for (size_t i = 0; i < gslVectorSize; ++i)
-        {
-            gsl_vector_set(gslVector, i, stlVector.at(i));
-        }
-    }
 
     namespace filters
     {
@@ -196,8 +68,42 @@ namespace gsl_to_stl
             size_t m_windowSize;
         };
 
+        class GaussianPerformer
+        {
+        public:
+            GaussianPerformer(const double alpha, const size_t windowSize)
+                : m_gauss(windowSize), m_kernal(windowSize), m_windowSize(windowSize), m_alpha(alpha)
+            {}
+
+            ~GaussianPerformer()
+            {}
+
+            void configure(const double alpha, const size_t windowSize) 
+            {
+                m_kernal.reallocate(windowSize); // todo init
+                
+                gsl_filter_gaussian_kernel(m_alpha, 0, 0, m_kernal.getGslVector());
+
+                m_windowSize = windowSize;
+                m_alpha = alpha;
+            }
+
+            void filterGaussian(Vector& inputData,
+                                Vector& outputData,
+                                gsl_filter_end_t type = GSL_FILTER_END_PADVALUE)
+            {
+                gsl_filter_gaussian(type, m_alpha, 0, inputData.getGslVector(), outputData.getGslVector(), m_gauss.get());
+            }
+
+        private:
+            GslGaussian m_gauss;
+            Vector m_kernal;
+            size_t m_windowSize;
+            double m_alpha;
+        };
+
     } // namesapce filters
-} // namespace gsl_to_stl
+} // namespace gsl_wrapper
 
 FourVector actLinnearGaussFilter(const size_t windowSize,
                                  const double alpha1,
@@ -207,48 +113,58 @@ FourVector actLinnearGaussFilter(const size_t windowSize,
 {
     const size_t totalSize = dataVector.size();
 
-    gsl_to_stl::GslWrapper x(dataVector); // input
+    gsl_wrapper::Vector x(dataVector); // input
 
-    gsl_to_stl::GslWrapper y1(totalSize);
-    gsl_to_stl::GslWrapper y2(totalSize);
-    gsl_to_stl::GslWrapper y3(totalSize);
+    gsl_wrapper::Vector y1(totalSize);
+    gsl_wrapper::Vector y2(totalSize);
+    gsl_wrapper::Vector y3(totalSize);
 
-    gsl_to_stl::filters::GslGaussian gauss(windowSize);
+    gsl_wrapper::filters::GslGaussian gauss(windowSize);
 
-    {
+    
         // internal
-        gsl_to_stl::GslWrapper k1(windowSize); /* Gaussian kernel for alpha1 */
-        gsl_to_stl::GslWrapper k2(windowSize);
-        gsl_to_stl::GslWrapper k3(windowSize);
+         /* Gaussian kernel for alpha1 */
+        /*gsl_wrapper::Vector k1(windowSize);
+        gsl_wrapper::Vector k2(windowSize);
+        gsl_wrapper::Vector k3(windowSize);*/
         std::cout << "kernels allocated\n";
 
         // todo move that close to gsl_gaussian_workspacel
         /* compute kernels without normalization */
+        /*
         gsl_filter_gaussian_kernel(alpha1, 0, 0, k1.getGslVector());
         gsl_filter_gaussian_kernel(alpha2, 0, 0, k2.getGslVector());
-        gsl_filter_gaussian_kernel(alpha3, 0, 0, k3.getGslVector());
+        gsl_filter_gaussian_kernel(alpha3, 0, 0, k3.getGslVector());*/
         // params seems no sence with initial example data
+
+        // store
+        gsl_wrapper::filters::GaussianPerformer gaussianPerformer(alpha1, windowSize);
 
         std::cout << "kernels computed\n";
 
         /* apply filters */
+        /*
         gsl_filter_gaussian(GSL_FILTER_END_PADVALUE, alpha1, 0, x.getGslVector(), y1.getGslVector(), gauss.get());
         gsl_filter_gaussian(GSL_FILTER_END_PADVALUE, alpha2, 0, x.getGslVector(), y2.getGslVector(), gauss.get());
         gsl_filter_gaussian(GSL_FILTER_END_PADVALUE, alpha3, 0, x.getGslVector(), y3.getGslVector(), gauss.get());
+        */
         // params seems no sence with initial example data
+
+        gaussianPerformer.filterGaussian(x, y1);
 
         std::cout << "filters applyed\n";
 
         /* print kernels */
-        for (size_t i = 0; i < windowSize; ++i)
+        /*for (size_t i = 0; i < windowSize; ++i)
         {
             double k1i = k1.getGsl(i);
             double k2i = k2.getGsl(i);
             double k3i = k3.getGsl(i);
         }
+        */
 
         std::cout << "kernals printed\n";
-    }
+    
 
     FourVector result;
 
