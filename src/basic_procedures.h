@@ -24,6 +24,7 @@
 // for testing
 #include "io_helpers/naive.h"
 #include "filtration/gsl_filters.h"
+#include "core/vector_helpers.h"
 
 namespace basic_procedures
 {
@@ -324,6 +325,34 @@ namespace basic_procedures
         return std::make_tuple(ErrorCodes(errCode), approxResultVector);
     }
 
+    ErrorCodes performProcedureFilterSignalViaGaussSimpleFitler(const std::string& fileNameInput,
+                                                                const std::string& fileNameOutput,    
+                                                                const size_t windowSize,
+                                                                const double alphaValue)
+    {
+        std::cout << "performProcedureFilterSignalViaGaussSimpleFitler() windowSize: " << windowSize << ", aplphaValue: " << alphaValue << "\n";
+        // todo proper input
+        AngleHistory inputAngleHistory(fileNameInput);
+
+        // todo make it input data
+        const size_t GAUSS_FILTER_WINDOW_SIZE = windowSize;
+        const double GAUSS_FILTER_ALPHA_VALUE = alphaValue;
+
+        std::vector<double> res = actLinnearGaussFilter(GAUSS_FILTER_WINDOW_SIZE,
+                                                        GAUSS_FILTER_ALPHA_VALUE,
+                                                        inputAngleHistory.getAngle());
+
+        std::cout << "result size: " << res.size() << "\n";
+
+        std::cout << "sigma = " << double((GAUSS_FILTER_WINDOW_SIZE-1)/2.0/GAUSS_FILTER_ALPHA_VALUE) << "\n";
+
+        AngleHistory result(inputAngleHistory.getTime(), res);
+
+        result.write(fileNameOutput);
+        
+        return SUCCESS;
+    }
+
 
     ErrorCodes testFunc()
     {
@@ -337,21 +366,10 @@ namespace basic_procedures
 
         operationQueue.getAngleHistory().write("resultSignalGenerator");*/
 
+        /// GAUSS FILTER TESTS
+
         //Oscillation oscillation;
         //oscillation.loadFile("4471");//, oscillation_helpers::TIME_ANGLE_DANGLE_DDANGLE);
-        AngleHistory angleHistory("input");
-
-        std::vector<double> signal = angleHistory.getAngle(); // oscillation.getAngle();
-        
-        std::cout << "data size(): " << signal.size() << "\n"; 
-
-        FourVector res = actLinnearGaussFilter(50, 0.5, 1, 10, signal);
-
-        std::ofstream fout("gaussFilterResult");
-
-        fout << res;
-
-        fout.close();
 
         return FAIL;
     }

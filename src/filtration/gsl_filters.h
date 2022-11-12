@@ -88,11 +88,15 @@ namespace gsl_wrapper
                 m_alpha = alpha;
             }
 
-            void filterGaussian(Vector& inputData,
-                                Vector& outputData,
+            std::vector<double> filterGaussian(const std::vector<double>& inputData,
                                 gsl_filter_end_t type = GSL_FILTER_END_PADVALUE)
             {
-                gsl_filter_gaussian(type, m_alpha, 0, inputData.getGslVector(), outputData.getGslVector(), m_gauss.get());
+                Vector resultGsl(inputData.size());
+                Vector inputGsl(inputData);
+
+                gsl_filter_gaussian(type, m_alpha, 0, inputGsl.getGslVector(), resultGsl.getGslVector(), m_gauss.get());
+
+                return resultGsl.getStlVector();
             }
 
         private:
@@ -105,79 +109,16 @@ namespace gsl_wrapper
     } // namesapce filters
 } // namespace gsl_wrapper
 
-FourVector actLinnearGaussFilter(const size_t windowSize,
-                                 const double alpha1,
-                                 const double alpha2,
-                                 const double alpha3,
+std::vector<double> actLinnearGaussFilter(const size_t windowSize,
+                                 const double alpha,
                                  const std::vector<double> &dataVector)
 {
-    const size_t totalSize = dataVector.size();
-
-    gsl_wrapper::Vector x(dataVector); // input
-
-    gsl_wrapper::Vector y1(totalSize);
-    gsl_wrapper::Vector y2(totalSize);
-    gsl_wrapper::Vector y3(totalSize);
-
+    
     gsl_wrapper::filters::GslGaussian gauss(windowSize);
 
-    
-        // internal
-         /* Gaussian kernel for alpha1 */
-        /*gsl_wrapper::Vector k1(windowSize);
-        gsl_wrapper::Vector k2(windowSize);
-        gsl_wrapper::Vector k3(windowSize);*/
-        std::cout << "kernels allocated\n";
+    gsl_wrapper::filters::GaussianPerformer gaussianPerformer(alpha, windowSize);
+        
+    std::vector<double> reusltAlpha = gaussianPerformer.filterGaussian(dataVector);
 
-        // todo move that close to gsl_gaussian_workspacel
-        /* compute kernels without normalization */
-        /*
-        gsl_filter_gaussian_kernel(alpha1, 0, 0, k1.getGslVector());
-        gsl_filter_gaussian_kernel(alpha2, 0, 0, k2.getGslVector());
-        gsl_filter_gaussian_kernel(alpha3, 0, 0, k3.getGslVector());*/
-        // params seems no sence with initial example data
-
-        // store
-        gsl_wrapper::filters::GaussianPerformer gaussianPerformer(alpha1, windowSize);
-
-        std::cout << "kernels computed\n";
-
-        /* apply filters */
-        /*
-        gsl_filter_gaussian(GSL_FILTER_END_PADVALUE, alpha1, 0, x.getGslVector(), y1.getGslVector(), gauss.get());
-        gsl_filter_gaussian(GSL_FILTER_END_PADVALUE, alpha2, 0, x.getGslVector(), y2.getGslVector(), gauss.get());
-        gsl_filter_gaussian(GSL_FILTER_END_PADVALUE, alpha3, 0, x.getGslVector(), y3.getGslVector(), gauss.get());
-        */
-        // params seems no sence with initial example data
-
-        gaussianPerformer.filterGaussian(x, y1);
-
-        std::cout << "filters applyed\n";
-
-        /* print kernels */
-        /*for (size_t i = 0; i < windowSize; ++i)
-        {
-            double k1i = k1.getGsl(i);
-            double k2i = k2.getGsl(i);
-            double k3i = k3.getGsl(i);
-        }
-        */
-
-        std::cout << "kernals printed\n";
-    
-
-    FourVector result;
-
-    /* print filter results */
-    for (size_t i = 0; i < totalSize; ++i)
-    {
-        result.push_back(gsl_vector_get(x.getGslVector(), i),
-                         y1.getGsl(i),
-                         y2.getGsl(i),
-                         y3.getGsl(i));
-    }
-
-    std::cout << "result stored\n";
-
-    return result;
+    return reusltAlpha;
 }

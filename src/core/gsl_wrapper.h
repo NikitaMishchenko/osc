@@ -22,14 +22,14 @@ namespace gsl_wrapper
     public:
         Vector(const size_t size) : m_sizeGsl(size), m_initialised(false)
         {
-            std::cout << "GslWrapper ctr() empty() size: " << m_sizeGsl << "\n";
+            std::cout << "GslWrapper ctr() empty size: " << m_sizeGsl << "\n";
 
             m_gsl = gsl_vector_alloc(m_sizeGsl);
         }
 
         Vector(const std::vector<double> &stlVector) : m_sizeGsl(stlVector.size()), m_initialised(true)
         {
-            std::cout << "GslWrapper ctr() via std::cector size: " << m_sizeGsl << "\n";
+            std::cout << "GslWrapper ctr() via std::vector.size(): " << m_sizeGsl << "\n";
 
             m_gsl = gsl_vector_alloc(m_sizeGsl);
 
@@ -71,6 +71,11 @@ namespace gsl_wrapper
             m_gsl = gsl_vector_alloc(m_sizeGsl);
 
             m_stlVector.reserve(m_sizeGsl);
+        }
+
+        size_t size() const
+        {
+            return m_sizeGsl;
         }
 
     private:

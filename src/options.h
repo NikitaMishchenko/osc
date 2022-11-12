@@ -19,6 +19,7 @@ namespace options
         APPROXIMATION,
         COEFFICINETS_WINDOW,
         DYN_COEFFICINETS_WINDOW_WT_TEST,
+        FILTER_GAUSS,
         TEST,
         UNKNOWN
     };
@@ -51,7 +52,10 @@ namespace options
                 return "COEFFICINETS_WINDOW";
 
                 case DYN_COEFFICINETS_WINDOW_WT_TEST:
-                return "DYN_COEFFICINETS_WINDOW_WT_TEST";                                
+                return "DYN_COEFFICINETS_WINDOW_WT_TEST";           
+
+                case FILTER_GAUSS:
+                return "FILTER_GAUSS";
 
                 case TEST:
                 return "TEST"; 
@@ -137,6 +141,9 @@ namespace options
 
             if ("dynCoeffWindowWtTest" == mode)
                 return Procedure::DYN_COEFFICINETS_WINDOW_WT_TEST;
+
+            if ("filterGauss" == mode)
+                return Procedure::FILTER_GAUSS;
 
             // todo readme
 

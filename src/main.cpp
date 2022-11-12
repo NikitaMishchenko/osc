@@ -11,9 +11,9 @@
 const double Pi = 3.14159265359;
 
 int doJob(const options::Procedure procedureToPerform,
-          const std::string fileName,
-          const std::string fileName2,
-          const std::vector<double> extraArgumentsVector)
+          const std::string& fileName,
+          const std::string& fileName2,
+          const std::vector<double>& extraArgumentsVector)
 {
     int result = basic_procedures::UNEXPECTED;
 
@@ -143,6 +143,37 @@ int doJob(const options::Procedure procedureToPerform,
 
         break;
     }
+
+    case options::FILTER_GAUSS:
+    {
+        std::cout << "prefroming FiterGauss\n";
+
+        using namespace options;
+
+        if (extraArgumentsVector.size() < 2)
+        {
+            std::cerr << "not ebouth extraArguments for gaauss filter\n";
+
+            result = basic_procedures::FAIL;
+
+            break;
+        }
+
+        const std::string fileNameInput = fileName;
+        const std::string fileNameOutput = (!fileName2.empty() ? fileName2 : (std::string(fileName)+"_fGauss"));
+        
+
+        const size_t windowSize = extraArgumentsVector.at(0);
+        const double alphaValue = extraArgumentsVector.at(1);
+
+        AngleHistory angleHistory(fileName);
+
+
+        result = basic_procedures::performProcedureFilterSignalViaGaussSimpleFitler(fileNameInput, fileNameOutput, windowSize, alphaValue);
+
+        break;
+    }
+
 
     case options::TEST:
     {
