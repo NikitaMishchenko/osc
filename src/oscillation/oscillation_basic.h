@@ -275,6 +275,7 @@ public:
             // todo rewrite
             AngleHistory::setTime(result.m_domain);
             AngleHistory::setAngle(result.m_codomain);
+            
             dangle = result.dangle;
             ddangle = result.ddangle;
 
@@ -375,27 +376,6 @@ public:
             ddangle[i] *= factor;
     }
 
-    // todo move to helpers
-    std::vector<double> makeScaledDDAngle(const double &factor)
-    {
-        std::vector<double> scaledDDAngle;
-
-        if (ddangle.size() > 0)
-        {
-            scaledDDAngle = ddangle;
-
-            if ((factor - 1.0) < 0.0000000001 &&
-                (1.0 - factor) < 0.0000000001)
-            {
-                return scaledDDAngle;
-            }
-
-            for (size_t i = 0; i < scaledDDAngle.size(); i++)
-                scaledDDAngle[i] *= factor;
-        }
-
-        return scaledDDAngle;
-    }
 
     /// OTHER
     virtual void info() const override

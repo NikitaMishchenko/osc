@@ -10,6 +10,15 @@
 #include "../model/tr_rod_model_params.h"
 #include "../flow/wt_flow.h"
 
+#include "filtration/gsl_filters.h"
+#include "core/vector_helpers.h"
+
+struct Mz
+{
+    double time;
+    double mz;
+};
+
 class WtOscillation : public Oscillation
 {
 public:
@@ -37,13 +46,36 @@ public:
 
             std::cout << "\tI/(qsl) = " << factor << "\n";
 
-            m_mz = makeScaledDDAngle(factor);
+            //m_mz.mz = makeScaledDDAngle(factor);
 
             return true;
         }
 
         return false;
     }
+
+
+    // todo move to helpers
+    /*void makeScaledDDAngle(const double &factor)
+    {
+        std::vector<double> scaledDDAngle;
+
+        if (m_mz.mz.size() > 0)
+        {
+            scaledDDAngle = ddangle;
+
+            if ((factor - 1.0) < 0.0000000001 &&
+                (1.0 - factor) < 0.0000000001)
+            {
+                return scaledDDAngle;
+            }
+
+            for (size_t i = 0; i < scaledDDAngle.size(); i++)
+                scaledDDAngle[i] *= factor;
+        }
+
+        return scaledDDAngle;
+    }*/
 
     std::vector<double> getTimeAmplitude() const
     {
@@ -87,6 +119,11 @@ public:
     // IO
     bool saveMzData(const std::string &fileName) const
     {
+        if (m_mz.empty())
+        {
+            return false;
+        }
+
         std::ofstream fout(fileName);
 
         this->info();
@@ -97,8 +134,11 @@ public:
             return false;
         }
 
-        for (size_t i = 0; i < this->size(); i++)
-            fout << getTime(i) << "\t" << m_mz.at(i) << "\n";
+        for (size_t i = 0; i < m_mz.size(); i++)
+        {
+            fout << m_mz.at(i).time << "\t" << m_mz.at(i).mz << "\n";
+            std::cout << getTime(i) << "\t" << m_mz.at(i).mz << "\n";
+        }
 
         fout.close();
 
@@ -119,7 +159,7 @@ public:
 
         for (auto index : m_mzAmplitudeIndexes)
         {
-            fout << getTime(index) << "\t" << m_mz.at(index) << "\n";
+            fout << getTime(index) << "\t" << m_mz.at(index).mz << "\n";
         }
         fout.close();
 
@@ -139,9 +179,15 @@ public:
             return false;
         }
 
+        std::vector<double> tmpDangle = getDangle();
+
+        tmpDangle = actLinnearGaussFilter(50,
+                                          1,
+                                          tmpDangle);
+
         for (size_t i = 1; i < m_mz.size() - 1; i++)
         {
-            if (getDangle(i - 1) <= 0 && getDangle(i) > 0)
+            if (tmpDangle.at(i - 1) <= 0 && tmpDangle.at(i) > 0)
                 m_mzAmplitudeIndexes.emplace_back(i);
         }
 
@@ -151,7 +197,6 @@ public:
     bool calcAngleAmplitudeIndexes()
     {
         std::cout << "getMzAmplitudeIndexes entry()\n";
-        std::cout << "\t\tm_mz size: " << m_mz.size() << "\n";
 
         if (AngleHistory::empty())
         {
@@ -159,16 +204,46 @@ public:
             return false;
         }
 
+        std::vector<double> tmpDangle = getDangle();
+
+        std::ofstream fout1("ddangle_row");
+
+        helpers::saveToFile(fout1, tmpDangle);
+
+        fout1.close();
+
+        tmpDangle = actLinnearGaussFilter(50,
+                                          1,
+                                          tmpDangle);
+
+        std::ofstream fout2("ddangle_filt");
+
+        helpers::saveToFile(fout2, tmpDangle);
+
+        fout2.close();
+
         for (size_t i = 1; i < AngleHistory::size(); i++)
         {
-            if (getDangle(i - 1) <= 0 && getDangle(i) > 0)
+            if (tmpDangle.at(i - 1) <= 0 && tmpDangle.at(i) > 0)
                 m_AngleAmplitudeIndexes.emplace_back(i);
 
-            if (getDangle(i - 1) >= 0 && getDangle(i) < 0)
+            if (tmpDangle.at(i - 1) >= 0 && tmpDangle.at(i) < 0)
                 m_AngleAmplitudeIndexes.emplace_back(i);
         }
 
         m_AngleAmplitudeIndexes.shrink_to_fit();
+
+        m_mz.reserve(m_AngleAmplitudeIndexes.size());
+
+        Mz buff;
+
+        for (size_t i = 0; i < m_AngleAmplitudeIndexes.size(); ++i)
+        {
+            buff.mz = m_codomain.at(m_AngleAmplitudeIndexes.at(i));
+            buff.time = m_domain.at(m_AngleAmplitudeIndexes.at(i));
+
+            m_mz.push_back(buff);
+        }
 
         return true;
     }
@@ -185,7 +260,7 @@ public:
     }
 
 private:
-    std::vector<double> m_mz;
+    std::vector<Mz> m_mz;
     std::vector<size_t> m_mzAmplitudeIndexes;
     std::vector<size_t> m_AngleAmplitudeIndexes;
 

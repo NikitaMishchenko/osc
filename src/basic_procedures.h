@@ -305,7 +305,7 @@ namespace basic_procedures
             angleHistory.codomainAdd(moveAngleValue.get());
 
         // actually no need not used
-        pendulum::removeOffscale(angleHistory);
+        // fixme pendulum::removeOffscale(angleHistory);
 
         // for pendulum only
         /// pendulum::remove0Harmonic(angleHistory);
@@ -370,6 +370,45 @@ namespace basic_procedures
 
         //Oscillation oscillation;
         //oscillation.loadFile("4471");//, oscillation_helpers::TIME_ANGLE_DANGLE_DDANGLE);
+
+        std::string fileName = "4470";
+        
+
+
+        /// FLOW->
+        wt_flow::Flow flow;
+        //if (!flow.loadFile((fileName + "_flow")))
+        //    return FAIL;
+
+        //flow.calculateFlow();
+        flow.print();
+        /// FLOW<-
+
+        /// MODEL->
+        Model model;
+        //if (!model.loadFile((fileName + "_model")))
+        //    return FAIL;
+
+        model.print();
+        /// MODEL<-
+        
+
+        Oscillation oscillation;
+        
+        oscillation.loadFile(fileName, oscillation_helpers::TIME_ANGLE_DANGLE_DDANGLE);
+
+        WtOscillation wtTest(oscillation, flow, model);
+
+
+        std::string fileNameMz = fileName + "_mz";
+        //wtTest.saveMzData(fileNameMz);
+        // todo check
+
+        wtTest.calcAngleAmplitudeIndexes();
+        // wtTest.getMz();
+        wtTest.saveMzAmplitudeData(fileName + "_mz_amplitude");
+
+        wtTest.saveMzData(fileNameMz);
 
         return FAIL;
     }

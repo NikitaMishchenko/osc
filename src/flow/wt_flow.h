@@ -18,12 +18,12 @@ namespace wt_flow
     public:
         Flow()
         {
-            double m_rho = 1;
-            double m_velocity = 1;
-            double m_T0 = 1;
-            double m_dynamicPressure = 1;
-            double m_mach = 1;
-            double m_reynolds = 1; 
+            m_rho = 1;
+            m_velocity = 1;
+            m_T0 = 1;
+            m_dynamicPressure = 1;
+            m_mach = 1;
+            m_reynolds = 1; 
         }
 
         Flow(const std::string& fileName)
