@@ -43,8 +43,6 @@ namespace basic_procedures
     {
         std::cout << "periods procedure performing...\n";
 
-        std::ifstream fin();
-
         Oscillation D;
         D.loadFile(fileName);
         if (0 == D.size())

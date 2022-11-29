@@ -21,41 +21,39 @@ set(CMAKE_CXX_STANDARD_REQUIRED YES)
 
 #set(SOURCE_FILES main.cpp)
 
+
 add_executable(oscillation
-              ./src/gnusl_proc/linnear_approximation.h
-              ./src/analize_coefficients/dynamic_coefficients.h
-              ./src/fft/fftw_impl.h
-              ./src/filtration/butterworth_filter.h
-              ./src/flow/parse_ptl.cpp
-              ./src/flow/parse_ptl.h
-              ./src/flow/wt_flow.h
-              ./src/flow/wt_flow.cpp
-              ./src/model/tr_rod_model_params.h
-              ./src/oscillation/angle_history.h
-              ./src/oscillation/cut_oscillation_file.h
-              ./src/oscillation/oscillation_basic.h
-              ./src/oscillation/oscillation_helpers.h
-              ./src/oscillation/wt_oscillation.h
-              ./src/periods/periods_base.h
-              ./src/basic_procedures.h
-              ./src/errcodes.h
               ./src/options.h
               ./src/options.cpp
               ./src/main.cpp
+              ./src/gnusl_proc/linnear_approximation.h
+./src/analize_coefficients/dynamic_coefficients.h
+./src/fft/fftw_impl.h
+./src/filtration/butterworth_filter.h
+./src/flow/parse_ptl.cpp
+./src/flow/parse_ptl.h
+./src/flow/wt_flow.h
+./src/flow/wt_flow.cpp
+./src/model/tr_rod_model_params.h
+./src/oscillation/angle_history.h
+./src/oscillation/cut_oscillation_file.h
+./src/oscillation/oscillation_basic.h
+./src/oscillation/oscillation_helpers.h
+./src/oscillation/wt_oscillation.h
+./src/periods/periods_base.h
+./src/basic_procedures.h
+./src/errcodes.h
 )
 
 find_package(GSL REQUIRED)
 
+# sudo apt-get install libgsl-dev libgsl-dev libboost-dev
 target_link_libraries(
   oscillation 
-  /home/mishnic/src/boost_1_67_0/stage/lib/libboost_program_options.a
-  /home/mishnic/CPP_Projects/fftw_test/libfftw3.a
-  #/user/local/lib/libfftw3.a
-  /usr/local/lib/libgsl.a
-  /usr/local/lib/libgslcblas.a
+  libboost_program_options.a
   GSL::gsl
   GSL::gslcblas
-  #/home/mishnic/gsl/lib/libgslcblas.a
+  fftw3
 )
 
 
