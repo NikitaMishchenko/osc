@@ -74,6 +74,11 @@ namespace wt_flow
             return m_dynamicPressure;
         }
 
+        double getVelocity() const
+        {
+            return m_velocity;
+        }
+
         /**
         *   calculete @m_velocity from @m_T0, @m_mach
         */

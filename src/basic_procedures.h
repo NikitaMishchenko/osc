@@ -25,6 +25,7 @@
 #include "io_helpers/naive.h"
 #include "filtration/gsl_filters.h"
 #include "core/vector_helpers.h"
+#include "analize_coefficients/dynamic_coefficient.h"
 
 namespace basic_procedures
 {
@@ -323,8 +324,8 @@ namespace basic_procedures
         return std::make_tuple(ErrorCodes(errCode), approxResultVector);
     }
 
-    ErrorCodes performProcedureFilterSignalViaGaussSimpleFitler(const std::string& fileNameInput,
-                                                                const std::string& fileNameOutput,    
+    ErrorCodes performProcedureFilterSignalViaGaussSimpleFitler(const std::string &fileNameInput,
+                                                                const std::string &fileNameOutput,
                                                                 const size_t windowSize,
                                                                 const double alphaValue)
     {
@@ -342,15 +343,14 @@ namespace basic_procedures
 
         std::cout << "result size: " << res.size() << "\n";
 
-        std::cout << "sigma = " << double((GAUSS_FILTER_WINDOW_SIZE-1)/2.0/GAUSS_FILTER_ALPHA_VALUE) << "\n";
+        std::cout << "sigma = " << double((GAUSS_FILTER_WINDOW_SIZE - 1) / 2.0 / GAUSS_FILTER_ALPHA_VALUE) << "\n";
 
         AngleHistory result(inputAngleHistory.getTime(), res);
 
         result.write(fileNameOutput);
-        
+
         return SUCCESS;
     }
-
 
     ErrorCodes testFunc()
     {
@@ -366,47 +366,70 @@ namespace basic_procedures
 
         /// GAUSS FILTER TESTS
 
-        //Oscillation oscillation;
-        //oscillation.loadFile("4471");//, oscillation_helpers::TIME_ANGLE_DANGLE_DDANGLE);
+        // Oscillation oscillation;
+        // oscillation.loadFile("4471");//, oscillation_helpers::TIME_ANGLE_DANGLE_DDANGLE);
 
         std::string fileName = "4470";
-        
-
 
         /// FLOW->
         wt_flow::Flow flow;
-        //if (!flow.loadFile((fileName + "_flow")))
-        //    return FAIL;
+        if (!flow.loadFile((fileName + "_flow")))
+            return FAIL;
 
-        //flow.calculateFlow();
+        // flow.calculateFlow();
         flow.print();
         /// FLOW<-
 
         /// MODEL->
         Model model;
-        //if (!model.loadFile((fileName + "_model")))
-        //    return FAIL;
+        if (!model.loadFile((fileName + "_model")))
+            return FAIL;
 
         model.print();
         /// MODEL<-
-        
 
         Oscillation oscillation;
-        
+
         oscillation.loadFile(fileName, oscillation_helpers::TIME_ANGLE_DANGLE_DDANGLE);
 
         WtOscillation wtTest(oscillation, flow, model);
 
-
         std::string fileNameMz = fileName + "_mz";
-        //wtTest.saveMzData(fileNameMz);
-        // todo check
 
-        wtTest.calcAngleAmplitudeIndexes();
+        // wtTest.saveMzData(fileNameMz);
+        //  todo check
+
+        // wtTest.calcAngleAmplitudeIndexes();
         // wtTest.getMz();
-        wtTest.saveMzAmplitudeData(fileName + "_mz_amplitude");
+        // wtTest.saveMzAmplitudeData(fileName + "_mz_amplitude");
 
-        wtTest.saveMzData(fileNameMz);
+        // wtTest.saveMzData(fileNameMz);
+
+        DynamicPitchCoefficient dynamicPitchCoefficient(wtTest);
+
+        bool isOk = false;
+        std::vector<double> dynamicCoefficient;
+        std::vector<double> rateDdangleDAngle;
+        std::vector<double> rateAngleDAngle;
+
+        std::tie(isOk, dynamicCoefficient, rateDdangleDAngle, rateAngleDAngle) = dynamicPitchCoefficient.doCalculateEquation();
+
+        std::vector<std::vector<double> > output;
+        
+        output.push_back(wtTest.getTime());
+        output.push_back(wtTest.getAngle());
+        output.push_back(wtTest.getDangle());
+        output.push_back(wtTest.getDdangle());
+
+        output.push_back(dynamicCoefficient);
+        output.push_back(rateDdangleDAngle);
+        output.push_back(rateAngleDAngle);
+        
+        std::ofstream fout("dynPich");
+
+        writeToFile(fout, output);
+
+        fout.close();
 
         return FAIL;
     }

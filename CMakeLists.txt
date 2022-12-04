@@ -19,6 +19,7 @@ include_directories (src/)
 set(CMAKE_CXX_STANDARD 11)
 set(CMAKE_CXX_STANDARD_REQUIRED YES)
 
+
 #set(SOURCE_FILES main.cpp)
 
 add_library(flow 
@@ -27,6 +28,11 @@ add_library(flow
           ./src/flow/wt_flow.h
           ./src/flow/wt_flow.cpp
 )
+set_target_properties(flow PROPERTIES LINKER_LANGUAGE CXX)
+
+#add_library(dynamic_coefficient
+#            src/analize_coefficients/dynamic_coefficient.h)
+#set_target_properties(dynamic_coefficient PROPERTIES LINKER_LANGUAGE CXX)
 
 add_executable(oscillation
               ./src/options.h
@@ -47,7 +53,9 @@ add_executable(oscillation
               ./src/periods/periods_base.h
               ./src/basic_procedures.h
               ./src/errcodes.h
+              ./src/analize_coefficients/dynamic_coefficient.h
 )
+set_target_properties(oscillation PROPERTIES LINKER_LANGUAGE CXX)
 
 find_package(GSL REQUIRED)
 
@@ -55,6 +63,7 @@ find_package(GSL REQUIRED)
 target_link_libraries(
   oscillation
   flow
+  #dynamic_coefficient
   libboost_program_options.a
   GSL::gsl
   GSL::gslcblas
