@@ -9,9 +9,10 @@
 #include "oscillation_basic.h"
 #include "../model/tr_rod_model_params.h"
 #include "../flow/wt_flow.h"
-
 #include "filtration/gsl_filters.h"
 #include "core/vector_helpers.h"
+
+#include "wt_oscillation.h"
 
 struct Mz
 {
@@ -22,38 +23,21 @@ struct Mz
 class WtOscillation : public Oscillation
 {
 public:
-    WtOscillation(const AngleHistory& angleHistory) : Oscillation(angleHistory),
-                                               m_flow(wt_flow::Flow()),
-                                               m_model(Model())
-    {};
+    WtOscillation(const AngleHistory &angleHistory) : Oscillation(angleHistory),
+                                                      m_flow(wt_flow::Flow()),
+                                                      m_model(Model()){};
 
     WtOscillation(const Oscillation &oscillation,
                   const wt_flow::Flow &flow,
                   const Model &model)
         : Oscillation(oscillation),
           m_flow(flow),
-          m_model(model)
-    {};
+          m_model(model){};
 
     virtual ~WtOscillation(){};
 
     // SPECIFIC METHODS
-    bool getMz()
-    {
-        if (m_flow.isCalculated())
-        {
-            const double factor = m_model.getI() / m_flow.getDynamicPressure() / m_model.getS() / m_model.getL();
-
-            std::cout << "\tI/(qsl) = " << factor << "\n";
-
-            //m_mz.mz = makeScaledDDAngle(factor);
-
-            return true;
-        }
-
-        return false;
-    }
-
+    bool getMz() const;
 
     // todo move to helpers
     /*void makeScaledDDAngle(const double &factor)
@@ -77,187 +61,25 @@ public:
         return scaledDDAngle;
     }*/
 
-    std::vector<double> getTimeAmplitude() const
-    {
-        std::vector<double> result;
-
-        result.reserve(m_AngleAmplitudeIndexes.size());
-
-        for (size_t index = 0; index < m_AngleAmplitudeIndexes.size(); ++index)
-            result.emplace_back(getTimeAmplitude(index));
-
-        return result;
-    }
-
-    std::vector<double> getAngleAmplitude() const
-    {
-        std::vector<double> result;
-
-        result.reserve(m_AngleAmplitudeIndexes.size());
-
-        for (size_t index = 0; index < m_AngleAmplitudeIndexes.size(); ++index)
-            result.emplace_back(getAngleAmplitude(index));
-
-        return result;
-    }
-
-    double getTimeAmplitude(const size_t index) const
-    {
-        return m_domain.at(m_AngleAmplitudeIndexes.at(index));
-    }
-
-    double getAngleAmplitude(const size_t index) const
-    {
-        return m_codomain.at(m_AngleAmplitudeIndexes.at(index));
-    }
-
-    Model getModel() const
-    {
-        return m_model;
-    }
+    std::vector<double> getTimeAmplitude() const;
+    std::vector<double> getAngleAmplitude() const;
+    double getTimeAmplitude(const size_t index) const;
+    double getAngleAmplitude(const size_t index) const;
+    Model getModel() const;
 
     // IO
-    bool saveMzData(const std::string &fileName) const
-    {
-        if (m_mz.empty())
-        {
-            return false;
-        }
+    bool saveMzData(const std::string &fileName) const;
 
-        std::ofstream fout(fileName);
-
-        this->info();
-
-        if (!fout.is_open())
-        {
-            std::cerr << "saveMzData failed to create file " << fileName << "\n";
-            return false;
-        }
-
-        for (size_t i = 0; i < m_mz.size(); i++)
-        {
-            fout << m_mz.at(i).time << "\t" << m_mz.at(i).mz << "\n";
-            std::cout << getTime(i) << "\t" << m_mz.at(i).mz << "\n";
-        }
-
-        fout.close();
-
-        return true;
-    }
-
-    bool saveMzAmplitudeData(const std::string &fileName)
-    {
-        std::ofstream fout(fileName);
-
-        this->info();
-
-        if (!fout.is_open())
-        {
-            std::cerr << "saveMzAmplitudeData failed to create file " << fileName << "\n";
-            return false;
-        }
-
-        for (auto index : m_mzAmplitudeIndexes)
-        {
-            fout << getTime(index) << "\t" << m_mz.at(index).mz << "\n";
-        }
-        fout.close();
-
-        return true;
-    }
+    bool saveMzAmplitudeData(const std::string &fileName);
 
     // todo refactor: move to private
     // first -time, second mz
-    bool getMzAmplitudeIndexes()
-    {
-        std::cout << "getMzAmplitudeIndexes entry()\n";
-        std::cout << "\t\tm_mz size: " << m_mz.size() << "\n";
+    bool getMzAmplitudeIndexes();
 
-        if (m_mz.empty())
-        {
-            std::cerr << "WARNING m_mz is empty aborting\n";
-            return false;
-        }
-
-        std::vector<double> tmpDangle = getDangle();
-
-        tmpDangle = actLinnearGaussFilter(50,
-                                          1,
-                                          tmpDangle);
-
-        for (size_t i = 1; i < m_mz.size() - 1; i++)
-        {
-            if (tmpDangle.at(i - 1) <= 0 && tmpDangle.at(i) > 0)
-                m_mzAmplitudeIndexes.emplace_back(i);
-        }
-
-        return true;
-    }
-
-    bool calcAngleAmplitudeIndexes()
-    {
-        std::cout << "getMzAmplitudeIndexes entry()\n";
-
-        if (AngleHistory::empty())
-        {
-            std::cerr << "WARNING AngleHistory is empty aborting\n";
-            return false;
-        }
-
-        std::vector<double> tmpDangle = getDangle();
-
-        std::ofstream fout1("ddangle_row");
-
-        helpers::saveToFile(fout1, tmpDangle);
-
-        fout1.close();
-
-        tmpDangle = actLinnearGaussFilter(50,
-                                          1,
-                                          tmpDangle);
-
-        std::ofstream fout2("ddangle_filt");
-
-        helpers::saveToFile(fout2, tmpDangle);
-
-        fout2.close();
-
-        for (size_t i = 1; i < AngleHistory::size(); i++)
-        {
-            if (tmpDangle.at(i - 1) <= 0 && tmpDangle.at(i) > 0)
-                m_AngleAmplitudeIndexes.emplace_back(i);
-
-            if (tmpDangle.at(i - 1) >= 0 && tmpDangle.at(i) < 0)
-                m_AngleAmplitudeIndexes.emplace_back(i);
-        }
-
-        m_AngleAmplitudeIndexes.shrink_to_fit();
-
-        m_mz.reserve(m_AngleAmplitudeIndexes.size());
-
-        Mz buff;
-
-        for (size_t i = 0; i < m_AngleAmplitudeIndexes.size(); ++i)
-        {
-            buff.mz = m_codomain.at(m_AngleAmplitudeIndexes.at(i));
-            buff.time = m_domain.at(m_AngleAmplitudeIndexes.at(i));
-
-            m_mz.push_back(buff);
-        }
-
-        return true;
-    }
+    bool calcAngleAmplitudeIndexes();
 
     // othre
-    virtual void info() const override
-    {
-        std::cout << "WtOscillation oject\n"
-                  << "\tm_mz size: " << m_mz.size() << "\n"
-                  << "\tm_AngleAmplitudeIndexes size: " << m_AngleAmplitudeIndexes.size() << "\n"
-                  << "\tm_mzAmplitudeIndexes size: " << m_mzAmplitudeIndexes.size() << "\n";
-
-        Oscillation::info();
-    }
+    virtual void info() const override;
 
 private:
     std::vector<Mz> m_mz;

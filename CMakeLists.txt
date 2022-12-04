@@ -21,35 +21,40 @@ set(CMAKE_CXX_STANDARD_REQUIRED YES)
 
 #set(SOURCE_FILES main.cpp)
 
+add_library(flow 
+          ./src/flow/parse_ptl.cpp
+          ./src/flow/parse_ptl.h
+          ./src/flow/wt_flow.h
+          ./src/flow/wt_flow.cpp
+)
 
 add_executable(oscillation
               ./src/options.h
               ./src/options.cpp
               ./src/main.cpp
               ./src/gnusl_proc/linnear_approximation.h
-./src/analize_coefficients/dynamic_coefficients.h
-./src/fft/fftw_impl.h
-./src/filtration/butterworth_filter.h
-./src/flow/parse_ptl.cpp
-./src/flow/parse_ptl.h
-./src/flow/wt_flow.h
-./src/flow/wt_flow.cpp
-./src/model/tr_rod_model_params.h
-./src/oscillation/angle_history.h
-./src/oscillation/cut_oscillation_file.h
-./src/oscillation/oscillation_basic.h
-./src/oscillation/oscillation_helpers.h
-./src/oscillation/wt_oscillation.h
-./src/periods/periods_base.h
-./src/basic_procedures.h
-./src/errcodes.h
+              ./src/analize_coefficients/dynamic_coefficients.h
+              ./src/fft/fftw_impl.h
+              ./src/filtration/butterworth_filter.h
+              ./src/model/tr_rod_model_params.h
+              ./src/oscillation/angle_history.h
+              ./src/oscillation/angle_history.cpp
+              ./src/io_helpers/cut_oscillation_file.h
+              ./src/oscillation/oscillation_basic.h
+              ./src/oscillation/oscillation_basic.cpp
+              ./src/oscillation/wt_oscillation.h
+              ./src/oscillation/wt_oscillation.cpp
+              ./src/periods/periods_base.h
+              ./src/basic_procedures.h
+              ./src/errcodes.h
 )
 
 find_package(GSL REQUIRED)
 
 # sudo apt-get install libgsl-dev libgsl-dev libboost-dev
 target_link_libraries(
-  oscillation 
+  oscillation
+  flow
   libboost_program_options.a
   GSL::gsl
   GSL::gslcblas

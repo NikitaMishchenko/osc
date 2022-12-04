@@ -18,7 +18,7 @@
 
 
 // todo start here and fill with external Data // leave basic realisation for testing
-void generateTestSignal(gsl_vector *x, const size_t totalSize)
+inline void generateTestSignal(gsl_vector *x, const size_t totalSize)
 {
     std::cout << "generateSignal() with size: " << totalSize << "\n";
 
@@ -109,7 +109,7 @@ namespace gsl_wrapper
     } // namesapce filters
 } // namespace gsl_wrapper
 
-std::vector<double> actLinnearGaussFilter(const size_t windowSize,
+inline std::vector<double> actLinnearGaussFilter(const size_t windowSize,
                                  const double alpha,
                                  const std::vector<double> &dataVector)
 {

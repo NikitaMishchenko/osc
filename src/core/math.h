@@ -41,7 +41,7 @@ namespace
     }
 } // namespace
 
-std::vector<double> derevative1Order(const std::vector<double>& input, const double argStep)
+inline std::vector<double> derevative1Order(const std::vector<double>& input, const double argStep)
 {
     std::vector<double> result;
 

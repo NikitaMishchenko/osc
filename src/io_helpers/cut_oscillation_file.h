@@ -4,7 +4,7 @@
 
 #include <string>
 
-#include "../oscillation/oscillation_basic.h"
+#include "src/oscillation/oscillation_basic.h"
 
 namespace oscillation_files
 {
@@ -72,4 +72,5 @@ namespace oscillation_files
 
         cut_file(output_file, from_time, to_time, output_file);
     }
+
 } // namespace oscillation_files

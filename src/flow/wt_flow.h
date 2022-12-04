@@ -64,12 +64,12 @@ namespace wt_flow
         bool calculateDynamicPressure();
         bool calculateFlow();
 
-        bool isCalculated()
+        bool isCalculated() const
         {
             return m_dynamicPressure && m_velocity;
         }
 
-        double getDynamicPressure()
+        double getDynamicPressure() const
         {
             return m_dynamicPressure;
         }

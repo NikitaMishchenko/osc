@@ -255,12 +255,12 @@ namespace pendulum
 
         std::vector<Frequency> freqs;
 
-        for (int i = 0; i < osc.dangle.size() - 1; ++i)
+        for (int i = 0; i < osc.size() - 1; ++i)
         {
 
             Frequency freq;
 
-            if (osc.dangle.at(i) <= 0 && osc.dangle.at(i + 1) > 0) // from top to bottom
+            if (osc.getDangle(i) <= 0 && osc.getDangle(i + 1) > 0) // from top to bottom
             {
 
                 freq.time = osc.getTime(i);

@@ -4,12 +4,9 @@ class Periods
 {
 public:
 
-
 private:
 
     std::vector<Oscillation> periods;
-
-
 };
 
 namespace periods ///caclulate periods
@@ -35,9 +32,9 @@ namespace periods ///caclulate periods
         {
             std::cout << periodCounter << std::endl;
 
-            if(D.dangle[i] <= 0)
+            if(D.getDangle(i) <= 0)
             {
-                while( D.dangle[i] <= 0.0 && i < D.size())
+                while( D.getDangle(i) <= 0.0 && i < D.size())
                 {
                     buff.push_back(D.getTime(i), D.getAngle(i), D.getDangle(i), D.getDdangle(i));
                     //std::cout << "buff time = " << buff.time[i] << " buff size = " << buff.size() << std::endl;
@@ -55,9 +52,9 @@ namespace periods ///caclulate periods
             }
 
 
-            if(D.dangle[i] > 0.0)
+            if(D.getDangle(i) > 0.0)
             {
-                while( D.dangle[i] >= 0.0 && i < D.size())
+                while( D.getDangle(i) >= 0.0 && i < D.size())
                 {
                     buff.push_back(D.getTime(i), D.getAngle(i), D.getDangle(i), D.getDdangle(i));
                     //std::cout << "buff time = " << buff.time[i] << " buff size = " << buff.size() << std::endl;
@@ -99,10 +96,10 @@ namespace periods ///caclulate periods
 
         while(i < D.size())
         {
-            if(D.dangle[i] <= 0)
+            if(D.getDangle(i) <= 0)
             {
                 fout.open(base_file_name + std::to_string(period_counter));
-                while( D.dangle[i] <= 0.0)
+                while( D.getDangle(i) <= 0.0)
                 {
                     fout << D.getTime(i) << "\t"
                             << D.getAngle(i) << "\t"
@@ -117,10 +114,10 @@ namespace periods ///caclulate periods
 
             std::cout << "period_counter = " << period_counter << std::endl;
 
-            if(D.dangle[i]>=0.0)
+            if(D.getDangle(i)>=0.0)
             {
                 fout.open(base_file_name + std::to_string(period_counter));
-                while( D.dangle[i] > 0.0)
+                while( D.getDangle(i) > 0.0)
                 {
                     fout << D.getTime(i) << "\t"
                             << D.getAngle(i) << "\t"

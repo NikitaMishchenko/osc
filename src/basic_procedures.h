@@ -9,7 +9,7 @@
 #include "oscillation/oscillation_basic.h"
 #include "fft/fftw_impl.h"
 #include "periods/periods_base.h"
-#include "oscillation/cut_oscillation_file.h"
+#include "src/io_helpers/cut_oscillation_file.h"
 #include "oscillation/wt_oscillation.h"
 #include "flow/parse_ptl.h"
 #include "flow/wt_flow.h"

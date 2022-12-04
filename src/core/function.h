@@ -38,7 +38,7 @@ public:
     virtual std::vector<double> getCodomain() const { return m_codomain; };
 
     /// STL-like
-    virtual size_t size() const { return m_domain.size(); };
+    virtual size_t size() const { return m_domain.size(); }; // fixme both should have same size
 
     virtual void clear()
     {
@@ -58,7 +58,7 @@ public:
         m_codomain.reserve(sizeToReserve);
     }
 
-    virtual bool empty()
+    virtual bool empty() const
     {
         return m_domain.empty();
     }
@@ -117,6 +117,13 @@ public:
     {
         for (auto &valCodomain : m_codomain)
             valCodomain = log(valCodomain);
+    }
+
+    virtual void info() const
+    {
+        std::cout << "Function object:\n"
+                  << "\tm_domain.size(): " << m_domain.size() << "\n"
+                  << "\tm_codomain.size(): " << m_codomain.size() << "\n";
     }
 
 protected:
