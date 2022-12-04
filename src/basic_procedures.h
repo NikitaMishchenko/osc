@@ -172,11 +172,11 @@ namespace basic_procedures
 
         WtOscillation wtTest(oscillation, flow, model);
 
-        wtTest.getMz();
+        wtTest.getMz(); // fixme now it returns mz
         wtTest.saveMzData(fileName + "_mz");
         // todo check
 
-        wtTest.getMzAmplitudeIndexes();
+        wtTest.calcAngleAmplitudeIndexes();
         wtTest.saveMzAmplitudeData(fileName + "_mz_amplitude");
 
         return SUCCESS;
@@ -399,7 +399,7 @@ namespace basic_procedures
         // wtTest.saveMzData(fileNameMz);
         //  todo check
 
-        // wtTest.calcAngleAmplitudeIndexes();
+        wtTest.calcAngleAmplitudeIndexes();
         // wtTest.getMz();
         // wtTest.saveMzAmplitudeData(fileName + "_mz_amplitude");
 
@@ -408,11 +408,11 @@ namespace basic_procedures
         DynamicPitchCoefficient dynamicPitchCoefficient(wtTest);
 
         bool isOk = false;
+        std::vector<double> dynamicPart;
+        std::vector<double> staticPart;
         std::vector<double> dynamicCoefficient;
-        std::vector<double> rateDdangleDAngle;
-        std::vector<double> rateAngleDAngle;
 
-        std::tie(isOk, dynamicCoefficient, rateDdangleDAngle, rateAngleDAngle) = dynamicPitchCoefficient.doCalculateEquation();
+        std::tie(isOk, dynamicPart, staticPart, dynamicCoefficient) = dynamicPitchCoefficient.doCalculateEquation();
 
         std::vector<std::vector<double> > output;
         
@@ -421,15 +421,17 @@ namespace basic_procedures
         output.push_back(wtTest.getDangle());
         output.push_back(wtTest.getDdangle());
 
+        output.push_back(dynamicPart);
+        output.push_back(staticPart);
         output.push_back(dynamicCoefficient);
-        output.push_back(rateDdangleDAngle);
-        output.push_back(rateAngleDAngle);
         
         std::ofstream fout("dynPich");
 
         writeToFile(fout, output);
 
         fout.close();
+
+        wtTest.saveMzData("mzdata");
 
         return FAIL;
     }

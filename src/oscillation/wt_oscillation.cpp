@@ -11,47 +11,9 @@
 #include "filtration/gsl_filters.h"
 #include "core/vector_helpers.h"
 
-
 #include "wt_oscillation.h"
 
 // SPECIFIC METHODS
-bool WtOscillation::getMz() const
-{
-    if (m_flow.isCalculated())
-    {
-        const double factor = m_model.getI() / m_flow.getDynamicPressure() / m_model.getS() / m_model.getL();
-
-        std::cout << "\tI/(qsl) = " << factor << "\n";
-
-        // m_mz.mz = makeScaledDDAngle(factor);
-
-        return true;
-    }
-
-    return false;
-}
-
-// todo move to helpers
-/*void makeScaledDDAngle(const double &factor)
-{
-    std::vector<double> scaledDDAngle;
-
-    if (m_mz.mz.size() > 0)
-    {
-        scaledDDAngle = ddangle;
-
-        if ((factor - 1.0) < 0.0000000001 &&
-            (1.0 - factor) < 0.0000000001)
-        {
-            return scaledDDAngle;
-        }
-
-        for (size_t i = 0; i < scaledDDAngle.size(); i++)
-            scaledDDAngle[i] *= factor;
-    }
-
-    return scaledDDAngle;
-}*/
 
 std::vector<double> WtOscillation::getTimeAmplitude() const
 {
@@ -113,7 +75,7 @@ bool WtOscillation::saveMzData(const std::string &fileName) const
     for (size_t i = 0; i < m_mz.size(); i++)
     {
         fout << m_mz.at(i).time << "\t" << m_mz.at(i).mz << "\n";
-        std::cout << getTime(i) << "\t" << m_mz.at(i).mz << "\n";
+        // std::cout << getTime(i) << "\t" << m_mz.at(i).mz << "\n";
     }
 
     fout.close();
@@ -133,7 +95,7 @@ bool WtOscillation::saveMzAmplitudeData(const std::string &fileName)
         return false;
     }
 
-    for (auto index : m_mzAmplitudeIndexes)
+    for (auto index : m_AngleAmplitudeIndexes)
     {
         fout << getTime(index) << "\t" << m_mz.at(index).mz << "\n";
     }
@@ -144,7 +106,7 @@ bool WtOscillation::saveMzAmplitudeData(const std::string &fileName)
 
 // todo refactor: move to private
 // first -time, second mz
-bool WtOscillation::getMzAmplitudeIndexes()
+/*bool WtOscillation::getMzAmplitudeIndexes()
 {
     std::cout << "getMzAmplitudeIndexes entry()\n";
     std::cout << "\t\tm_mz size: " << m_mz.size() << "\n";
@@ -168,7 +130,7 @@ bool WtOscillation::getMzAmplitudeIndexes()
     }
 
     return true;
-}
+}*/
 
 bool WtOscillation::calcAngleAmplitudeIndexes()
 {
@@ -213,9 +175,13 @@ bool WtOscillation::calcAngleAmplitudeIndexes()
 
     Mz buff;
 
+    const double factor = m_model.getI() / m_flow.getDynamicPressure() / m_model.getS() / m_model.getL();
+
+    std::cout << "factor for mz = " << factor << "\n";
+
     for (size_t i = 0; i < m_AngleAmplitudeIndexes.size(); ++i)
     {
-        buff.mz = m_codomain.at(m_AngleAmplitudeIndexes.at(i));
+        buff.mz = m_codomain.at(m_AngleAmplitudeIndexes.at(i) * factor);
         buff.time = m_domain.at(m_AngleAmplitudeIndexes.at(i));
 
         m_mz.push_back(buff);
@@ -224,14 +190,27 @@ bool WtOscillation::calcAngleAmplitudeIndexes()
     return true;
 }
 
+void WtOscillation::calculateW()
+{
+    if (m_AngleAmplitudeIndexes.empty())
+        calcAngleAmplitudeIndexes();
+
+    const size_t timeIndex1 = m_AngleAmplitudeIndexes.at(1);
+    const size_t timeIndex2 = m_AngleAmplitudeIndexes.at(2);
+
+    // 0.5 cos ampl indexies for top and bottom envelop
+    m_w = 0.5 / (m_domain.at(timeIndex2) - m_domain.at(timeIndex1));
+
+    std::cout << "w = " << m_w << "\n";
+}
+
 // othre
 void WtOscillation::info() const
 {
     std::cout << "WtOscillation oject\n"
               << "\tm_mz size: " << m_mz.size() << "\n"
               << "\tm_AngleAmplitudeIndexes size: " << m_AngleAmplitudeIndexes.size() << "\n"
-              << "\tm_w = " << m_w << "\n"
-              << "\tm_mzAmplitudeIndexes size: " << m_mzAmplitudeIndexes.size() << "\n";
+              << "\tm_w = " << m_w << "\n";
 
     Oscillation::info();
 }

@@ -35,7 +35,7 @@ bool writeToFile(std::ofstream &fout, const std::vector<T> &outputData)
     {
         for (const auto &one : outputData)
         {
-            fout << one.at(i) << " ";
+            fout << one.at(i) << "\t";
         }
 
         fout << "\n";

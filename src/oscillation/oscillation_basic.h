@@ -171,7 +171,7 @@ public:
     virtual const double getDangle(int i) const{ return dangle.at(i);}
     virtual const std::vector<double> getDangle() const { return dangle;}
 
-    virtual double getDdangle(int i) const { return dangle.at(i);}
+    virtual double getDdangle(int i) const { return ddangle.at(i);}
     virtual const std::vector<double> getDdangle() const { return ddangle; }
 
     // IO

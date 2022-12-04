@@ -26,6 +26,8 @@
         {
         }
 
+        ~DynamicPitchCoefficient() {}
+
         bool calculateCoefficient()
         {
             switch (m_method)
@@ -48,9 +50,6 @@
 
             return true;
         }
-
-        ~DynamicPitchCoefficient() {}
-
     
         std::tuple<bool, std::vector<double>, std::vector<double>, std::vector<double> >
         doCalculateEquation()
@@ -72,13 +71,15 @@
 
             double mzStatic = sqrt(w/q/s/l*I);
 
+            std::cout << "generalCoefficient = " << constCoeff << "\n";
+            std::cout << "Iz = " << I << "\n";
             std::cout << "mzStatic = " << mzStatic << "\n";
 
             for (int i = 0; i < m_wtOscillation.size(); ++i)
             {
-                dynamicPart.push_back(I*m_wtOscillation.getDdangle(i));
+                dynamicPart.push_back(I*constCoeff*m_wtOscillation.getDdangle(i)/m_wtOscillation.getDangle(i));
                 
-                staticPart.push_back(-1.0*mzStatic*m_wtOscillation.getAngle(i)/m_wtOscillation.getDangle(i));
+                staticPart.push_back(-1.0*mzStatic*constCoeff*m_wtOscillation.getAngle(i)/m_wtOscillation.getDangle(i));
 
                 dynamicCoefficient.push_back(dynamicPart.back() + staticPart.back());
             }

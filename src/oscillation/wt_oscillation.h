@@ -25,7 +25,11 @@ public:
 
     WtOscillation(const AngleHistory &angleHistory) : Oscillation(angleHistory),
                                                       m_flow(wt_flow::Flow()),
-                                                      m_model(Model()){};
+                                                      m_model(Model())
+    {
+        calculateW();
+        calcAngleAmplitudeIndexes();
+    };
 
     WtOscillation(const Oscillation &oscillation,
                   const wt_flow::Flow &flow,
@@ -34,14 +38,12 @@ public:
           m_flow(flow),
           m_model(model)
     {
-        calculateW();
+
     };
 
     virtual ~WtOscillation(){};
 
     // SPECIFIC METHODS
-    bool getMz() const;
-
     // todo move to helpers
     /*void makeScaledDDAngle(const double &factor)
     {
@@ -70,7 +72,8 @@ public:
     double getAngleAmplitude(const size_t index) const;
     Model getModel() const;
     wt_flow::Flow getFlow() const {return m_flow;}
-    double getW() const{return m_w;};
+    double getW() const {return m_w;};
+    std::vector<Mz> getMz(){return m_mz;}
 
     // IO
     bool saveMzData(const std::string &fileName) const;
@@ -87,24 +90,10 @@ public:
     virtual void info() const override;
 
 private:
-    void calculateW()
-    {
-        if (m_AngleAmplitudeIndexes.empty())
-            calcAngleAmplitudeIndexes();
-
-        const size_t timeIndex1 = m_AngleAmplitudeIndexes.at(1);
-        const size_t timeIndex2 = m_AngleAmplitudeIndexes.at(2);
-
-        std::cout << "time indexies: " << timeIndex1 << " " << timeIndex2 << " m_domain.size()" << m_domain.size() <<  "\n";
-        
-        // 0.5 cos ampl indexies for top and bottom envelop
-        m_w = 0.5/(m_domain.at(timeIndex2) - m_domain.at(timeIndex1));
-
-        std::cout << "w = " << m_w << "\n";
-    }
+    void calculateW();
 
     std::vector<Mz> m_mz;
-    std::vector<size_t> m_mzAmplitudeIndexes;
+    //std::vector<size_t> m_mzAmplitudeIndexes;
     std::vector<size_t> m_AngleAmplitudeIndexes;
 
     double m_w; // frequency of oscillation main mode
