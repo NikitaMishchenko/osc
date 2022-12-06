@@ -38,7 +38,8 @@ public:
           m_flow(flow),
           m_model(model)
     {
-
+        calculateW();
+        calcAngleAmplitudeIndexes();
     };
 
     virtual ~WtOscillation(){};

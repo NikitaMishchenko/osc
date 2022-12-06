@@ -419,12 +419,17 @@ namespace basic_procedures
         output.push_back(wtTest.getTime());
         output.push_back(wtTest.getAngle());
         output.push_back(wtTest.getDangle());
-        output.push_back(wtTest.getDdangle());
+        output.push_back(wtTest.getDdangle()); // 4
 
-        output.push_back(dynamicPart);
-        output.push_back(staticPart);
-        output.push_back(dynamicCoefficient);
+        output.push_back(dynamicPart); // 5
+        output.push_back(staticPart); // 6
+        output.push_back(dynamicCoefficient); // 7
         
+        dynamicPitchCoefficient.calculate();
+        output.push_back(dynamicPitchCoefficient.getPitchMomentum()); //8
+        output.push_back(dynamicPitchCoefficient.getPitchStaticMomentum()); // 9
+
+
         std::ofstream fout("dynPich");
 
         writeToFile(fout, output);
