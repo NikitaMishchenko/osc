@@ -58,8 +58,11 @@ add_executable(oscillation
 set_target_properties(oscillation PROPERTIES LINKER_LANGUAGE CXX)
 
 find_package(GSL REQUIRED)
+find_package(GTest REQUIRED)
+include_directories(${GTEST_INCLUDE_DIRS})
 
 # sudo apt-get install libgsl-dev libgsl-dev libboost-dev
+# libgtest-dev /usr/src/gtest make it
 target_link_libraries(
   oscillation
   flow
@@ -70,6 +73,8 @@ target_link_libraries(
   fftw3
 )
 
+add_executable(runTests tests/main.cpp)
+target_link_libraries(runTests ${GTEST_LIBRARIES} pthread)
 
 set(CPACK_PROJECT_NAME ${PROJECT_NAME})
 set(CPACK_PROJECT_VERSION ${PROJECT_VERSION})
