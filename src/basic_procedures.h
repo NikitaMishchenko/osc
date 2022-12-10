@@ -3,6 +3,7 @@
 #include <string>
 #include <utility>
 #include <tuple>
+#include <memory>
 
 #include <boost/optional.hpp>
 
@@ -392,14 +393,14 @@ namespace basic_procedures
 
         oscillation.loadFile(fileName, oscillation_helpers::TIME_ANGLE_DANGLE_DDANGLE);
 
-        WtOscillation wtTest(oscillation, flow, model);
+        std::shared_ptr<WtOscillation> wtTest =  std::make_shared<WtOscillation> (oscillation, flow, model);
 
         std::string fileNameMz = fileName + "_mz";
 
         // wtTest.saveMzData(fileNameMz);
         //  todo check
 
-        wtTest.calcAngleAmplitudeIndexes();
+        wtTest->calcAngleAmplitudeIndexes();
         // wtTest.getMz();
         // wtTest.saveMzAmplitudeData(fileName + "_mz_amplitude");
 
@@ -416,10 +417,10 @@ namespace basic_procedures
 
         std::vector<std::vector<double> > output;
         
-        output.push_back(wtTest.getTime());
-        output.push_back(wtTest.getAngle());
-        output.push_back(wtTest.getDangle());
-        output.push_back(wtTest.getDdangle()); // 4
+        output.push_back(wtTest->getTime());
+        output.push_back(wtTest->getAngle());
+        output.push_back(wtTest->getDangle());
+        output.push_back(wtTest->getDdangle()); // 4
 
         output.push_back(dynamicPart); // 5
         output.push_back(staticPart); // 6
@@ -429,6 +430,7 @@ namespace basic_procedures
         output.push_back(dynamicPitchCoefficient.getPitchMomentum()); //8
         output.push_back(dynamicPitchCoefficient.getPitchStaticMomentum()); // 9
 
+        dynamicPitchCoefficient.info();
 
         std::ofstream fout("dynPich");
 
@@ -436,7 +438,7 @@ namespace basic_procedures
 
         fout.close();
 
-        wtTest.saveMzData("mzdata");
+        wtTest->saveMzData("mzdata");
 
         return FAIL;
     }
