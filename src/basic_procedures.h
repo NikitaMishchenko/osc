@@ -409,11 +409,11 @@ namespace basic_procedures
         DynamicPitchCoefficient dynamicPitchCoefficient(wtTest);
 
         bool isOk = false;
-        std::vector<double> dynamicPart;
-        std::vector<double> staticPart;
-        std::vector<double> dynamicCoefficient;
+        //std::vector<double> dynamicPart;
+        //std::vector<double> staticPart;
+        //std::vector<double> dynamicCoefficient;
 
-        std::tie(isOk, dynamicPart, staticPart, dynamicCoefficient) = dynamicPitchCoefficient.doCalculateEquation();
+        //std::tie(isOk, dynamicPart, staticPart, dynamicCoefficient) = dynamicPitchCoefficient.doCalculateEquation();
 
         std::vector<std::vector<double> > output;
         
@@ -422,13 +422,17 @@ namespace basic_procedures
         output.push_back(wtTest->getDangle());
         output.push_back(wtTest->getDdangle()); // 4
 
-        output.push_back(dynamicPart); // 5
-        output.push_back(staticPart); // 6
-        output.push_back(dynamicCoefficient); // 7
+        //output.push_back(dynamicPart); // 5
+        //output.push_back(staticPart); // 6
+        //output.push_back(dynamicCoefficient); // 7
         
         dynamicPitchCoefficient.calculate();
-        output.push_back(dynamicPitchCoefficient.getPitchMomentum()); //8
-        output.push_back(dynamicPitchCoefficient.getPitchStaticMomentum()); // 9
+        output.push_back(dynamicPitchCoefficient.getAngle()); // 9 5
+        output.push_back(dynamicPitchCoefficient.getDangle()); // 10 6 
+        output.push_back(dynamicPitchCoefficient.getDdangle()); // 11 7 
+        output.push_back(dynamicPitchCoefficient.getPitchMomentum()); // 12 8 
+        output.push_back(dynamicPitchCoefficient.getPitchStaticMomentum()); // 13 9 
+        output.push_back(dynamicPitchCoefficient.getPitchDynamicMomentum()); // 14 10
 
         dynamicPitchCoefficient.info();
 

@@ -53,6 +53,21 @@ public:
         return true;
     }
 
+    std::vector<double> getAngle() const
+    {
+        return m_angle;
+    }
+
+    std::vector<double> getDangle() const
+    {
+        return m_dangle;
+    }
+
+    std::vector<double> getDdangle() const
+    {
+        return m_ddangle;
+    }
+
     std::vector<double> getPitchMomentum() const
     {
         return m_pitchMomentum;
@@ -63,13 +78,20 @@ public:
         return m_pitchStaticMomentum;
     }
 
-    void calculate()
+    std::vector<double> getPitchDynamicMomentum() const
     {
-        calcultePitchMomentum();
-        calculatePitchStaticMomentum();
+        return m_pitchDynamicMomentum;
     }
 
-    std::tuple<bool, std::vector<double>, std::vector<double>, std::vector<double>>
+    void calculate()
+    {
+        prepareSignalData();
+        calcultePitchMomentum();
+        calculatePitchStaticMomentum();
+        calculatePitchDynamicMomentum();
+    }
+
+    /*std::tuple<bool, std::vector<double>, std::vector<double>, std::vector<double>>
     doCalculateEquation()
     {
         const double I = m_wtOscillation->getModel().getI();
@@ -103,23 +125,47 @@ public:
         }
 
         return std::make_tuple(true, dynamicPart, staticPart, dynamicCoefficient);
-    }
+    }*/
 
     bool doCalculateEnvelop()
     {
         return false;
     }
 
-    // todo 
+    // todo
     virtual void info()
     {
         m_wtOscillation->info();
 
         std::cout << "m_pitchMomentum.size():" << m_pitchMomentum.size() << "\n";
         std::cout << "m_pitchStaticMomentum.size():" << m_pitchStaticMomentum.size() << "\n";
+        std::cout << "m_pitchDynamicMomentum.size():" << m_pitchDynamicMomentum.size() << "\n";
     }
 
 private:
+    // between current and next index
+    bool isMaxAmplitude(const size_t index)
+    {
+        return (m_dangle.at(index) <= 0 && m_dangle.at(index + 1) >= 0);
+    }
+
+    bool prepareSignalData()
+    {
+        m_angle = actLinnearGaussFilter(5,
+                                        1,
+                                        m_wtOscillation->getAngle());
+
+        m_dangle = actLinnearGaussFilter(5,
+                                         1,
+                                         m_wtOscillation->getDangle());
+
+        m_ddangle = actLinnearGaussFilter(5,
+                                          1,
+                                          m_wtOscillation->getDdangle());
+
+        return true;
+    }
+
     bool calcultePitchMomentum()
     {
         m_pitchMomentum.reserve(m_wtOscillation->size());
@@ -136,7 +182,7 @@ private:
 
         for (int i = 0; i < m_wtOscillation->size(); ++i)
         {
-            m_pitchMomentum.push_back((I * m_wtOscillation->getDdangle(i) - frictionM) / q / s / l);
+            m_pitchMomentum.push_back((I * m_ddangle.at(i) - frictionM) / q / s / l);
         }
 
         return true;
@@ -146,17 +192,17 @@ private:
     {
         m_pitchStaticMomentum.reserve(m_wtOscillation->size());
 
-        const size_t sizeDangle = m_wtOscillation->getDangle().size();
+        const size_t sizeDangle = m_dangle.size();
         const size_t sizePitchMomentum = m_pitchMomentum.size();
 
         double fitValue = 0.0; // todo move for half of period erlier
 
-        // from approximation 
+        // from approximation
         // std::cout << "pitchStaticMomentum from w = " << m_wtOscillation.getW()*
 
         for (size_t i = 0; i < sizeDangle; ++i)
-        {           
-            if (m_wtOscillation->getDangle(i) <= 0 && m_wtOscillation->getDangle(i + 1) >= 0) // todo refactor
+        {
+            if (isMaxAmplitude(i))
                 fitValue = (m_pitchMomentum.at(i));
 
             m_pitchStaticMomentum.push_back(fitValue);
@@ -167,10 +213,46 @@ private:
         return true;
     }
 
+    bool calculatePitchDynamicMomentum()
+    {
+        if (m_pitchStaticMomentum.empty())
+            return false;
+
+        const double l = m_wtOscillation->getModel().getL();
+
+        const double v = m_wtOscillation->getFlow().getVelocity();
+
+        m_pitchDynamicMomentum.reserve(m_pitchStaticMomentum.size());
+
+        double fitValue = 0;
+
+        for (int i = 0; i < m_pitchMomentum.size(); ++i)
+        {
+            std::cout <<  "m_pichMomentum: " << m_pitchMomentum.at(i) << "\t"
+                      << "m_pitchStaticMomentum*m_wtOscillation)" << m_pitchStaticMomentum.at(i) << "\n";
+
+            // *m_wtOscillation->getAngle(i))
+            //if (isMaxAmplitude(i))
+            {
+                fitValue = (m_pitchMomentum.at(i) - m_pitchStaticMomentum.at(i)) * v / l * m_dangle.at(i);
+            }
+
+            m_pitchDynamicMomentum.push_back(fitValue);
+        }
+
+        return true;
+    }
+
     std::shared_ptr<WtOscillation> m_wtOscillation;
+
+    // for current processing may differ from m_wtOscillation
+    std::vector<double> m_angle;
+    std::vector<double> m_dangle;
+    std::vector<double> m_ddangle;
 
     std::vector<double> m_pitchMomentum;
     std::vector<double> m_pitchStaticMomentum;
+    std::vector<double> m_pitchDynamicMomentum;
 
     int m_method;
 };
