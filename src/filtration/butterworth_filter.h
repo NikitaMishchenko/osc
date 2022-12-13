@@ -51,7 +51,7 @@ namespace filters
         }
     }
 
-    std::vector<double> calculatePolynimCoeff(const double Rp,
+    inline std::vector<double> calculatePolynimCoeff(const double Rp,
                         const double Rs,
                         const double wp,
                         const double ws)
@@ -237,9 +237,4 @@ namespace filters
         };
     }
 
-
-
-
 }
-
-

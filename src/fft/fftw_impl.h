@@ -7,7 +7,7 @@
 
 #include <fftw3.h>
 
-#include "../oscillation/oscillation_basic.h"
+//#include "../oscillation/oscillation_basic.h"
 
 const double PI = 3.14159265359;
 
@@ -131,7 +131,7 @@ namespace osc
 namespace fftw_example
 {
 
-    void generate_signal(fftw_complex *signal, double freq, uint8_t length)
+    inline void generate_signal(fftw_complex *signal, double freq, uint8_t length)
     {
         std::cout << "Signal generation\n";
 
@@ -149,7 +149,7 @@ namespace fftw_example
         fout.close();
     }
 
-    void func(uint8_t N)
+    inline void func(uint8_t N)
     {
         // const uint8_t N = 1024*16;
 

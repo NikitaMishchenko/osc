@@ -24,7 +24,7 @@ namespace pendulum
     };
 
     /// fixme move to helpers i/o
-    void saveFile(const std::string &fileNmae, std::vector<Frequency> data)
+    inline void saveFile(const std::string &fileNmae, std::vector<Frequency> data)
     {
         std::cout << "saving file: " << fileNmae << " data.size() =" << data.size() << "\n";
 
@@ -40,7 +40,7 @@ namespace pendulum
     }
 
     // to slow
-    void removeOffscale(AngleHistory& angleHistory)
+    inline void removeOffscale(AngleHistory& angleHistory)
     {
         std::cout << "removeOffscale()\n";
 
@@ -62,7 +62,7 @@ namespace pendulum
         }
     }
 
-    void remove0Harmonic(AngleHistory &angleHistory)
+    inline void remove0Harmonic(AngleHistory &angleHistory)
     {
         const double shiftAngle = angleHistory.getAngle().at(angleHistory.size() - 1);
         std::cout << "shiftAngle = " << shiftAngle << "\n";
@@ -116,7 +116,7 @@ namespace pendulum
      * Get frequencies of the @angleHistory based on FFT (discretization is assumed being constant)
      * @returns true - allOk, false - error occurred
      */
-    std::tuple<bool, std::vector<Frequency>>
+    inline std::tuple<bool, std::vector<Frequency>>
     getFrequenciesViaFft(const AngleHistory &angleHistory, const uint32_t windowWidth, const uint32_t windowStep)
     {
         std::cout << "getFrequenciesViaFft entry\n";
@@ -160,7 +160,7 @@ namespace pendulum
     }
 
     // todo rename method // no implimentation
-    std::tuple<bool, std::vector<Frequency>>
+    inline std::tuple<bool, std::vector<Frequency>>
     getFrequenciesViaSignal(const AngleHistory &angleHistory)
     {
         std::cout << "getFrequeciesViaSignal() entry\n";
@@ -244,7 +244,7 @@ namespace pendulum
     /*
     *   @param coefficientFreqSpred means freqs larger than coeff*discrFreq will be nglected
     */
-    std::tuple<bool, std::vector<Frequency>>
+    inline std::tuple<bool, std::vector<Frequency>>
     getFrequenciesViaDerevative(const AngleHistory &angleHistory, double coefficientFreqSpred)
     {
         std::cout << "getFrequenciesViaDerevative()\n";

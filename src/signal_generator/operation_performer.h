@@ -212,7 +212,7 @@ private:
     DataForScale m_prepData;
 };
 
-std::shared_ptr<OperationPerformer>
+inline std::shared_ptr<OperationPerformer>
 getOperationPerformer(const std::vector<double> &operationData,
                       Operations type)
 {

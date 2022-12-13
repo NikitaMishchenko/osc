@@ -168,7 +168,6 @@ int doJob(const options::Procedure procedureToPerform,
 
         AngleHistory angleHistory(fileName);
 
-
         result = basic_procedures::performProcedureFilterSignalViaGaussSimpleFitler(fileNameInput, fileNameOutput, windowSize, alphaValue);
 
         break;

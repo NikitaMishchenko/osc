@@ -11,7 +11,6 @@
 #include "core/math.h"
 #include "angle_history.h"
 
-
 namespace oscillation_helpers
 {
 
@@ -85,7 +84,6 @@ namespace oscillation_helpers
 
 } // namespace oscillation
 
-
 enum LOG_MODE
 {
     LOG_ON,
@@ -95,10 +93,9 @@ enum LOG_MODE
 class Oscillation : public AngleHistory
 {
 public:
-
-
     Oscillation() : AngleHistory(), dangle(), ddangle()
-    {}
+    {
+    }
 
     Oscillation(const AngleHistory &angleHistory);
     Oscillation(const std::string &file_name);
@@ -168,15 +165,40 @@ public:
     virtual void push_back(const double &t, const double &a, const double &da, const double &dda);
     virtual void clear() override;
 
-    virtual const double getDangle(int i) const{ return dangle.at(i);}
-    virtual const std::vector<double> getDangle() const { return dangle;}
+    virtual const double getDangle(int i) const { return dangle.at(i); }
+    virtual const std::vector<double> getDangle() const { return dangle; }
 
-    virtual double getDdangle(int i) const { return ddangle.at(i);}
+    virtual double getDdangle(int i) const { return ddangle.at(i); }
     virtual const std::vector<double> getDdangle() const { return ddangle; }
 
     // IO
-    friend std::ostream &operator<<(std::ostream &outSource, const Oscillation &D);
-    friend std::istream &operator>>(std::istream &inSource, Oscillation &D);
+    // IO
+    friend std::ostream &operator<<(std::ostream &outSource, const Oscillation &D)
+    {
+        for (size_t i = 0; i < D.size(); i++)
+        {
+            outSource << D.m_domain.at(i) << "\t"
+                      << D.m_codomain.at(i) << "\t"
+                      << D.dangle.at(i) << "\t"
+                      << D.ddangle.at(i) << "\n";
+        }
+
+        return outSource;
+    }
+
+    friend std::istream &operator>>(std::istream &inSource, Oscillation &D)
+    {
+        double d0_buff, d1_buff, d2_buff, d3_buff;
+
+        while (!inSource.eof())
+        {
+            inSource >> d0_buff >> d1_buff >> d2_buff >> d3_buff;
+
+            D.push_back(d0_buff, d1_buff, d2_buff, d3_buff);
+        }
+
+        return inSource;
+    }
 
     virtual void print() const override;
 
@@ -197,8 +219,8 @@ public:
 
     /// OTHER
     virtual void info() const override;
+
 private:
     std::vector<double> dangle;
     std::vector<double> ddangle;
-
 };

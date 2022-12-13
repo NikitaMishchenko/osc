@@ -274,30 +274,3 @@ void  Oscillation::info() const
     AngleHistory::info();
 }
 
-// IO
-std::ostream &operator<<(std::ostream &outSource, const Oscillation &D)
-{
-    for (size_t i = 0; i < D.size(); i++)
-    {
-        outSource << D.m_domain.at(i) << "\t"
-                  << D.m_codomain.at(i) << "\t"
-                  << D.dangle.at(i) << "\t"
-                  << D.ddangle.at(i) << "\n";
-    }
-
-    return outSource;
-}
-
-std::istream &operator>>(std::istream &inSource, Oscillation &D)
-{
-    double d0_buff, d1_buff, d2_buff, d3_buff;
-
-    while (!inSource.eof())
-    {
-        inSource >> d0_buff >> d1_buff >> d2_buff >> d3_buff;
-
-        D.push_back(d0_buff, d1_buff, d2_buff, d3_buff);
-    }
-
-    return inSource;
-}

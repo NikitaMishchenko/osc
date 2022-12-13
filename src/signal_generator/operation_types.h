@@ -17,7 +17,7 @@ enum Operations
     UNHANDLED
 };
 
-int getOperationDataPortionCount(Operations type)
+inline int getOperationDataPortionCount(Operations type)
 {
     switch (type)
     {

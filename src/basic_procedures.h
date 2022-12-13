@@ -39,7 +39,7 @@ namespace basic_procedures
      *    Each period splits into forward a backward movement
      *    (todo) after that gnuplot script creating.
      */
-    ErrorCodes performProcedurePeriods(const std::string &fileName,
+    inline ErrorCodes performProcedurePeriods(const std::string &fileName,
                                        const std::string &fileName2,
                                        const std::vector<double> &extraArguments)
     {
@@ -112,7 +112,7 @@ namespace basic_procedures
         return SUCCESS;
     }
 
-    ErrorCodes performProcedureFlow(const std::string &fileName)
+    inline ErrorCodes performProcedureFlow(const std::string &fileName)
     {
         wt_flow::Flow flow;
 
@@ -128,7 +128,7 @@ namespace basic_procedures
         return FAIL;
     }
 
-    ErrorCodes performProcedureCutFile(const std::string &initialFile,
+    inline ErrorCodes performProcedureCutFile(const std::string &initialFile,
                                        const double timeFrom,
                                        const double timeTo,
                                        const std::string &finalFile)
@@ -144,7 +144,7 @@ namespace basic_procedures
         return SUCCESS;
     }
 
-    ErrorCodes performProceduereProcessingWtData(const std::string &fileName)
+    inline ErrorCodes performProceduereProcessingWtData(const std::string &fileName)
     {
         std::cout << "wt test processing mode performing\n";
 
@@ -183,7 +183,7 @@ namespace basic_procedures
         return SUCCESS;
     };
 
-    ErrorCodes performProcedurePendulum(const std::string &fileName, const double arg1, uint32_t windowStep)
+    inline ErrorCodes performProcedurePendulum(const std::string &fileName, const double arg1, uint32_t windowStep)
     {
         AngleHistory angleHistory;
 
@@ -216,7 +216,7 @@ namespace basic_procedures
         return SUCCESS;
     }
 
-    ErrorCodes performProcedureLinnearApproximation(const std::string &fileName)
+    inline ErrorCodes performProcedureLinnearApproximation(const std::string &fileName)
     {
         AngleHistory angleHistory;
 
@@ -233,7 +233,7 @@ namespace basic_procedures
         return SUCCESS;
     }
 
-    std::tuple<int, linnear_approximation::ApproxResultVector>
+    inline std::tuple<int, linnear_approximation::ApproxResultVector>
     performProcedurecCoefficientsFromWindow(const std::string fileName,
                                             const size_t indexFromData,
                                             const size_t indexToData,
@@ -281,7 +281,7 @@ namespace basic_procedures
      *   c1 = ln(c)
      *   c0 = n_c
      */
-    std::tuple<int, linnear_approximation::ApproxResultVector>
+    inline std::tuple<int, linnear_approximation::ApproxResultVector>
     performProcedurecDynCoefficientsFromWindowForWtTest(const std::string fileName,
                                                         const size_t indexFromData,
                                                         const size_t indexToData,
@@ -325,7 +325,7 @@ namespace basic_procedures
         return std::make_tuple(ErrorCodes(errCode), approxResultVector);
     }
 
-    ErrorCodes performProcedureFilterSignalViaGaussSimpleFitler(const std::string &fileNameInput,
+    inline ErrorCodes performProcedureFilterSignalViaGaussSimpleFitler(const std::string &fileNameInput,
                                                                 const std::string &fileNameOutput,
                                                                 const size_t windowSize,
                                                                 const double alphaValue)
@@ -353,7 +353,7 @@ namespace basic_procedures
         return SUCCESS;
     }
 
-    ErrorCodes testFunc()
+    inline ErrorCodes testFunc()
     {
         std::cout << "performing testFunc from basic procedures\n";
 

@@ -213,7 +213,7 @@ namespace linnear_approximation
         size_t n;
     };
 
-    std::tuple<int, ApproxResult> approximate(const std::vector<double> &inputDataX,
+    inline std::tuple<int, ApproxResult> approximate(const std::vector<double> &inputDataX,
                                               const std::vector<double> &inputDataY,
                                               const boost::optional<std::vector<double>> &err = boost::optional<std::vector<double>>())
     {
@@ -293,7 +293,7 @@ namespace linnear_approximation
         
     } // namespace
 
-    std::tuple<int, ApproxResultVector> windowApproximation(const size_t indexFromData,
+    inline std::tuple<int, ApproxResultVector> windowApproximation(const size_t indexFromData,
                                           const size_t indexToData,
                                           const size_t windowSize,
                                           const size_t stepSize,

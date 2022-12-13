@@ -12,7 +12,7 @@ private:
 namespace periods ///caclulate periods
 {
 
-    std::vector<Oscillation> splitPeriods(const Oscillation& D)
+    inline std::vector<Oscillation> splitPeriods(const Oscillation& D)
     {
         std::cout << "split periods\n";
 
@@ -86,7 +86,7 @@ namespace periods ///caclulate periods
     /*
     * Разделение истории колебаний на периоды колебаний.
     */
-    int calculate_periods(Oscillation D, std::string base_file_name)
+    inline int calculate_periods(Oscillation D, std::string base_file_name)
     {std::cout << "calculate_periods\n";
 
         std::ofstream fout;
@@ -137,7 +137,7 @@ namespace periods ///caclulate periods
 
     namespace gnuplot
     {
-        std::string file_name(std::string fn){
+        inline std::string file_name(std::string fn){
             return (std::string("\"") + fn + "\"");
         }
     }
@@ -146,7 +146,7 @@ namespace periods ///caclulate periods
     /**
     * Генерация скриптов отрисовки периодов колебаний
     */
-    void PlotScript(std::string base_file_name, int period_counter)
+    inline void PlotScript(std::string base_file_name, int period_counter)
     {
         std::ofstream fout(base_file_name);
         std::ofstream fout1;
@@ -198,7 +198,7 @@ namespace periods ///caclulate periods
 
     }
 
-    void SavePeriod(std::string file_name)
+    inline void SavePeriod(std::string file_name)
     {
         std::cout << "empty func\n";
     }

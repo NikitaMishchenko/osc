@@ -9,7 +9,7 @@
 namespace oscillation_files
 {
 
-    bool cut_file(const std::string& input_file, const double from_time, const double to_time, const std::string& output_file)
+    inline bool cut_file(const std::string& input_file, const double from_time, const double to_time, const std::string& output_file)
     {
         Oscillation A(input_file);
 
@@ -48,7 +48,7 @@ namespace oscillation_files
         return true;
     }
 
-    void cut_raw_file(const std::string& input_file, int lines_count_to_skip, const double from_time, const double to_time, const std::string& output_file)
+    inline void cut_raw_file(const std::string& input_file, int lines_count_to_skip, const double from_time, const double to_time, const std::string& output_file)
     {
         std::ifstream fin(input_file);
         std::ofstream fout(output_file);
