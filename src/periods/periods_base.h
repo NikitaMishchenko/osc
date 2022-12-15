@@ -1,5 +1,7 @@
 #pragma once
 
+#include "oscillation/oscillation_basic.h"
+
 class Periods
 {
 public:

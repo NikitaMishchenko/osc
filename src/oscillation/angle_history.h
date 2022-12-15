@@ -14,13 +14,14 @@ class AngleHistory : public Function // todo rename it's better be like TwoVecto
 {
 public:
     AngleHistory() : Function(), m_timeStep(0.0)
-    {}
+    {
+    }
 
     AngleHistory(const std::vector<double> &timeIn, const std::vector<double> &angleIn);
 
     AngleHistory(const std::string &file_name);
 
-    virtual ~AngleHistory(){}
+    virtual ~AngleHistory() {}
 
     double getTimeStep() const
     {
@@ -76,11 +77,34 @@ public:
     virtual bool loadRaw(const std::string &file_name);
     virtual void write(const std::string &fileName) const;
 
-    friend std::ostream &operator<<(std::ostream &out, const AngleHistory &D);
-    friend std::istream &operator>>(std::ifstream &inSource, AngleHistory& Data);
+    friend std::ostream &operator<<(std::ostream &out, const AngleHistory &D)
+    {
+        for (size_t i = 0; i < D.size(); i++)
+        {
+            out << D.m_domain.at(i) << "\t"
+                << D.m_codomain.at(i) << "\t"
+                << "\n";
+        }
+
+        return out;
+    }
+
+    friend std::istream &operator>>(std::ifstream &inSource, AngleHistory &Data)
+    {
+        double b_angle, b_time;
+
+        while (!inSource.eof())
+        {
+            inSource >> b_time >> b_angle;
+
+            Data.push_back(b_time, b_angle);
+        }
+
+        return inSource;
+    }
 
 protected:
-    void calculateTimeStep(); 
+    void calculateTimeStep();
     double indexToTime(const size_t index) const;
     size_t timeToIndex(const double timeValue) const;
 

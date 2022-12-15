@@ -4,7 +4,7 @@
 
 #include <string>
 
-#include "src/oscillation/oscillation_basic.h"
+#include "oscillation/oscillation_basic.h"
 
 namespace oscillation_files
 {

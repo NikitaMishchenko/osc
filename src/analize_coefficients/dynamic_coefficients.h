@@ -12,9 +12,9 @@
 // #include <boost/math/tools/polynomial.hpp>
 // boost::math::tools::polynomial<double> p;
 
-#include "../oscillation/wt_oscillation.h"
-#include "../model/tr_rod_model_params.h"
-#include "../gnusl_proc/linnear_approximation.h"
+#include "oscillation/wt_oscillation.h"
+#include "model/tr_rod_model_params.h"
+#include "gnusl_proc/linnear_approximation.h"
 
 namespace
 {

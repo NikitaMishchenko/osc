@@ -3,9 +3,9 @@
 #include <vector>
 #include <string>
 
-#include "src/core/function.h"
+#include "core/function.h"
 
-#include "src/oscillation/angle_history.h"
+#include "oscillation/angle_history.h"
 
 AngleHistory::AngleHistory(const std::vector<double> &timeIn,
                            const std::vector<double> &angleIn)
@@ -99,30 +99,4 @@ size_t AngleHistory::timeToIndex(const double timeValue) const
 std::vector<double>::const_iterator AngleHistory::timeIterator(const double timeValue) const
 {
     return m_domain.cbegin() + timeToIndex(timeValue);
-}
-
-std::ostream &operator<<(std::ostream &out, const AngleHistory &D)
-{
-    for (size_t i = 0; i < D.size(); i++)
-    {
-        out << D.m_domain.at(i) << "\t"
-            << D.m_codomain.at(i) << "\t"
-            << "\n";
-    }
-
-    return out;
-}
-
-std::istream &operator>>(std::ifstream &inSource, AngleHistory &Data)
-{
-    double b_angle, b_time;
-
-    while (!inSource.eof())
-    {
-        inSource >> b_time >> b_angle;
-
-        Data.push_back(b_time, b_angle);
-    }
-
-    return inSource;
 }

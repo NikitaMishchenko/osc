@@ -43,27 +43,27 @@ set_target_properties(fft_impl PROPERTIES LINKER_LANGUAGE CXX)
 target_link_libraries(fft_impl
                       fftw3 )
 
+add_library(basic 
+            ./src/core/function.h
+            ./src/oscillation/angle_history.h
+            ./src/oscillation/angle_history.cpp
+            ./src/oscillation/oscillation_basic.h
+            ./src/oscillation/oscillation_basic.cpp)
+
+
 add_library(oscillationlib
             ./src/gnusl_proc/linnear_approximation.h
             ./src/analize_coefficients/dynamic_coefficients.h
-            ./src/fft/fftw_impl.h
             ./src/filtration/butterworth_filter.h
             ./src/model/tr_rod_model_params.h
-            ./src/oscillation/angle_history.h
-            ./src/oscillation/angle_history.cpp
-            ./src/io_helpers/cut_oscillation_file.h
-            ./src/oscillation/oscillation_basic.h
-            ./src/oscillation/oscillation_basic.cpp
-            ./src/oscillation/wt_oscillation.h
+            #./src/oscillation/wt_oscillation.h
             ./src/oscillation/wt_oscillation.cpp
             ./src/periods/periods_base.h
-            ./src/basic_procedures.h
-            ./src/errcodes.h
             ./src/analize_coefficients/dynamic_coefficient.h
 )
-
 set_target_properties(oscillationlib PROPERTIES LINKER_LANGUAGE CXX)
 target_link_libraries(oscillationlib
+                      basic
                       flow
                       fft_impl
                       #dynamic_coefficient
@@ -72,10 +72,24 @@ target_link_libraries(oscillationlib
                       GSL::gslcblas
                       fftw3 )
 
+add_library (wtOscillationlib
+            ./src/oscillation/wt_oscillation.h
+            ./src/oscillation/wt_oscillation.cpp       
+)
+set_target_properties(wtOscillationlib PROPERTIES LINKER_LANGUAGE CXX)
+target_link_libraries(wtOscillationlib
+                      basic
+                      flow
+                      GSL::gsl
+                      GSL::gslcblas)          
+
 add_executable(oscillation
               ./src/main.cpp
               ./src/options.h
               ./src/options.cpp
+              ./src/basic_procedures.h
+              ./src/errcodes.h
+              ./src/io_helpers/cut_oscillation_file.h
 )
 set_target_properties(oscillation oscillationlib PROPERTIES LINKER_LANGUAGE CXX)
 
@@ -86,8 +100,9 @@ include_directories(${GTEST_INCLUDE_DIRS})
 # sudo apt-get install libgsl-dev libgsl-dev libboost-dev
 # libgtest-dev /usr/src/gtest make it
 target_link_libraries(oscillation
+                      basic  
                       flow
-                      #dynamic_coefficient
+                      wtOscillationlib
                       libboost_program_options.a
                       GSL::gsl
                       GSL::gslcblas

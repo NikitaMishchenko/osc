@@ -7,10 +7,10 @@
 #include <gsl/gsl_matrix.h>
 
 #include "oscillation_basic.h"
-#include "../model/tr_rod_model_params.h"
-#include "../flow/wt_flow.h"
-#include "src/filtration/gsl_filters.h"
-#include "src/core/vector_helpers.h"
+#include "model/tr_rod_model_params.h"
+#include "flow/wt_flow.h"
+#include "filtration/gsl_filters.h"
+#include "core/vector_helpers.h"
 
 struct Mz
 {

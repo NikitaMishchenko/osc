@@ -8,10 +8,10 @@
 #include <boost/optional.hpp>
 
 #include "oscillation/oscillation_basic.h"
+#include "oscillation/wt_oscillation.h"
 #include "fft/fftw_impl.h"
 #include "periods/periods_base.h"
-#include "src/io_helpers/cut_oscillation_file.h"
-#include "oscillation/wt_oscillation.h"
+#include "io_helpers/cut_oscillation_file.h"
 #include "flow/parse_ptl.h"
 #include "flow/wt_flow.h"
 #include "analize_coefficients/dynamic_coefficients.h"
