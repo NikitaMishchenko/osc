@@ -9,6 +9,7 @@
 #include <algorithm>
 
 #include "core/math.h"
+
 #include "angle_history.h"
 
 namespace oscillation_helpers

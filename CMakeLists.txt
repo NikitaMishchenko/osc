@@ -109,8 +109,11 @@ target_link_libraries(oscillation
                       fftw3
 )
 
-#add_executable(runTests tests/main.cpp)
-#target_link_libraries(runTests ${GTEST_LIBRARIES} pthread oscillationlib)
+add_executable(runTests tests/main.cpp tests/test.cpp)
+target_link_libraries(runTests
+                     ${GTEST_LIBRARIES}
+                     pthread
+                     oscillationlib)
 
 set(CPACK_PROJECT_NAME ${PROJECT_NAME})
 set(CPACK_PROJECT_VERSION ${PROJECT_VERSION})

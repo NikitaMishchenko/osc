@@ -144,21 +144,21 @@ bool WtOscillation::calcAngleAmplitudeIndexes()
 
     std::vector<double> tmpDangle = getDangle();
 
-    std::ofstream fout1("ddangle_row");
+    /*std::ofstream fout1("ddangle_row");
 
     helpers::saveToFile(fout1, tmpDangle);
 
     fout1.close();
 
-    tmpDangle = actLinnearGaussFilter(50,
-                                      1,
-                                      tmpDangle);
-
     std::ofstream fout2("ddangle_filt");
 
     helpers::saveToFile(fout2, tmpDangle);
 
-    fout2.close();
+    fout2.close();*/
+
+    tmpDangle = actLinnearGaussFilter(50,
+                                      1,
+                                      tmpDangle);
 
     for (size_t i = 1; i < AngleHistory::size(); i++)
     {
@@ -186,6 +186,9 @@ bool WtOscillation::calcAngleAmplitudeIndexes()
 
         m_mz.push_back(buff);
     }
+
+    if (m_AngleAmplitudeIndexes.empty())
+        return false;
 
     return true;
 }

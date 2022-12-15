@@ -27,8 +27,8 @@ public:
                                                       m_flow(wt_flow::Flow()),
                                                       m_model(Model())
     {
-        calculateW();
         calcAngleAmplitudeIndexes();
+        calculateW();
     };
 
     WtOscillation(const Oscillation &oscillation,
@@ -38,8 +38,8 @@ public:
           m_flow(flow),
           m_model(model)
     {
-        calculateW();
         calcAngleAmplitudeIndexes();
+        calculateW();
     };
 
     virtual ~WtOscillation(){};
