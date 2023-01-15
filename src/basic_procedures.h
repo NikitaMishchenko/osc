@@ -27,6 +27,7 @@
 #include "filtration/gsl_filters.h"
 #include "core/vector_helpers.h"
 #include "analize_coefficients/dynamic_coefficient.h"
+#include "gnusl_proc/nonlinear_approximation.h"
 
 namespace basic_procedures
 {
@@ -40,8 +41,8 @@ namespace basic_procedures
      *    (todo) after that gnuplot script creating.
      */
     inline ErrorCodes performProcedurePeriods(const std::string &fileName,
-                                       const std::string &fileName2,
-                                       const std::vector<double> &extraArguments)
+                                              const std::string &fileName2,
+                                              const std::vector<double> &extraArguments)
     {
         std::cout << "periods procedure performing...\n";
 
@@ -129,9 +130,9 @@ namespace basic_procedures
     }
 
     inline ErrorCodes performProcedureCutFile(const std::string &initialFile,
-                                       const double timeFrom,
-                                       const double timeTo,
-                                       const std::string &finalFile)
+                                              const double timeFrom,
+                                              const double timeTo,
+                                              const std::string &finalFile)
     {
         std::cout << "cut file performing\n";
 
@@ -326,9 +327,9 @@ namespace basic_procedures
     }
 
     inline ErrorCodes performProcedureFilterSignalViaGaussSimpleFitler(const std::string &fileNameInput,
-                                                                const std::string &fileNameOutput,
-                                                                const size_t windowSize,
-                                                                const double alphaValue)
+                                                                       const std::string &fileNameOutput,
+                                                                       const size_t windowSize,
+                                                                       const double alphaValue)
     {
         std::cout << "performProcedureFilterSignalViaGaussSimpleFitler() windowSize: " << windowSize << ", aplphaValue: " << alphaValue << "\n";
         // todo proper input
@@ -370,79 +371,112 @@ namespace basic_procedures
         // Oscillation oscillation;
         // oscillation.loadFile("4471");//, oscillation_helpers::TIME_ANGLE_DANGLE_DDANGLE);
 
-        std::string fileName = "4470";
+        // nonlinnear_approximation::act();
 
-        /// FLOW->
-        wt_flow::Flow flow;
-        if (!flow.loadFile((fileName + "_flow")))
-            return FAIL;
+        std::vector<double> dataX;
+        std::vector<double> dataY;
+        size_t N = 100;
 
-        // flow.calculateFlow();
-        flow.print();
-        /// FLOW<-
+        for (int i = 0; i < N; ++i)
+        {
+            dataX.resize(N);
+            dataY.resize(N);
 
-        /// MODEL->
-        Model model;
-        if (!model.loadFile((fileName + "_model")))
-            return FAIL;
+            double dt = 0.1;
 
-        model.print();
-        /// MODEL<-
+            for (int i = 0; i < dataX.size(); ++i)
+            {
+                dataX.at(i) = dt*i;
+                dataY.at(i) = (1.0 + 5 * exp(-1.5 * i * dt));
+            }
+        }
 
-        Oscillation oscillation;
+        AngleHistory angleHistory(dataX, dataY);
 
-        oscillation.loadFile(fileName, oscillation_helpers::TIME_ANGLE_DANGLE_DDANGLE);
+        nonlinnear_approximation::ProceedApproximation nonlinnear;
 
-        std::shared_ptr<WtOscillation> wtTest =  std::make_shared<WtOscillation> (oscillation, flow, model);
+        if (GSL_SUCCESS != nonlinnear.act(dataX, dataY));
+            std::cerr << "failed to proceed nonlinnear approximation\n";
 
-        std::string fileNameMz = fileName + "_mz";
+        nonlinnear.getApproximationResult().print();
 
-        // wtTest.saveMzData(fileNameMz);
-        //  todo check
 
-        wtTest->calcAngleAmplitudeIndexes();
-        // wtTest.getMz();
-        // wtTest.saveMzAmplitudeData(fileName + "_mz_amplitude");
+        if (false)
+        {
+            std::string fileName = "4470";
 
-        // wtTest.saveMzData(fileNameMz);
+            /// FLOW->
+            wt_flow::Flow flow;
+            if (!flow.loadFile((fileName + "_flow")))
+                return FAIL;
 
-        DynamicPitchCoefficient dynamicPitchCoefficient(wtTest);
+            // flow.calculateFlow();
+            flow.print();
+            /// FLOW<-
 
-        bool isOk = false;
-        //std::vector<double> dynamicPart;
-        //std::vector<double> staticPart;
-        //std::vector<double> dynamicCoefficient;
+            /// MODEL->
+            Model model;
+            if (!model.loadFile((fileName + "_model")))
+                return FAIL;
 
-        //std::tie(isOk, dynamicPart, staticPart, dynamicCoefficient) = dynamicPitchCoefficient.doCalculateEquation();
+            model.print();
+            /// MODEL<-
 
-        std::vector<std::vector<double> > output;
-        
-        output.push_back(wtTest->getTime());
-        output.push_back(wtTest->getAngle());
-        output.push_back(wtTest->getDangle());
-        output.push_back(wtTest->getDdangle()); // 4
+            Oscillation oscillation;
 
-        //output.push_back(dynamicPart); // 5
-        //output.push_back(staticPart); // 6
-        //output.push_back(dynamicCoefficient); // 7
-        
-        dynamicPitchCoefficient.calculate();
-        output.push_back(dynamicPitchCoefficient.getAngle()); // 9 5
-        output.push_back(dynamicPitchCoefficient.getDangle()); // 10 6 
-        output.push_back(dynamicPitchCoefficient.getDdangle()); // 11 7 
-        output.push_back(dynamicPitchCoefficient.getPitchMomentum()); // 12 8 
-        output.push_back(dynamicPitchCoefficient.getPitchStaticMomentum()); // 13 9 
-        output.push_back(dynamicPitchCoefficient.getPitchDynamicMomentum()); // 14 10
+            oscillation.loadFile(fileName, oscillation_helpers::TIME_ANGLE_DANGLE_DDANGLE);
 
-        dynamicPitchCoefficient.info();
+            std::shared_ptr<WtOscillation> wtTest = std::make_shared<WtOscillation>(oscillation, flow, model);
 
-        std::ofstream fout("dynPich");
+            std::string fileNameMz = fileName + "_mz";
 
-        writeToFile(fout, output);
+            // wtTest.saveMzData(fileNameMz);
+            //  todo check
 
-        fout.close();
+            wtTest->calcAngleAmplitudeIndexes();
+            // wtTest.getMz();
+            // wtTest.saveMzAmplitudeData(fileName + "_mz_amplitude");
 
-        wtTest->saveMzData("mzdata");
+            // wtTest.saveMzData(fileNameMz);
+
+            DynamicPitchCoefficient dynamicPitchCoefficient(wtTest);
+
+            bool isOk = false;
+            // std::vector<double> dynamicPart;
+            // std::vector<double> staticPart;
+            // std::vector<double> dynamicCoefficient;
+
+            // std::tie(isOk, dynamicPart, staticPart, dynamicCoefficient) = dynamicPitchCoefficient.doCalculateEquation();
+
+            std::vector<std::vector<double>> output;
+
+            output.push_back(wtTest->getTime());
+            output.push_back(wtTest->getAngle());
+            output.push_back(wtTest->getDangle());
+            output.push_back(wtTest->getDdangle()); // 4
+
+            // output.push_back(dynamicPart); // 5
+            // output.push_back(staticPart); // 6
+            // output.push_back(dynamicCoefficient); // 7
+
+            dynamicPitchCoefficient.calculate();
+            output.push_back(dynamicPitchCoefficient.getAngle());                // 9 5
+            output.push_back(dynamicPitchCoefficient.getDangle());               // 10 6
+            output.push_back(dynamicPitchCoefficient.getDdangle());              // 11 7
+            output.push_back(dynamicPitchCoefficient.getPitchMomentum());        // 12 8
+            output.push_back(dynamicPitchCoefficient.getPitchStaticMomentum());  // 13 9
+            output.push_back(dynamicPitchCoefficient.getPitchDynamicMomentum()); // 14 10
+
+            dynamicPitchCoefficient.info();
+
+            std::ofstream fout("dynPich");
+
+            writeToFile(fout, output);
+
+            fout.close();
+
+            wtTest->saveMzData("mzdata");
+        }
 
         return FAIL;
     }

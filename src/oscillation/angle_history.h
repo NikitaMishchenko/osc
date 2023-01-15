@@ -14,8 +14,7 @@ class AngleHistory : public Function // todo rename it's better be like TwoVecto
 {
 public:
     AngleHistory() : Function(), m_timeStep(0.0)
-    {
-    }
+    {}
 
     AngleHistory(const std::vector<double> &timeIn, const std::vector<double> &angleIn);
 
