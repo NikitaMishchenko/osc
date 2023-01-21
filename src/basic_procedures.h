@@ -17,7 +17,7 @@
 #include "analize_coefficients/dynamic_coefficients.h"
 #include "errcodes.h"
 #include "pendulum/pendulum_analisys.h"
-#include "gnusl_proc/linnear_approximation.h"
+#include "gnusl_proc/approximation/linnear.h"
 #include "analize_coefficients/dynamic_coefficients.h"
 
 #include "signal_generator/operations_queue.h"
@@ -27,7 +27,7 @@
 #include "filtration/gsl_filters.h"
 #include "core/vector_helpers.h"
 #include "analize_coefficients/dynamic_coefficient.h"
-#include "gnusl_proc/nonlinear_approximation.h"
+#include "gnusl_proc/approximation/nonlinear.h"
 
 namespace basic_procedures
 {
@@ -225,16 +225,16 @@ namespace basic_procedures
             return FAIL;
 
         int errCode;
-        linnear_approximation::ApproxResult result;
+        approximation::linnear::ApproxResult result;
 
-        std::tie(errCode, result) = linnear_approximation::approximate(angleHistory.getTime(), angleHistory.getAngle(), boost::none);
+        std::tie(errCode, result) = approximation::linnear::approximate(angleHistory.getTime(), angleHistory.getAngle(), boost::none);
 
         result.save(fileName + "_approx");
 
         return SUCCESS;
     }
 
-    inline std::tuple<int, linnear_approximation::ApproxResultVector>
+    inline std::tuple<int, approximation::linnear::ApproxResultVector>
     performProcedurecCoefficientsFromWindow(const std::string fileName,
                                             const size_t indexFromData,
                                             const size_t indexToData,
@@ -246,7 +246,7 @@ namespace basic_procedures
         AngleHistory angleHistory;
 
         int errCode = FAIL;
-        linnear_approximation::ApproxResultVector approxResultVector;
+        approximation::linnear::ApproxResultVector approxResultVector;
 
         if (!angleHistory.loadRaw(fileName))
             return std::make_tuple(errCode, approxResultVector);
@@ -282,7 +282,7 @@ namespace basic_procedures
      *   c1 = ln(c)
      *   c0 = n_c
      */
-    inline std::tuple<int, linnear_approximation::ApproxResultVector>
+    inline std::tuple<int, approximation::linnear::ApproxResultVector>
     performProcedurecDynCoefficientsFromWindowForWtTest(const std::string fileName,
                                                         const size_t indexFromData,
                                                         const size_t indexToData,
@@ -295,7 +295,7 @@ namespace basic_procedures
         AngleHistory angleHistory;
 
         int errCode = FAIL;
-        linnear_approximation::ApproxResultVector approxResultVector;
+        approximation::linnear::ApproxResultVector approxResultVector;
 
         if (!angleHistory.loadRaw(fileName))
             return std::make_tuple(errCode, approxResultVector);
@@ -371,11 +371,11 @@ namespace basic_procedures
         // Oscillation oscillation;
         // oscillation.loadFile("4471");//, oscillation_helpers::TIME_ANGLE_DANGLE_DDANGLE);
 
-        // nonlinnear_approximation::act();
+        // approximation::nonlinnear::act();
 
         std::vector<double> dataX;
         std::vector<double> dataY;
-        size_t N = 100;
+        size_t N = 10000;
 
         for (int i = 0; i < N; ++i)
         {
@@ -393,13 +393,10 @@ namespace basic_procedures
 
         AngleHistory angleHistory(dataX, dataY);
 
-        nonlinnear_approximation::ProceedApproximation nonlinnear;
+        int errCode = 1;
+        approximation::nonlinnear::ApproximationResult approximationResult;
 
-        if (GSL_SUCCESS != nonlinnear.act(dataX, dataY));
-            std::cerr << "failed to proceed nonlinnear approximation\n";
-
-        nonlinnear.getApproximationResult().print();
-
+        std::tie(errCode, approximationResult) = approximation::nonlinnear::approximate(angleHistory.getTime(), angleHistory.getAngle());
 
         if (false)
         {

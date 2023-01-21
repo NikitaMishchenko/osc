@@ -100,7 +100,7 @@ int doJob(const options::Procedure procedureToPerform,
         const size_t windowSize = extraArgumentsVector.at(2);
         const size_t stepSize = extraArgumentsVector.at(3);
 
-        linnear_approximation::ApproxResultVector approxResultVector;
+        approximation::linnear::ApproxResultVector approxResultVector;
 
         if (COEFFICINETS_WINDOW == procedureToPerform)
         {

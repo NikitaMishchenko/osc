@@ -14,7 +14,7 @@
 
 #include "oscillation/wt_oscillation.h"
 #include "model/tr_rod_model_params.h"
-#include "gnusl_proc/linnear_approximation.h"
+#include "gnusl_proc/approximation/linnear.h"
 
 namespace
 {
@@ -142,7 +142,7 @@ namespace dynamic_coefficients
         }
 
 
-        std::tuple<int, linnear_approximation::ApproxResultVector> calcLogAmplitudeLinnarApproxCoeff(const size_t indexFromData,
+        std::tuple<int, approximation::linnear::ApproxResultVector> calcLogAmplitudeLinnarApproxCoeff(const size_t indexFromData,
                                                                                                      const size_t indexToData,
                                                                                                      const size_t windowSize,
                                                                                                      const size_t stepSize)
@@ -150,10 +150,10 @@ namespace dynamic_coefficients
             // todo implementation
 
             int resultCode = 666;
-            linnear_approximation::ApproxResultVector approxResultVector;
+            approximation::linnear::ApproxResultVector approxResultVector;
 
             {
-                std::tie(resultCode, approxResultVector) = linnear_approximation::windowApproximation(indexFromData,
+                std::tie(resultCode, approxResultVector) = approximation::linnear::windowApproximation(indexFromData,
                                                                                                       indexToData,
                                                                                                       windowSize,
                                                                                                       stepSize,
@@ -165,7 +165,7 @@ namespace dynamic_coefficients
         }
 
 
-        std::tuple<int, linnear_approximation::ApproxResultVector> calcAmplitudeLinnarApproxCoeff(const size_t indexFromData,
+        std::tuple<int, approximation::linnear::ApproxResultVector> calcAmplitudeLinnarApproxCoeff(const size_t indexFromData,
                                                                                                   const size_t indexToData,
                                                                                                   const size_t windowSize,
                                                                                                   const size_t stepSize)
@@ -173,14 +173,14 @@ namespace dynamic_coefficients
             std::cout << "calcAmplitudeLinnarApproxCoeff()\n";
 
             int resultCode = 666;
-            linnear_approximation::ApproxResultVector approxResultVector;
+            approximation::linnear::ApproxResultVector approxResultVector;
 
             {
                 // m_wtOscillation.write("takeAmplFromThis");
                 
                 // fixme y = log(y);
 
-                std::tie(resultCode, approxResultVector) = linnear_approximation::windowApproximation(indexFromData,
+                std::tie(resultCode, approxResultVector) = approximation::linnear::windowApproximation(indexFromData,
                                                                                                       indexToData,
                                                                                                       windowSize,
                                                                                                       stepSize,

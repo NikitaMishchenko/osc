@@ -4,6 +4,7 @@
 #include <stdio.h>
 
 #include <vector>
+#include <tuple>
 #include <sstream>
 
 #include <gsl/gsl_rng.h>
@@ -13,7 +14,9 @@
 #include <gsl/gsl_blas.h>
 #include <gsl/gsl_multifit_nlinear.h>
 
-namespace nonlinnear_approximation
+#include "gnusl_proc/approximation/basic.h"
+
+namespace approximation::nonlinnear
 {
     struct data
     {
@@ -69,8 +72,14 @@ namespace nonlinnear_approximation
     }
 
     /// @brief for f(x) = A*exp(lambda*x) + B
-    struct ApproximationResult
+    struct ApproximationResult : public ApproxResultBasic
     {
+        ApproximationResult()
+        {
+            m_method = "nonlinear";
+            m_model = "f(x) = A*exp(lambda*x) + B";
+        }
+
         double A;
         double errA;
         double lambda;
@@ -85,11 +94,10 @@ namespace nonlinnear_approximation
                       << "b      = " << B << " +/- " << errB << "\n";
         }
     };
-    
+
     class ProceedApproximation
     {
     public:
-
         // setting model
         ProceedApproximation() : p(3)
         {
@@ -97,18 +105,18 @@ namespace nonlinnear_approximation
             fdf.f = model::expb_f;
             fdf.df = model::expb_df; /* set to NULL for finite-difference Jacobian */
 
-            fdf.fvv = NULL;   /* not using geodesic acceleration */
+            fdf.fvv = NULL; /* not using geodesic acceleration */
 
             fdf.p = p;
         }
 
-        int act(const std::vector<double>& dataToFitX, const std::vector<double>& dataToFitY)
+        int act(const std::vector<double> &dataToFitX, const std::vector<double> &dataToFitY)
         {
             m_nuberPointsToFit = dataToFitY.size();
-            m_tMax = dataToFitX.at(m_nuberPointsToFit-1);
+            m_tMax = dataToFitX.at(m_nuberPointsToFit - 1);
 
             fdf.n = m_nuberPointsToFit;
-            
+
             if (dataToFitY.size() < m_nuberPointsToFit)
                 return GSL_FAILURE;
 
@@ -157,11 +165,11 @@ namespace nonlinnear_approximation
 
             // copmutition
             proceedWorkspace();
-            
+
             {
                 double dof = m_nuberPointsToFit - p;
                 double c = GSL_MAX_DBL(1, sqrt(chisq / dof));
-                
+
                 m_approximationResult.A = gsl_vector_get(w->x, 0);
                 m_approximationResult.errA = sqrt(gsl_matrix_get(covar, 0, 0));
                 m_approximationResult.B = gsl_vector_get(w->x, 1);
@@ -290,5 +298,18 @@ namespace nonlinnear_approximation
         // extra for testing
         gsl_rng *r;
     };
+
+    std::tuple<int, ApproximationResult>
+    approximate(const std::vector<double> &inputDataX,
+                const std::vector<double> &inputDataY,
+                const boost::optional<std::vector<double>> &err = boost::optional<std::vector<double>>())
+    {
+        approximation::nonlinnear::ProceedApproximation nonlinnear;
+
+        if (GSL_SUCCESS != nonlinnear.act(inputDataX, inputDataY));
+            std::cerr << "failed to proceed nonlinnear approximation\n";
+
+        return std::make_tuple(0, nonlinnear.getApproximationResult());
+    }
 
 } // namespace

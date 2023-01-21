@@ -9,13 +9,18 @@
 
 #include <gsl/gsl_fit.h>
 
-namespace linnear_approximation
+#include "gnusl_proc/approximation/basic.h"
+
+namespace approximation::linnear
 {
 
-    struct ApproxResult
+    struct ApproxResult : public ApproxResultBasic
     {
-        // ApproxResult()
-        //{}
+        ApproxResult()
+        {
+            m_method = "linnear";
+            m_method = "f(x) = c1*x + c0";
+        }
 
         // ApproxResult(const ApproxResult &rv) : xf(rv.xf), yf(rv.yf), yfErr(rv.yfErr)
         //{}
@@ -217,7 +222,7 @@ namespace linnear_approximation
                                               const std::vector<double> &inputDataY,
                                               const boost::optional<std::vector<double>> &err = boost::optional<std::vector<double>>())
     {
-        // std::cout << "linnear_approximation::approximate performing, xSize: "
+        // std::cout << "approximation::linnear::approximate performing, xSize: "
         //          << inputDataX.size() << ", ySize:" << inputDataY.size() << "\n";
 
         // for (size_t i = 0; i < inputDataX.size(); ++i)
@@ -314,14 +319,14 @@ namespace linnear_approximation
 
         correctRangesAndWarn(MAX_SIZE_DATA, FROM_INDEX_X, FINISH_INDEX, WINDOW_WIDTH, STEP_SIZE);
 
-        linnear_approximation::ApproxResultVector approxResultVector;
+        approximation::linnear::ApproxResultVector approxResultVector;
 
         {
             // PARAMETERS FOR STEP
             size_t stepFromIdx = FROM_INDEX_X;
             size_t stepToIdx = stepFromIdx + WINDOW_WIDTH;
 
-            linnear_approximation::ApproxResult approxResult;
+            approximation::linnear::ApproxResult approxResult;
 
             for (; stepToIdx < FINISH_INDEX;)
             {
@@ -339,7 +344,7 @@ namespace linnear_approximation
 
 
 
-                std::tie(resultCode, approxResult) = linnear_approximation::approximate(subX, subY);
+                std::tie(resultCode, approxResult) = approximation::linnear::approximate(subX, subY);
 
                 approxResultVector.emplace_back(approxResult);
                 std::cout << "approxResultVector.size: " << approxResultVector.size() << "\n";
@@ -352,4 +357,4 @@ namespace linnear_approximation
         return std::make_tuple(resultCode, approxResultVector);
     }
 
-} // linnear_approximation
+} // approximation::linnear
