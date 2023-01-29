@@ -148,7 +148,7 @@ bool WtOscillation::calcAngleAmplitudeIndexes()
 
     helpers::saveToFile(fout1, tmpDangle);
 
-    fout1.close();
+    fout1.close(); 
 
     std::ofstream fout2("ddangle_filt");
 

@@ -1,13 +1,14 @@
 #pragma once
 
 #include <memory>
-
 #include <string>
 #include <sstream>
 
 #include "../core/function.h"
 #include "../oscillation/wt_oscillation.h"
 #include "../io_helpers/naive.h"
+#include "src/analize_coefficients/specific/pitch_momentum.h"
+#include "src/analize_coefficients/specific/pitch_static_momentum.h" 
 
 // namespace dynamic_coefficents
 //{
@@ -26,7 +27,9 @@ class DynamicPitchCoefficient : public Function
 {
 public:
     DynamicPitchCoefficient(std::shared_ptr<WtOscillation> wtOscillation)
-        : Function(), m_wtOscillation(wtOscillation), m_method(NOT_SET)
+        : Function(),
+        m_wtOscillation(wtOscillation),
+        m_method(NOT_SET)
     {
         std::cout << "DynamicPitchCoefficient ctr\n";
     }
@@ -90,12 +93,21 @@ public:
     {
         m_proceduresHistory << "prepareSignalData()\n";
         prepareSignalData();
+
+        std::shared_ptr<std::vector<double> > pvector = std::make_shared(m_wtOscillation->getDangle());
+        /*m_pitchMomentum = std::make_shared(std::make_shared(m_wtOscillation->getDangle()),
+                                           std::make_shared(m_wtOscillation->getDdangle()),
+                                           std::make_shared(m_wtOscillation->getModel()),
+                                           std::make_shared(m_wtOscillation->getFlow()));*/
+                                           
+        // m_pitchStaticMomentum(std::make_shared()),
+
         m_proceduresHistory << "calcultePitchMomentum()\n";
-        calcultePitchMomentum();
+        //calcultePitchMomentum();
         m_proceduresHistory << "calculatePitchStaticMomentum()\n";
-        calculatePitchStaticMomentum();
+        //calculatePitchStaticMomentum();
         m_proceduresHistory << "calculatePitchDynamicMomentum()\n";
-        calculatePitchDynamicMomentum();
+        //calculatePitchDynamicMomentum();
     }
 
     /*std::tuple<bool, std::vector<double>, std::vector<double>, std::vector<double>>
@@ -188,6 +200,12 @@ public:
         return std::make_tuple(result1, result2);
     }
 
+    std::tuple<std::vector<double>, std::vector<double>>
+    getAmplitude() const
+    {
+        return m_amplitude;
+    }
+
 private:
     // between current and next index
     bool isMaxAmplitude(const size_t index) const
@@ -214,6 +232,7 @@ private:
         return true;
     }
 
+    /*
     bool calcultePitchMomentum()
     {
         m_pitchMomentum.reserve(m_wtOscillation->size());
@@ -236,9 +255,7 @@ private:
         return true;
     }
 
-    /*
-     *   mz_static = mz(max(angle))
-     */
+    //mz_static = mz(max(angle))
     bool calculatePitchStaticMomentum()
     {
         m_pitchStaticMomentum.reserve(m_wtOscillation->size());
@@ -300,18 +317,42 @@ private:
         }
 
         return true;
+    }*/
+
+    void calcAmplitude()
+    {
+        for (size_t i = 0; i < m_angle.size(); ++i)
+        {
+            std::vector<double> amplitude1;
+            std::vector<double> amplitude2;
+
+            if (isMaxAmplitude(i))
+            {
+                if (m_angle.at(i) > 0)
+                   amplitude1.push_back(m_angle.at(i));
+                else 
+                    amplitude2.push_back(m_angle.at(i));
+            }
+
+            m_amplitude = std::make_tuple(amplitude1, amplitude2);
+        }
     }
 
     std::shared_ptr<WtOscillation> m_wtOscillation;
+
+    // new
+    PitchMomentum m_pitchMomentum;
+    PitchStaticMomentum m_pitchStaticMomentum;
 
     // for current processing may differ from m_wtOscillation
     std::vector<double> m_angle;
     std::vector<double> m_dangle;
     std::vector<double> m_ddangle;
+    std::tuple<std::vector<double>, std::vector<double> > m_amplitude;
 
-    std::vector<double> m_pitchMomentum;
-    std::vector<double> m_pitchStaticMomentum;
-    std::vector<double> m_pitchDynamicMomentum;
+    // std::vector<double> m_pitchMomentum;
+    // std::vector<double> m_pitchStaticMomentum;
+    // std::vector<double> m_pitchDynamicMomentum;
 
     int m_method;
 

@@ -73,6 +73,8 @@ target_link_libraries(oscillationlib
                       fftw3 )
 
 add_library (wtOscillationlib
+            ./src/analize_coefficients/specific/pitch_momentum.h
+            ./src/analize_coefficients/specific/pitch_static_momentum.h
             ./src/oscillation/wt_oscillation.h
             ./src/oscillation/wt_oscillation.cpp       
 )

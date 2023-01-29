@@ -486,6 +486,21 @@ namespace basic_procedures
             }
 
             wtTest->saveMzData("mzdata");
+
+            std::vector<double> amplitude1;
+            std::vector<double> amplitude2;
+
+            std::tie(amplitude1, amplitude2) = dynamicPitchCoefficient.getAmplitude();
+            
+            std::ofstream fout2("amplitude");
+
+            amplitude1.resize(std::max(amplitude1.size(), amplitude2.size()));
+            amplitude2.resize(std::max(amplitude1.size(), amplitude2.size()));
+
+            for (size_t i = 0; i < amplitude1.size(); ++i)
+            {
+                fout2 << amplitude1.at(i) << "\t" << amplitude2.at(i) << "\n";
+            }
         }
 
         return FAIL;
