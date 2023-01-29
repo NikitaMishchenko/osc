@@ -15,10 +15,11 @@
 #include "oscillation/wt_oscillation.h"
 #include "model/tr_rod_model_params.h"
 #include "gnusl_proc/approximation/linnear.h"
+#include "gnusl_proc/approximation/nonlinear.h"
 
 namespace
 {
-    std::vector<double> log(const std::vector<double> &arg)
+    /*std::vector<double> log(const std::vector<double> &arg)
     {
         std::vector<double> result;
 
@@ -30,7 +31,7 @@ namespace
         }
 
         return result;
-    }
+    }*/
 
     // todo AmplitudeHistory : public AngleHistory() // move this method to public section
     // bugged a lot
@@ -208,6 +209,12 @@ namespace dynamic_coefficients
             {
                 res.push_back(m_dimensionOfCoefficient * log(m_wtOscillation.getAngle().at(i + 1) / m_wtOscillation.getAngle().at(i + 1)));
             }
+
+            // nonlenear
+            int errCode = 1;
+            approximation::nonlinnear::ApproximationResult approximationResult;
+
+            std::tie(errCode, approximationResult) = approximation::nonlinnear::approximate(m_wtOscillation.getTime(), m_wtOscillation.getAngle());
 
             std::cout << res.size() << "\n";
 

@@ -71,7 +71,7 @@ namespace approximation::nonlinnear
         }
     }
 
-    /// @brief for f(x) = A*exp(lambda*x) + B
+    /// @brief for A * exp(-lambda * t_i) + b
     struct ApproximationResult : public ApproxResultBasic
     {
         ApproximationResult()
@@ -272,13 +272,13 @@ namespace approximation::nonlinnear
                                 << "cond(J) = " << 1.0 / rcond << ", "
                                 << "|f(x)| = " << gsl_blas_dnrm2(f) << "\n";*/
 
-            fprintf(stderr, "iter %2zu: A = %.4f, lambda = %.4f, b = %.4f, cond(J) = %8.4f, |f(x)| = %.4f\n",
+            /*fprintf(stderr, "iter %2zu: A = %.4f, lambda = %.4f, b = %.4f, cond(J) = %8.4f, |f(x)| = %.4f\n",
                     iter,
                     gsl_vector_get(x, 0),
                     gsl_vector_get(x, 1),
                     gsl_vector_get(x, 2),
                     1.0 / rcond,
-                    gsl_blas_dnrm2(f));
+                    gsl_blas_dnrm2(f));*/
         }
 
         size_t m_nuberPointsToFit;
@@ -299,6 +299,9 @@ namespace approximation::nonlinnear
         gsl_rng *r;
     };
 
+    /*
+    *   Model Yi = A * exp(-lambda * t_i) + b
+    */
     std::tuple<int, ApproximationResult>
     approximate(const std::vector<double> &inputDataX,
                 const std::vector<double> &inputDataY,

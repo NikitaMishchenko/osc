@@ -372,7 +372,7 @@ namespace basic_procedures
         // oscillation.loadFile("4471");//, oscillation_helpers::TIME_ANGLE_DANGLE_DDANGLE);
 
         // approximation::nonlinnear::act();
-
+/*
         std::vector<double> dataX;
         std::vector<double> dataY;
         size_t N = 10000;
@@ -397,8 +397,8 @@ namespace basic_procedures
         approximation::nonlinnear::ApproximationResult approximationResult;
 
         std::tie(errCode, approximationResult) = approximation::nonlinnear::approximate(angleHistory.getTime(), angleHistory.getAngle());
-
-        if (false)
+*/
+        if (true)
         {
             std::string fileName = "4470";
 
@@ -470,7 +470,20 @@ namespace basic_procedures
 
             writeToFile(fout, output);
 
-            fout.close();
+            std::vector<double> pickedDynamic1;
+            std::vector<double> pickedDynamic2;
+
+            std::tie(pickedDynamic1, pickedDynamic2) = dynamicPitchCoefficient.pickPitchDynamicMomentumAtMaxAplitude();
+
+            std::ofstream fout1("picked");
+
+            pickedDynamic1.resize(std::max(pickedDynamic1.size(), pickedDynamic2.size()));
+            pickedDynamic2.resize(std::max(pickedDynamic1.size(), pickedDynamic2.size()));
+
+            for (size_t i = 0; i < pickedDynamic1.size(); ++i)
+            {
+                fout1 << pickedDynamic1.at(i) << "\t" << pickedDynamic2.at(i) << "\n";
+            }
 
             wtTest->saveMzData("mzdata");
         }

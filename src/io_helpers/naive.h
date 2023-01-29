@@ -44,6 +44,18 @@ bool writeToFile(std::ofstream &fout, const std::vector<T> &outputData)
     return true;
 }
 
+/*template <>
+bool writeToFile(std::ofstream &fout, const std::vector<double> &outputData)
+{
+    if (!fout.is_open())
+        return false;
+
+    for (const auto &one : outputData)
+        fout << one << "\n";
+
+    return true;
+}*/
+
 template <class T>
 bool writeToFile(std::ofstream &fout, const T &outputData)
 {
@@ -54,6 +66,18 @@ bool writeToFile(std::ofstream &fout, const T &outputData)
 
     return true;
 }
+
+/*bool writeVectorToFile(std::string fileName, const std::vector<double> &outputData)
+{
+    std::ofstream fout(fileName);
+
+    if (!fout.is_open())
+        return false;
+
+    writeToFile(fout, outputData);
+
+    return true;
+}*/
 
 template <class T>
 bool readFromFile(const std::ifstream fin, T &inputData)

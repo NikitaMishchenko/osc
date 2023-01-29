@@ -73,7 +73,9 @@ namespace gsl_wrapper
         public:
             GaussianPerformer(const double alpha, const size_t windowSize)
                 : m_gauss(windowSize), m_kernal(windowSize), m_windowSize(windowSize), m_alpha(alpha)
-            {}
+            {
+                std::cout << "GaussianPerformer ctr\n";
+            }
 
             ~GaussianPerformer()
             {}
@@ -91,6 +93,8 @@ namespace gsl_wrapper
             std::vector<double> filterGaussian(const std::vector<double>& inputData,
                                 gsl_filter_end_t type = GSL_FILTER_END_PADVALUE)
             {
+                std::cout << "filterGaussian act\n";
+
                 Vector resultGsl(inputData.size());
                 Vector inputGsl(inputData);
 
@@ -113,7 +117,8 @@ inline std::vector<double> actLinnearGaussFilter(const size_t windowSize,
                                  const double alpha,
                                  const std::vector<double> &dataVector)
 {
-    
+    std::cout << "actLinnearGaussFilter\n";
+
     gsl_wrapper::filters::GslGaussian gauss(windowSize);
 
     gsl_wrapper::filters::GaussianPerformer gaussianPerformer(alpha, windowSize);
