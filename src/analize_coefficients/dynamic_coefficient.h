@@ -8,7 +8,8 @@
 #include "../oscillation/wt_oscillation.h"
 #include "../io_helpers/naive.h"
 #include "src/analize_coefficients/specific/pitch_momentum.h"
-#include "src/analize_coefficients/specific/pitch_static_momentum.h" 
+#include "src/analize_coefficients/specific/pitch_static_momentum.h"
+#include "src/analize_coefficients/specific/pitch_dynamic_momentum.h" 
 
 // namespace dynamic_coefficents
 //{
@@ -356,9 +357,6 @@ private:
     std::vector<double> m_ddangle;
     std::tuple<std::vector<double>, std::vector<double> > m_amplitude;
 
-    // std::vector<double> m_pitchMomentum;
-    // std::vector<double> m_pitchStaticMomentum;
-    // std::vector<double> m_pitchDynamicMomentum;
 
     int m_method;
 

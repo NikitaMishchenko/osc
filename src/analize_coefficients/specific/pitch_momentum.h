@@ -18,8 +18,7 @@ public:
                                                          m_ddangle(ddangle),
                                                          m_model(model),
                                                          m_flow(flow)
-    {
-    }
+    {}
 
     size_t size() const {return m_pitchMomentumValue.size();}
     double at(const size_t index) const {return m_pitchMomentumValue.at(index);}

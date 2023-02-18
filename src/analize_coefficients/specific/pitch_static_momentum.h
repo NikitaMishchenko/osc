@@ -19,7 +19,8 @@ public:
     double at(const size_t index) const {return m_pitchStaticMomentum.at(index);}
     double& at(const size_t index) {return m_pitchStaticMomentum.at(index);}
 
-    bool calculatePitchStaticMomentum()
+    // picking pitch momentum at max amplitudes
+    bool calculate()
     {
         if (m_pitchMomentum->size() <= 0)
             return false;
@@ -32,6 +33,7 @@ public:
 
         for (size_t index = 0; index < size; ++index)
         {
+            // pick at amplitude extremum
             if (m_dangle->at(index) <= 0 && m_dangle->at(index + 1) >= 0)
                 value = m_pitchMomentum->at(index);
 

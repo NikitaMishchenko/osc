@@ -310,7 +310,10 @@ namespace approximation::nonlinnear
         approximation::nonlinnear::ProceedApproximation nonlinnear;
 
         if (GSL_SUCCESS != nonlinnear.act(inputDataX, inputDataY));
+        {
             std::cerr << "failed to proceed nonlinnear approximation\n";
+            return std::make_tuple(1, nonlinnear.getApproximationResult());
+        }
 
         return std::make_tuple(0, nonlinnear.getApproximationResult());
     }
