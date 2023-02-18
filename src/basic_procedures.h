@@ -460,9 +460,9 @@ namespace basic_procedures
             output.push_back(dynamicPitchCoefficient.getAngle());                // 9 5
             output.push_back(dynamicPitchCoefficient.getDangle());               // 10 6
             output.push_back(dynamicPitchCoefficient.getDdangle());              // 11 7
-            output.push_back(dynamicPitchCoefficient.getPitchMomentum());        // 12 8
-            output.push_back(dynamicPitchCoefficient.getPitchStaticMomentum());  // 13 9
-            output.push_back(dynamicPitchCoefficient.getPitchDynamicMomentum()); // 14 10
+            // output.push_back(dynamicPitchCoefficient.getPitchMomentum());        // 12 8
+            // output.push_back(dynamicPitchCoefficient->getPitchStaticMomentum());  // 13 9
+            // output.push_back(dynamicPitchCoefficient->getPitchDynamicMomentum()); // 14 10
 
             dynamicPitchCoefficient.info();
 

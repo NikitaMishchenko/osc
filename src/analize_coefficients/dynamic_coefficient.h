@@ -29,6 +29,11 @@ public:
     DynamicPitchCoefficient(std::shared_ptr<WtOscillation> wtOscillation)
         : Function(),
         m_wtOscillation(wtOscillation),
+        m_pitchMomentum(std::make_shared<std::vector<double>>(m_wtOscillation->getDangle()),
+                        std::make_shared<std::vector<double>>(m_wtOscillation->getDdangle()),
+                        std::make_shared<Model>(m_wtOscillation->getModel()),
+                        std::make_shared<wt_flow::Flow>(m_wtOscillation->getFlow())),
+        m_pitchStaticMomentum(std::make_shared<PitchMomentum>(m_pitchMomentum)),
         m_method(NOT_SET)
     {
         std::cout << "DynamicPitchCoefficient ctr\n";
@@ -73,8 +78,7 @@ public:
     {
         return m_ddangle;
     }
-
-    std::vector<double> getPitchMomentum() const
+/*    std::vector<double> getPitchMomentum() const
     {
         return m_pitchMomentum;
     }
@@ -87,14 +91,16 @@ public:
     std::vector<double> getPitchDynamicMomentum() const
     {
         return m_pitchDynamicMomentum;
-    }
+    }*/
 
     void calculate()
     {
         m_proceduresHistory << "prepareSignalData()\n";
         prepareSignalData();
 
-        std::shared_ptr<std::vector<double> > pvector = std::make_shared(m_wtOscillation->getDangle());
+        std::vector<double> vector = m_wtOscillation->getDangle();
+
+        std::shared_ptr<std::vector<double> > pvector = std::make_shared<std::vector<double>>(vector);
         /*m_pitchMomentum = std::make_shared(std::make_shared(m_wtOscillation->getDangle()),
                                            std::make_shared(m_wtOscillation->getDdangle()),
                                            std::make_shared(m_wtOscillation->getModel()),
@@ -158,7 +164,7 @@ public:
 
         std::cout << "m_pitchMomentum.size():" << m_pitchMomentum.size() << "\n";
         std::cout << "m_pitchStaticMomentum.size():" << m_pitchStaticMomentum.size() << "\n";
-        std::cout << "m_pitchDynamicMomentum.size():" << m_pitchDynamicMomentum.size() << "\n";
+        // std::cout << "m_pitchDynamicMomentum.size():" << m_pitchDynamicMomentum.size() << "\n";
     }
 
     std::tuple<std::vector<double>, std::vector<double>>
@@ -167,7 +173,7 @@ public:
         std::cout << "pickPitchDynamicMomentumAtMaxAplitude()\n";
         std::vector<double> result1, result2;
 
-        if (m_pitchMomentum.empty() || m_dangle.empty())
+        if (m_dangle.empty())
             return std::make_tuple(result1, result2);
 
         result1.reserve(m_pitchMomentum.size());
