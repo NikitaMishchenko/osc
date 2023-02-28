@@ -15,6 +15,7 @@
 #include <gsl/gsl_multifit_nlinear.h>
 
 #include "gnusl_proc/approximation/basic.h"
+#include "gnusl_proc/approximation/codes.h"
 
 namespace approximation::nonlinnear
 {
@@ -312,10 +313,10 @@ namespace approximation::nonlinnear
         if (GSL_SUCCESS != nonlinnear.act(inputDataX, inputDataY));
         {
             std::cerr << "failed to proceed nonlinnear approximation\n";
-            return std::make_tuple(1, nonlinnear.getApproximationResult());
+            return std::make_tuple(codes::NEGATIVE, nonlinnear.getApproximationResult());
         }
 
-        return std::make_tuple(0, nonlinnear.getApproximationResult());
+        return std::make_tuple(codes::POSITIVE, nonlinnear.getApproximationResult());
     }
 
 } // namespace
