@@ -48,7 +48,7 @@ TEST(Test, Freq)
 }
 
 std::tuple<std::vector<double>, std::vector<double>>
-getFuncionResult(double (*function)(double, std::vector<double> ),
+getFuncionResult(double (*function)(double, std::vector<double>),
                  double time0,
                  size_t length,
                  double dt,
@@ -103,6 +103,28 @@ struct FunctionProbeData
         m_coeff = coeff;
     }
 
+    void setDataCoeff(std::vector<double> coeff)
+    {
+        m_coeff = coeff;
+    }
+
+    void setDataCoeff(const std::string fileName, std::vector<double> coeff)
+    {
+        m_fileName = fileName;
+        m_coeff = coeff;
+    }
+
+    void setDataTime0(const std::string fileName, double time0)
+    {
+        m_fileName = fileName;
+        m_time0 = time0;
+    }
+
+    void setDataTime0(double time0)
+    {
+        m_time0 = time0;
+    }
+
     std::string m_fileName;
 
     double m_time0;
@@ -132,27 +154,51 @@ void actAndSaveData(const FunctionProbeData &functionProbeData,
     }
 }
 
+std::string appendPlotterScript(const std::string& fileName)
+{
+    std::string result = "\"" + fileName + "\" " + "using 1:2 with linespoints";
+    return result;
+}
+
 TEST(TestOnGeneratedData, test_gen_data)
 {
     FunctionProbeData functionProbeData;
 
     {
-        functionProbeData.setData("test1", 2.0, 100, 0.1, {0.1, 3});
+        std::string plotterScript = "plot ";
 
         auto function1 = [](double argument, std::vector<double> coeff)
         {
             return coeff.at(0) / argument;
         };
 
-        actAndSaveData(functionProbeData, function1);
-
-        functionProbeData.setData("test2", 1.0, 100, 0.1,  {0.2, 3});
-
-        auto function2 = [](double argument, std::vector<double> coeff)
         {
-            return coeff.at(0) / argument;
-        };
+            std::vector<double> coeff = {0.1};
+            std::string fileName = "test1";
 
-        actAndSaveData(functionProbeData, function2);
+            functionProbeData.setData(fileName, 1.0, 100, 0.1, coeff);
+
+            actAndSaveData(functionProbeData, function1);
+            
+            plotterScript += appendPlotterScript(fileName);
+        }
+
+        plotterScript += ", ";
+
+        {
+            std::vector<double> coeff = {0.2};
+            std::string fileName = "test2";
+
+            functionProbeData.setDataCoeff(fileName, coeff);
+
+            actAndSaveData(functionProbeData, function1);
+
+            plotterScript += appendPlotterScript(fileName);
+        }
+
+        std::ofstream fout("plotScript");
+
+        fout << plotterScript;
     }
+
 }
