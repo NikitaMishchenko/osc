@@ -81,11 +81,11 @@ struct FunctionProbeData
                       double time0,
                       size_t length,
                       double dt,
-                      std::vector<double> coeff) : m_fileName(fileName),
-                                                   m_time0(time0),
-                                                   m_length(length),
-                                                   m_dt(dt),
-                                                   m_coeff(coeff)
+                      std::vector<double> coeff = std::vector<double>()) : m_fileName(fileName),
+                                                                           m_time0(time0),
+                                                                           m_length(length),
+                                                                           m_dt(dt),
+                                                                           m_coeff(coeff)
 
     {
     }
@@ -94,7 +94,7 @@ struct FunctionProbeData
                  double time0,
                  size_t length,
                  double dt,
-                 std::vector<double> coeff)
+                 std::vector<double> coeff = std::vector<double>())
     {
         m_fileName = fileName;
         m_time0 = time0;
@@ -154,7 +154,7 @@ void actAndSaveData(const FunctionProbeData &functionProbeData,
     }
 }
 
-std::string appendPlotterScript(const std::string& fileName)
+std::string appendPlotterScript(const std::string &fileName)
 {
     std::string result = "\"" + fileName + "\" " + "using 1:2 with linespoints";
     return result;
@@ -162,43 +162,56 @@ std::string appendPlotterScript(const std::string& fileName)
 
 TEST(TestOnGeneratedData, test_gen_data)
 {
-    FunctionProbeData functionProbeData;
-
+    // act smth
     {
+        FunctionProbeData functionProbeData;
+
         std::string plotterScript = "plot ";
+
+        std::string fileNameBasic = "test";
 
         auto function1 = [](double argument, std::vector<double> coeff)
         {
             return coeff.at(0) / argument;
         };
 
+        // set basics // todo make it's own struct
+        const std::vector<double> time0Vector = {1.0, 1.0};
+        const std::vector<size_t> sizeVector = {100, 100};
+        const std::vector<double> dtVector = {0.1, 0.1};
+        const std::vector<std::vector<double>> coeffVector = {{0.1}, {0.2}};
+        
+        const int numberOfTests = 2;
+
+        if (numberOfTests != time0Vector.size() ||
+            numberOfTests != sizeVector.size() ||
+            numberOfTests != dtVector.size() ||
+            numberOfTests != coeffVector.size())
         {
-            std::vector<double> coeff = {0.1};
-            std::string fileName = "test1";
-
-            functionProbeData.setData(fileName, 1.0, 100, 0.1, coeff);
-
-            actAndSaveData(functionProbeData, function1);
-            
-            plotterScript += appendPlotterScript(fileName);
+            std::cerr << "WARNING SIZE PROBLEM!\n";
+            ASSERT_TRUE(false);
         }
 
-        plotterScript += ", ";
-
+        for (size_t i = 0; i < numberOfTests; i++)
         {
-            std::vector<double> coeff = {0.2};
-            std::string fileName = "test2";
+            double time0 = time0Vector.at(i);
+            size_t size = sizeVector.at(i);
+            double dt = dtVector.at(i);
 
-            functionProbeData.setDataCoeff(fileName, coeff);
+            std::vector<double> coeff = coeffVector.at(i);
+            std::string fileName = fileNameBasic + std::to_string(i);
+
+            functionProbeData.setData(fileName, time0, size, dt, coeff);
 
             actAndSaveData(functionProbeData, function1);
 
             plotterScript += appendPlotterScript(fileName);
+            
+            if (numberOfTests-1 != i) plotterScript += ", ";
         }
 
         std::ofstream fout("plotScript");
 
         fout << plotterScript;
     }
-
 }
