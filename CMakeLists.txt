@@ -92,6 +92,7 @@ add_executable(oscillation
               ./src/basic_procedures.h
               ./src/errcodes.h
               ./src/io_helpers/cut_oscillation_file.h
+              ./src/utils/function_generator/function_generator.h
 )
 set_target_properties(oscillation oscillationlib PROPERTIES LINKER_LANGUAGE CXX)
 
@@ -111,7 +112,7 @@ target_link_libraries(oscillation
                       fftw3
 )
 
-add_executable(runTests tests/main.cpp tests/test.cpp tests/test.cpp)
+add_executable(runTests tests/main.cpp tests/test.cpp)
 target_link_libraries(runTests
                      ${GTEST_LIBRARIES}
                      pthread

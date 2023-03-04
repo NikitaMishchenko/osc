@@ -1,1 +1,0 @@
-plot "test0" using 1:2 with linespoints, "test1" using 1:2 with linespoints

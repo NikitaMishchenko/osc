@@ -4,8 +4,11 @@
 
 #include <iostream>
 #include <fstream>
+#include <vector>
+#include <string>
 
 #include "oscillation/wt_oscillation.h"
+#include "utils/function_generator/function_generator.h"
 
 TEST(TestOfTest, test1)
 {
@@ -47,171 +50,61 @@ TEST(Test, Freq)
     ASSERT_TRUE(abs(w - wCalculated) / w < 0.05); // todo cash presision
 }
 
-std::tuple<std::vector<double>, std::vector<double>>
-getFuncionResult(double (*function)(double, std::vector<double>),
-                 double time0,
-                 size_t length,
-                 double dt,
-                 std::vector<double> coeff)
-{
-    std::vector<double> func;
-    std::vector<double> time;
-
-    for (size_t i = 0; i < length; i++)
-    {
-        double t = i * dt;
-
-        time.push_back(time0 + t);
-        func.push_back(function(t, coeff));
-    }
-
-    return std::make_tuple(time, func);
-}
-
-struct FunctionProbeData
-{
-    FunctionProbeData() : m_fileName(""),
-                          m_time0(0),
-                          m_length(0),
-                          m_dt(0)
-    {
-    }
-
-    FunctionProbeData(const std::string &fileName,
-                      double time0,
-                      size_t length,
-                      double dt,
-                      std::vector<double> coeff = std::vector<double>()) : m_fileName(fileName),
-                                                                           m_time0(time0),
-                                                                           m_length(length),
-                                                                           m_dt(dt),
-                                                                           m_coeff(coeff)
-
-    {
-    }
-
-    void setData(const std::string &fileName,
-                 double time0,
-                 size_t length,
-                 double dt,
-                 std::vector<double> coeff = std::vector<double>())
-    {
-        m_fileName = fileName;
-        m_time0 = time0;
-        m_length = length;
-        m_dt = dt;
-        m_coeff = coeff;
-    }
-
-    void setDataCoeff(std::vector<double> coeff)
-    {
-        m_coeff = coeff;
-    }
-
-    void setDataCoeff(const std::string fileName, std::vector<double> coeff)
-    {
-        m_fileName = fileName;
-        m_coeff = coeff;
-    }
-
-    void setDataTime0(const std::string fileName, double time0)
-    {
-        m_fileName = fileName;
-        m_time0 = time0;
-    }
-
-    void setDataTime0(double time0)
-    {
-        m_time0 = time0;
-    }
-
-    std::string m_fileName;
-
-    double m_time0;
-    size_t m_length;
-    double m_dt;
-    std::vector<double> m_coeff;
-};
-
-void actAndSaveData(const FunctionProbeData &functionProbeData,
-                    double (*function)(double, std::vector<double>))
-{
-    std::vector<double> func;
-    std::vector<double> time;
-
-    std::tie(time, func) = getFuncionResult(function,
-                                            functionProbeData.m_time0,
-                                            functionProbeData.m_length,
-                                            functionProbeData.m_dt,
-                                            functionProbeData.m_coeff);
-
-    std::ofstream fout(functionProbeData.m_fileName);
-
-    for (size_t i = 0; i < func.size(); i++)
-    {
-        fout << time.at(i) << "\t"
-             << func.at(i) << "\n";
-    }
-}
-
-std::string appendPlotterScript(const std::string &fileName)
-{
-    std::string result = "\"" + fileName + "\" " + "using 1:2 with linespoints";
-    return result;
-}
-
 TEST(TestOnGeneratedData, test_gen_data)
 {
-    // act smth
+    function_generator::FunctionGenerator functionGenerator;
+
+    std::vector<function_generator::FunctionProbeData> functionProbeDataVector;
+
+    auto function1 = [](double argument, std::vector<double> coeff)
     {
-        FunctionProbeData functionProbeData;
+        return coeff.at(0) / argument;
+    };
 
-        std::string plotterScript = "plot ";
-
-        std::string fileNameBasic = "test";
+    {
+        function_generator::FunctionProbeData functionProbeData;
 
         auto function1 = [](double argument, std::vector<double> coeff)
         {
             return coeff.at(0) / argument;
         };
 
-        // set basics // todo make it's own struct
-        const std::vector<double> time0Vector = {1.0, 1.0};
-        const std::vector<size_t> sizeVector = {100, 100};
-        const std::vector<double> dtVector = {0.1, 0.1};
-        const std::vector<std::vector<double>> coeffVector = {{0.1}, {0.2}};
-        
-        const int numberOfTests = 2;
+        functionProbeData.setData(function1,
+                                  1.0,
+                                  50,
+                                  0.1,
+                                  {0.1});
 
-        if (numberOfTests != time0Vector.size() ||
-            numberOfTests != sizeVector.size() ||
-            numberOfTests != dtVector.size() ||
-            numberOfTests != coeffVector.size())
+        functionProbeDataVector.push_back(functionProbeData);
+
+        functionProbeData.setData(function1,
+                                  1.0,
+                                  50,
+                                  0.1,
+                                  {0.2});
+
+        functionProbeDataVector.push_back(functionProbeData);
+
+        auto function2 = [](double argument, std::vector<double> coeff)
         {
-            std::cerr << "WARNING SIZE PROBLEM!\n";
-            ASSERT_TRUE(false);
-        }
+            return coeff.at(0)*argument + coeff.at(1);
+        };
 
-        for (size_t i = 0; i < numberOfTests; i++)
-        {
-            double time0 = time0Vector.at(i);
-            size_t size = sizeVector.at(i);
-            double dt = dtVector.at(i);
+        functionProbeData.setData(function2,
+                                  1.0,
+                                  50,
+                                  0.1,
+                                  {-0.2, 1});
 
-            std::vector<double> coeff = coeffVector.at(i);
-            std::string fileName = fileNameBasic + std::to_string(i);
-
-            functionProbeData.setData(fileName, time0, size, dt, coeff);
-
-            actAndSaveData(functionProbeData, function1);
-
-            plotterScript += appendPlotterScript(fileName);
-            
-            if (numberOfTests-1 != i) plotterScript += ", ";
-        }
-
-        std::ofstream fout("plotScript");
-
-        fout << plotterScript;
+        functionProbeDataVector.push_back(functionProbeData);
     }
+
+    std::cout << "functionProbeDataVector.size() = " << functionProbeDataVector.size() << "\n";
+
+    bool isOk = false;
+    std::vector<Function> functionVector;
+
+    std::tie(isOk, functionVector) = functionGenerator.actOnData(functionProbeDataVector);
+
+    ASSERT_TRUE(isOk);
 }
