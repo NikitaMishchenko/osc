@@ -25,18 +25,23 @@ public:
                                                                   m_angle(angle),
                                                                   m_dangle(dangle)
     {
-        if (time->size() == angle->size() && angle->size() == dangle->size())
-            throw(std::runtime_error("AngleAmplitude: size of time, angle, dangle not equal!"));
-
-        doWork();
+        if (time->size() != angle->size() && angle->size() == dangle->size())
+        {
+            std::string msg = "AngleAmplitude: size of time, angle, dangle not equal!";
+            msg += time->size();
+            msg += angle->size();
+            throw(std::runtime_error(msg));
+        }
     }
 
     std::vector<AngleAmplitudeBase> m_angleAmplitudeBase;
 
-private:
-    void doWork()
+    bool doWork()
     {
-        for (size_t index = 0; index < m_angle->size(); ++index)
+        if (m_angle->size() < 1)
+            return false;
+
+        for (size_t index = 0; index < m_angle->size()-1; ++index)
         {
             // pick at amplitude extremum
             if (m_dangle->at(index) <= 0 && m_dangle->at(index + 1) >= 0)
@@ -50,7 +55,11 @@ private:
                 m_angleAmplitudeBase.push_back(angleAmplitudeBase);
             }
         }
+
+        return true;
     }
+
+private:
 
     std::shared_ptr<std::vector<double>> m_time;
     std::shared_ptr<std::vector<double>> m_angle;
@@ -87,12 +96,14 @@ public:
                                                         m_method(method),
                                                         m_angleAmplitude(time, angle, dangle)
     {
-        calcuatePitchStaticMomentum();
     }
 
     // todo unittests
     bool calculateEqvivalentDampingCoefficients() 
     {
+        if (!m_angleAmplitude.doWork())
+            return false;
+
         bool isOk = false;
         std::vector<approximation::nonlinnear::ApproximationResult> eqvivalentDampingCoefficientVector;
 
@@ -131,22 +142,27 @@ public:
         return isOk;
     }
 
-private:
-    void calcuatePitchStaticMomentum()
+    bool calcuatePitchStaticMomentum()
     {
+        std::cout << "calcuatePitchStaticMomentum(): m_dangle.size() = " << m_dangle->size() << "\t" << "m_ddangle.size() = " << m_ddangle->size() << "\n";
+
         double M_fr = 0; // fixme 
         double coeffFriction = M_fr; // 1/q/s/l // model, flow
         double Iz = 1; // model
 
         if (m_dangle->empty() || m_ddangle->empty())
-            throw "wrong size of dangle, ddangle, empty!";
+            return false;
 
         for (size_t i = 0; i < m_dangle->size()-1; i++)
         {
             if (m_dangle->at(i) <= 0 && m_dangle->at(i+1)<= 0)
                 m_pitchStaticMomentum.push_back(Iz*m_ddangle->at(i) - coeffFriction);
         }
+
+        return true;
     }
+
+private:
 
     std::tuple<bool, std::vector<approximation::nonlinnear::ApproximationResult>>
     calculateEqvivalentDampingCoefficient()

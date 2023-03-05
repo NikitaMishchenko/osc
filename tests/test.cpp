@@ -6,9 +6,11 @@
 #include <fstream>
 #include <vector>
 #include <string>
+#include <memory>
 
 #include "oscillation/wt_oscillation.h"
 #include "utils/function_generator/function_generator.h"
+#include "analize_coefficients/specific/pitch_dynamic_momentum.h"
 
 TEST(TestOfTest, test1)
 {
@@ -50,20 +52,54 @@ TEST(Test, Freq)
     ASSERT_TRUE(abs(w - wCalculated) / w < 0.05); // todo cash presision
 }
 
+TEST(TestOnGeneratedData, testBasicsInitialisation)
+{
+    std::vector<double> x;
+    std::vector<double> y;
+
+    {
+        AngleHistory angleHistory0(x, y);
+
+        Oscillation oscillation(angleHistory0);
+
+        PitchDynamicMomentum pitchDynamicMomentum(std::make_shared<std::vector<double>>(oscillation.getTime()),
+                                                  std::make_shared<std::vector<double>>(oscillation.getAngle()),
+                                                  std::make_shared<std::vector<double>>(oscillation.getDangle()),
+                                                  std::make_shared<std::vector<double>>(oscillation.getDdangle()));
+
+        ASSERT_FALSE(pitchDynamicMomentum.calcuatePitchStaticMomentum());
+    }
+
+    for (int i = 0; i < 100; i++)
+    {
+        x.push_back(0.1*i);
+        y.push_back(0.1);
+    }
+
+    {
+        AngleHistory angleHistory0(x, y);
+
+        Oscillation oscillation(angleHistory0);
+
+        PitchDynamicMomentum pitchDynamicMomentum(std::make_shared<std::vector<double>>(oscillation.getTime()),
+                                                  std::make_shared<std::vector<double>>(oscillation.getAngle()),
+                                                  std::make_shared<std::vector<double>>(oscillation.getDangle()),
+                                                  std::make_shared<std::vector<double>>(oscillation.getDdangle()));
+
+        ASSERT_TRUE(pitchDynamicMomentum.calcuatePitchStaticMomentum());
+    }
+}
+
 TEST(TestOnGeneratedData, test_gen_data)
 {
     function_generator::FunctionGenerator functionGenerator;
 
     std::vector<function_generator::FunctionProbeData> functionProbeDataVector;
 
-    auto function1 = [](double argument, std::vector<double> coeff)
-    {
-        return coeff.at(0) / argument;
-    };
-
     {
         function_generator::FunctionProbeData functionProbeData;
 
+        // consider exception inside function
         auto function1 = [](double argument, std::vector<double> coeff)
         {
             return coeff.at(0) / argument;
@@ -87,7 +123,7 @@ TEST(TestOnGeneratedData, test_gen_data)
 
         auto function2 = [](double argument, std::vector<double> coeff)
         {
-            return coeff.at(0)*argument + coeff.at(1);
+            return coeff.at(0) * argument + coeff.at(1);
         };
 
         functionProbeData.setData(function2,
@@ -107,4 +143,22 @@ TEST(TestOnGeneratedData, test_gen_data)
     std::tie(isOk, functionVector) = functionGenerator.actOnData(functionProbeDataVector);
 
     ASSERT_TRUE(isOk);
+
+    // todo check actial functuanallity
+
+    for (int i = 0; i < functionVector.size(); i++)
+    {
+        AngleHistory angleHistory(functionVector.at(i).getDomain(), functionVector.at(i).getCodomain());
+
+        Oscillation oscillation(angleHistory);
+
+        std::cout << oscillation.getTime().size() << "\t" << oscillation.getAngle().size() << "\t" << oscillation.getDangle().size() << "\t" << oscillation.getDangle().size() << "\n";
+
+        PitchDynamicMomentum pitchDynamicMomentum(std::make_shared<std::vector<double>>(oscillation.getTime()),
+                                                  std::make_shared<std::vector<double>>(oscillation.getAngle()),
+                                                  std::make_shared<std::vector<double>>(oscillation.getDangle()),
+                                                  std::make_shared<std::vector<double>>(oscillation.getDdangle()));
+
+        ASSERT_TRUE(pitchDynamicMomentum.calcuatePitchStaticMomentum());                                                  
+    }
 }

@@ -39,15 +39,13 @@ void Oscillation::recalculate()
         // todo filter ?
 
         /// ddangle calc
-        dangle = derevative1Order(dangle, h);
+        ddangle = derevative1Order(dangle, h);
 
         // todo filter ?
     }
     else
     {
         std::cout << "empty AngleHistory -> empty Oscillation \n";
-        dangle.reserve(0);
-        ddangle.reserve(0);
     }
 }
 

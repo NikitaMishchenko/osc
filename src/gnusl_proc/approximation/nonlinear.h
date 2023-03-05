@@ -6,6 +6,7 @@
 #include <vector>
 #include <tuple>
 #include <sstream>
+#include <optional>
 
 #include <gsl/gsl_rng.h>
 #include <gsl/gsl_randist.h>
@@ -305,8 +306,8 @@ namespace approximation::nonlinnear
     */
     std::tuple<int, ApproximationResult>
     approximate(const std::vector<double> &inputDataX,
-                const std::vector<double> &inputDataY,
-                const boost::optional<std::vector<double>> &err = boost::optional<std::vector<double>>())
+                const std::vector<double> &inputDataY)
+                //const std::optional<std::vector<double>> &err = std::optional<std::vector<double>>())
     {
         approximation::nonlinnear::ProceedApproximation nonlinnear;
 
