@@ -102,35 +102,35 @@ TEST(TestOnGeneratedData, test_gen_data)
         // consider exception inside function
         auto function1 = [](double argument, std::vector<double> coeff)
         {
-            return coeff.at(0) / argument;
+            return coeff.at(1) / abs(argument) * sin(coeff.at(0)*argument);
         };
 
         functionProbeData.setData(function1,
                                   1.0,
-                                  50,
-                                  0.1,
-                                  {0.1});
+                                  500,
+                                  0.01,
+                                  {10, 0.1});
 
         functionProbeDataVector.push_back(functionProbeData);
 
         functionProbeData.setData(function1,
                                   1.0,
-                                  50,
-                                  0.1,
-                                  {0.2});
+                                  500,
+                                  0.01,
+                                  {10, 0.2});
 
         functionProbeDataVector.push_back(functionProbeData);
 
         auto function2 = [](double argument, std::vector<double> coeff)
         {
-            return coeff.at(0) * argument + coeff.at(1);
+            return coeff.at(1) * sin(coeff.at(0)*argument) * exp(coeff.at(2) * argument);
         };
 
         functionProbeData.setData(function2,
                                   1.0,
-                                  50,
-                                  0.1,
-                                  {-0.2, 1});
+                                  500,
+                                  0.01,
+                                  {10, 1, -0.2});
 
         functionProbeDataVector.push_back(functionProbeData);
     }

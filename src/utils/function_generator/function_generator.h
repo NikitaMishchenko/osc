@@ -35,7 +35,7 @@ namespace function_generator
             m_mode = mode;
         }
 
-        void setBasicFileName(const std::string& basicFileName)
+        void setBasicFileName(const std::string &basicFileName)
         {
             m_basicFileName = basicFileName;
         }
@@ -71,7 +71,7 @@ namespace function_generator
 
             std::string scriptFileName = "plotScript";
 
-            std::ofstream fout (scriptFileName + "_" + m_basicFileName);
+            std::ofstream fout(scriptFileName + "_" + m_basicFileName);
 
             fout << plotterScript;
 
