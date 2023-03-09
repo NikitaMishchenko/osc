@@ -8,63 +8,8 @@
 #include <cstdlib>
 
 #include "gnusl_proc/approximation/nonlinear.h"
-
-struct AngleAmplitudeBase
-{
-    double m_amplitudeAngle;
-    double m_amplitudeTime;
-    int m_amplitudeIndexesFromInitialAngle;
-};
-
-class AngleAmplitude
-{
-public:
-    AngleAmplitude(std::shared_ptr<std::vector<double>> time,
-                   std::shared_ptr<std::vector<double>> angle,
-                   std::shared_ptr<std::vector<double>> dangle) : m_time(time),
-                                                                  m_angle(angle),
-                                                                  m_dangle(dangle)
-    {
-        if (time->size() != angle->size() && angle->size() == dangle->size())
-        {
-            std::string msg = "AngleAmplitude: size of time, angle, dangle not equal!";
-            msg += time->size();
-            msg += angle->size();
-            throw(std::runtime_error(msg));
-        }
-    }
-
-    std::vector<AngleAmplitudeBase> m_angleAmplitudeBase;
-
-    bool doWork()
-    {
-        if (m_angle->size() < 1)
-            return false;
-
-        for (size_t index = 0; index < m_angle->size()-1; ++index)
-        {
-            // pick at amplitude extremum
-            if (m_dangle->at(index) <= 0 && m_dangle->at(index + 1) >= 0)
-            {
-                AngleAmplitudeBase angleAmplitudeBase;
-
-                angleAmplitudeBase.m_amplitudeAngle = m_angle->at(index);
-                angleAmplitudeBase.m_amplitudeTime = m_time->at(index);
-                angleAmplitudeBase.m_amplitudeIndexesFromInitialAngle = index;
-
-                m_angleAmplitudeBase.push_back(angleAmplitudeBase);
-            }
-        }
-
-        return true;
-    }
-
-private:
-
-    std::shared_ptr<std::vector<double>> m_time;
-    std::shared_ptr<std::vector<double>> m_angle;
-    std::shared_ptr<std::vector<double>> m_dangle;
-};
+#include "flow/wt_flow.h"
+#include "analize_coefficients/specific/amplitude.h"
 
 enum Mode
 {
@@ -85,6 +30,8 @@ public:
                          std::shared_ptr<std::vector<double>> angle,
                          std::shared_ptr<std::vector<double>> dangle,
                          std::shared_ptr<std::vector<double>> ddangle,
+                         std::shared_ptr<wt_flow::Flow> flow,
+                         std::shared_ptr<Model> model,
                          const int numberOfPeriods = 2,
                          const int mode = ABS_AMPLITUDE,
                          const int method = METHOD_1) : m_time(time),
@@ -92,15 +39,25 @@ public:
                                                         m_dangle(dangle),
                                                         m_ddangle(ddangle),
                                                         m_numberOfPeriods(numberOfPeriods),
+                                                        m_flow(flow),
+                                                        m_model(model),
                                                         m_mode(mode),
                                                         m_method(method),
                                                         m_angleAmplitude(time, angle, dangle)
     {
     }
 
-    // todo unittests
-    bool calculateEqvivalentDampingCoefficients() 
+    std::tuple<std::vector<double>, std::vector<double>>
+    getData()
     {
+        return std::make_tuple(m_pitchStaticMomentum, m_pitchMomentumBasic);
+    }
+
+    // todo unittests
+    bool calculateEqvivalentDampingCoefficients(int method) 
+    {
+        m_method = method;
+
         if (!m_angleAmplitude.doWork())
             return false;
 
@@ -117,7 +74,8 @@ public:
             // calcualating actual coefficients
             // m_dyn = -2I*n(Ampl)*V/q/s/l/l
 
-            double coeff = 1; // -2.0*I*v/q/s/l/l // model flow
+            // -2.0*I*v/q/s/l/l // model flow
+            const double coeff = -2.0*m_model->getI()*m_flow->getVelocity()/m_flow->getDynamicPressure()/m_model->getS()/m_model->getL()/m_model->getL();
 
             for (const auto &eqvivalentDampingCoefficient : eqvivalentDampingCoefficientVector)
             {
@@ -125,18 +83,26 @@ public:
             }
 
             m_pitchMomentumBasic = dynamicDampingCoefficient;
+            
+            isOk = true;
         }
         else if (METHOD_2 == m_method)
         {
+            if (!calcuatePitchStaticMomentum())
+                return false;
+            
             if (m_dangle->empty() || m_pitchStaticMomentum.empty()) // || (m_dangle.size() != m_pitchStaticMomentum.size()))
                 return false;
 
-            double coeff = 1; // l/v model, flow
+            // l/v model, flow
+            const double coeff = m_model->getL()/m_flow->getVelocity();
 
             for (size_t i = 0; i < m_pitchMomentumBasic.size(); ++i)
             {
                dynamicDampingCoefficient.push_back(m_pitchStaticMomentum.at(i) * m_angle->at(i) + coeff * m_pitchMomentumBasic.at(i) * m_dangle->at(i)); 
             }
+
+            isOk = true;
         }
 
         return isOk;
@@ -146,9 +112,9 @@ public:
     {
         std::cout << "calcuatePitchStaticMomentum(): m_dangle.size() = " << m_dangle->size() << "\t" << "m_ddangle.size() = " << m_ddangle->size() << "\n";
 
-        double M_fr = 0; // fixme 
-        double coeffFriction = M_fr; // 1/q/s/l // model, flow
-        double Iz = 1; // model
+        const double M_fr = m_Mfr ? *m_Mfr : 0; // fixme 
+        const double coeffFriction = M_fr/m_flow->calculateDynamicPressure()/m_model->getS()/m_model->getL(); // 1/q/s/l // model, flow
+        const double Iz = m_model->getI(); // model
 
         if (m_dangle->empty() || m_ddangle->empty())
             return false;
@@ -211,6 +177,9 @@ private:
     std::shared_ptr<std::vector<double>> m_angle;
     std::shared_ptr<std::vector<double>> m_dangle;
     std::shared_ptr<std::vector<double>> m_ddangle;
+    std::shared_ptr<wt_flow::Flow> m_flow;
+    std::shared_ptr<Model> m_model;
+    std::shared_ptr<double> m_Mfr;
 
     // settings
     int m_numberOfPeriods; // количество периодов колебаний

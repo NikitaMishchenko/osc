@@ -65,14 +65,16 @@ TEST(TestOnGeneratedData, testBasicsInitialisation)
         PitchDynamicMomentum pitchDynamicMomentum(std::make_shared<std::vector<double>>(oscillation.getTime()),
                                                   std::make_shared<std::vector<double>>(oscillation.getAngle()),
                                                   std::make_shared<std::vector<double>>(oscillation.getDangle()),
-                                                  std::make_shared<std::vector<double>>(oscillation.getDdangle()));
+                                                  std::make_shared<std::vector<double>>(oscillation.getDdangle()),
+                                                  std::make_shared<wt_flow::Flow>(),
+                                                  std::make_shared<Model>());
 
         ASSERT_FALSE(pitchDynamicMomentum.calcuatePitchStaticMomentum());
     }
 
     for (int i = 0; i < 100; i++)
     {
-        x.push_back(0.1*i);
+        x.push_back(0.1 * i);
         y.push_back(0.1);
     }
 
@@ -84,7 +86,9 @@ TEST(TestOnGeneratedData, testBasicsInitialisation)
         PitchDynamicMomentum pitchDynamicMomentum(std::make_shared<std::vector<double>>(oscillation.getTime()),
                                                   std::make_shared<std::vector<double>>(oscillation.getAngle()),
                                                   std::make_shared<std::vector<double>>(oscillation.getDangle()),
-                                                  std::make_shared<std::vector<double>>(oscillation.getDdangle()));
+                                                  std::make_shared<std::vector<double>>(oscillation.getDdangle()),
+                                                  std::make_shared<wt_flow::Flow>(),
+                                                  std::make_shared<Model>());
 
         ASSERT_TRUE(pitchDynamicMomentum.calcuatePitchStaticMomentum());
     }
@@ -102,7 +106,7 @@ TEST(TestOnGeneratedData, test_gen_data)
         // consider exception inside function
         auto function1 = [](double argument, std::vector<double> coeff)
         {
-            return coeff.at(1) / abs(argument) * sin(coeff.at(0)*argument);
+            return coeff.at(1) / abs(argument) * sin(coeff.at(0) * argument);
         };
 
         functionProbeData.setData(function1,
@@ -123,7 +127,7 @@ TEST(TestOnGeneratedData, test_gen_data)
 
         auto function2 = [](double argument, std::vector<double> coeff)
         {
-            return coeff.at(1) * sin(coeff.at(0)*argument) * exp(coeff.at(2) * argument);
+            return coeff.at(1) * sin(coeff.at(0) * argument) * exp(coeff.at(2) * argument);
         };
 
         functionProbeData.setData(function2,
@@ -154,11 +158,41 @@ TEST(TestOnGeneratedData, test_gen_data)
 
         std::cout << oscillation.getTime().size() << "\t" << oscillation.getAngle().size() << "\t" << oscillation.getDangle().size() << "\t" << oscillation.getDangle().size() << "\n";
 
+
         PitchDynamicMomentum pitchDynamicMomentum(std::make_shared<std::vector<double>>(oscillation.getTime()),
                                                   std::make_shared<std::vector<double>>(oscillation.getAngle()),
                                                   std::make_shared<std::vector<double>>(oscillation.getDangle()),
-                                                  std::make_shared<std::vector<double>>(oscillation.getDdangle()));
+                                                  std::make_shared<std::vector<double>>(oscillation.getDdangle()),
+                                                  std::make_shared<wt_flow::Flow>(),
+                                                  std::make_shared<Model>());
 
-        ASSERT_TRUE(pitchDynamicMomentum.calcuatePitchStaticMomentum());                                                  
+        ASSERT_TRUE(pitchDynamicMomentum.calculateEqvivalentDampingCoefficients(METHOD_1));
+
+        std::vector<double> v1;
+        std::vector<double> v2;
+
+        {
+            std::tie(v1, v2) = pitchDynamicMomentum.getData();
+
+            std::ofstream fout1("v1_1");
+
+            for (int i = 0; i < v1.size(); i++)
+                fout1 << v1.at(i) << "\n";
+        }
+
+        {
+            ASSERT_TRUE(pitchDynamicMomentum.calculateEqvivalentDampingCoefficients(METHOD_2));
+            std::ofstream fout1("v1_2");
+
+            std::tie(v1, v2) = pitchDynamicMomentum.getData();
+
+            for (int i = 0; i < v1.size(); i++)
+                fout1 << v1.at(i) << "\n";
+
+            std::ofstream fout2("v2");
+
+            for (int i = 0; i < v2.size(); i++)
+                fout2 << v2.at(i) << "\n";
+        }
     }
 }

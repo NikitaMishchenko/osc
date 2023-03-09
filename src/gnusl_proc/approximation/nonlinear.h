@@ -311,13 +311,20 @@ namespace approximation::nonlinnear
     {
         approximation::nonlinnear::ProceedApproximation nonlinnear;
 
-        if (GSL_SUCCESS != nonlinnear.act(inputDataX, inputDataY));
+        std::ofstream fout("tmp");
+        for ( int i = 0; i < inputDataX.size(); i++)
+            fout << inputDataX.at(i) << "\t" << inputDataY.at(i) << "\n";
+        fout.close();        
+
+        const int errCode = nonlinnear.act(inputDataX, inputDataY);
+
+        if (int(GSL_SUCCESS) == errCode);
         {
-            std::cerr << "failed to proceed nonlinnear approximation\n";
-            return std::make_tuple(codes::NEGATIVE, nonlinnear.getApproximationResult());
+            std::cerr << "failed to proceed nonlinnear approximation, errCode: " << errCode << "\n";
+            return std::make_tuple(codes::POSITIVE, nonlinnear.getApproximationResult());
         }
 
-        return std::make_tuple(codes::POSITIVE, nonlinnear.getApproximationResult());
+        return std::make_tuple(codes::NEGATIVE, nonlinnear.getApproximationResult());
     }
 
 } // namespace
