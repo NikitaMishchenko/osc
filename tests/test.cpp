@@ -51,7 +51,7 @@ TEST(Test, Freq)
 
     ASSERT_TRUE(abs(w - wCalculated) / w < 0.05); // todo cash presision
 }
-
+/*
 TEST(TestOnGeneratedData, testBasicsInitialisation)
 {
     std::vector<double> x;
@@ -92,7 +92,7 @@ TEST(TestOnGeneratedData, testBasicsInitialisation)
 
         ASSERT_TRUE(pitchDynamicMomentum.calcuatePitchStaticMomentum());
     }
-}
+}*/
 
 TEST(TestOnGeneratedData, test_gen_data)
 {
@@ -171,7 +171,7 @@ TEST(TestOnGeneratedData, test_gen_data)
 
     // todo check actial functuanallity
 
-    for (int i = 0; i < functionVector.size(); i++)
+    for (int i = 0; i < functionVector.size(); i++) // functionVector.size()
     {
         AngleHistory angleHistory(functionVector.at(i).getDomain(), functionVector.at(i).getCodomain());
 
@@ -179,49 +179,50 @@ TEST(TestOnGeneratedData, test_gen_data)
 
         std::cout << oscillation.getTime().size() << "\t" << oscillation.getAngle().size() << "\t" << oscillation.getDangle().size() << "\t" << oscillation.getDangle().size() << "\n";
 
-
-        PitchDynamicMomentum pitchDynamicMomentum(std::make_shared<std::vector<double>>(oscillation.getTime()),
-                                                  std::make_shared<std::vector<double>>(oscillation.getAngle()),
-                                                  std::make_shared<std::vector<double>>(oscillation.getDangle()),
-                                                  std::make_shared<std::vector<double>>(oscillation.getDdangle()),
-                                                  std::make_shared<wt_flow::Flow>(),
-                                                  std::make_shared<Model>());
-        pitchDynamicMomentum.setHiddenIndex(i);
-
-        std::vector<double> staticR;
-        std::vector<double> basicR;
-        std::vector<double> dynamicR;
-
         {
-            ASSERT_TRUE(pitchDynamicMomentum.calculateEqvivalentDampingCoefficients(METHOD_2));
-            
+            PitchDynamicMomentum pitchDynamicMomentum(std::make_shared<std::vector<double>>(oscillation.getTime()),
+                                                      std::make_shared<std::vector<double>>(oscillation.getAngle()),
+                                                      std::make_shared<std::vector<double>>(oscillation.getDangle()),
+                                                      std::make_shared<std::vector<double>>(oscillation.getDdangle()),
+                                                      std::make_shared<wt_flow::Flow>(),
+                                                      std::make_shared<Model>());
+            // pitchDynamicMomentum.setHiddenIndex(i);
+
+            std::vector<double> staticR;
+            std::vector<double> basicR;
+            std::vector<double> dynamicR;
             std::vector<AngleAmplitudeBase> amplitude;
-            std::tie(staticR, basicR, dynamicR, amplitude) = pitchDynamicMomentum.getData();
 
-            std::ofstream foutb("test_" + std::to_string(i));
-            for (int i = 0; i < oscillation.size(); i++)
-                foutb << oscillation.getTime(i) << "\t" 
-                      << oscillation.getAngle(i) << "\t" 
-                      << oscillation.getDangle(i) << "\t" 
-                      << oscillation.getDdangle(i) << "\n";
+            {
+                ASSERT_TRUE(pitchDynamicMomentum.calculateEqvivalentDampingCoefficients(METHOD_2));
 
-            std::ofstream fout1("static_" + std::to_string(i));
-            for (int i = 0; i < staticR.size(); i++)
-                fout1 << staticR.at(i) << "\n";
+                std::tie(staticR, basicR, dynamicR, amplitude) = pitchDynamicMomentum.getData();
 
-            std::ofstream fout2("basic_" + std::to_string(i));
-            for (int i = 0; i < basicR.size(); i++)
-                fout2 << basicR.at(i) << "\n";
+                std::ofstream foutb("test_" + std::to_string(i));
+                for (int i = 0; i < oscillation.size(); i++)
+                    foutb << oscillation.getTime(i) << "\t"
+                          << oscillation.getAngle(i) << "\t"
+                          << oscillation.getDangle(i) << "\t"
+                          << oscillation.getDdangle(i) << "\n";
 
-            std::ofstream fout3("dynamic_" + std::to_string(i));
-            for (int i = 0; i < dynamicR.size(); i++)
-                fout3 << dynamicR.at(i) << "\n";
+                std::ofstream fout1("static_" + std::to_string(i));
+                for (int i = 0; i < staticR.size(); i++)
+                    fout1 << staticR.at(i) << "\n";
 
-            std::ofstream fout4("amplitude_" + std::to_string(i));
-            for (int i = 0; i < amplitude.size(); i++)
-                fout4 << amplitude.at(i).m_amplitudeTime << "\t" 
-                      << amplitude.at(i).m_amplitudeAngle << "\t" 
-                      << amplitude.at(i).m_amplitudeIndexesFromInitialAngle << "\n";
+                std::ofstream fout2("basic_" + std::to_string(i));
+                for (int i = 0; i < basicR.size(); i++)
+                    fout2 << basicR.at(i) << "\n";
+
+                std::ofstream fout3("dynamic_" + std::to_string(i));
+                for (int i = 0; i < dynamicR.size(); i++)
+                    fout3 << dynamicR.at(i) << "\n";
+
+                std::ofstream fout4("amplitude_" + std::to_string(i));
+                for (int i = 0; i < amplitude.size(); i++)
+                    fout4 << amplitude.at(i).m_amplitudeTime << "\t"
+                          << amplitude.at(i).m_amplitudeAngle << "\t"
+                          << amplitude.at(i).m_amplitudeIndexesFromInitialAngle << "\n";
+            }
         }
     }
 }

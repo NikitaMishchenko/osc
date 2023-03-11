@@ -23,11 +23,11 @@ public:
     {
     }
 
-    AngleAmplitude(std::shared_ptr<std::vector<double>> time,
-                   std::shared_ptr<std::vector<double>> angle,
-                   std::shared_ptr<std::vector<double>> dangle) : m_time(time),
-                                                                  m_angle(angle),
-                                                                  m_dangle(dangle)
+    AngleAmplitude(const std::shared_ptr<std::vector<double>> time,
+                   const std::shared_ptr<std::vector<double>> angle,
+                   const std::shared_ptr<std::vector<double>> dangle) : m_time(time),
+                                                                        m_angle(angle),
+                                                                        m_dangle(dangle)
     {
         if (time->size() != angle->size() && angle->size() == dangle->size())
         {
@@ -36,6 +36,8 @@ public:
             msg += angle->size();
             throw(std::runtime_error(msg));
         }
+
+        doWork(ABS_AMPLITUDE); // fixme
     }
 
     std::vector<AngleAmplitudeBase> m_angleAmplitudeBase;
@@ -48,7 +50,7 @@ public:
         for (size_t index = 0; index < m_angle->size() - 1; ++index)
         {
             // pick at amplitude extremum
-            if ((m_dangle->at(index) <= 0 && m_dangle->at(index + 1) >= 0) || 
+            if ((m_dangle->at(index) <= 0 && m_dangle->at(index + 1) >= 0) ||
                 (m_dangle->at(index) >= 0 && m_dangle->at(index + 1) <= 0))
             {
                 // index = getActualMax(index);
@@ -56,15 +58,16 @@ public:
                 AngleAmplitudeBase angleAmplitudeBase;
 
                 angleAmplitudeBase.m_amplitudeIndexesFromInitialAngle = index;
-                angleAmplitudeBase.m_amplitudeAngle = m_angle->at((ABS_AMPLITUDE == mode) ? std::abs(angleAmplitudeBase.m_amplitudeIndexesFromInitialAngle) : angleAmplitudeBase.m_amplitudeIndexesFromInitialAngle);
                 angleAmplitudeBase.m_amplitudeTime = m_time->at(angleAmplitudeBase.m_amplitudeIndexesFromInitialAngle);
+                angleAmplitudeBase.m_amplitudeAngle =
+                    (ABS_AMPLITUDE == mode) ? std::abs(m_angle->at(angleAmplitudeBase.m_amplitudeIndexesFromInitialAngle)) : m_angle->at(angleAmplitudeBase.m_amplitudeIndexesFromInitialAngle);
 
                 m_angleAmplitudeBase.push_back(angleAmplitudeBase);
             }
         }
 
-        std::cout << "saving amplitude size = " << m_angleAmplitudeBase.size() << "\n";
-        saveData("amplitude");
+        // std::cout << "saving amplitude size = " << m_angleAmplitudeBase.size() << "\n";
+        // saveData("amplitude");
 
         return true;
     }
@@ -100,7 +103,7 @@ private:
         std::ofstream fout(fileName);
 
         for (size_t i = 0; i < m_angleAmplitudeBase.size(); i++)
-            fout << m_angleAmplitudeBase.at(i).m_amplitudeAngle << "\t" << m_angleAmplitudeBase.at(i).m_amplitudeTime << "\t" << m_angleAmplitudeBase.at(i).m_amplitudeIndexesFromInitialAngle << "\n";
+            fout << m_angleAmplitudeBase.at(i).m_amplitudeTime << "\t" << m_angleAmplitudeBase.at(i).m_amplitudeAngle << "\t" << m_angleAmplitudeBase.at(i).m_amplitudeIndexesFromInitialAngle << "\n";
     }
 
     std::shared_ptr<std::vector<double>> m_time;

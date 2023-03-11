@@ -22,16 +22,16 @@ enum Method
 class PitchDynamicMomentum
 {
 public:
-    PitchDynamicMomentum(std::shared_ptr<std::vector<double>> time,
-                         std::shared_ptr<std::vector<double>> angle,
-                         std::shared_ptr<std::vector<double>> dangle,
-                         std::shared_ptr<std::vector<double>> ddangle,
-                         std::shared_ptr<wt_flow::Flow> flow,
-                         std::shared_ptr<Model> model,
+    PitchDynamicMomentum(const std::shared_ptr<std::vector<double>> time,
+                         const std::shared_ptr<std::vector<double>> angle,
+                         const std::shared_ptr<std::vector<double>> dangle,
+                         const std::shared_ptr<std::vector<double>> ddangle,
+                         const std::shared_ptr<wt_flow::Flow> flow,
+                         const std::shared_ptr<Model> model,
                          const int numberOfPeriods = 2,
                          const int mode = ABS_AMPLITUDE,
                          const int method = METHOD_1) : m_time(time),
-                                                        m_angle(dangle),
+                                                        m_angle(angle),
                                                         m_dangle(dangle),
                                                         m_ddangle(ddangle),
                                                         m_numberOfPeriods(numberOfPeriods),
@@ -39,7 +39,7 @@ public:
                                                         m_model(model),
                                                         m_mode(mode),
                                                         m_method(method),
-                                                        m_angleAmplitude(time, angle, dangle)
+                                                        m_angleAmplitude(m_time, m_angle, m_dangle)
     {
     }
 
@@ -54,13 +54,12 @@ public:
         m_hiddenIndex = index;
     }
 
-    // todo unittests
     bool calculateEqvivalentDampingCoefficients(int method) 
     {
         m_method = method;
 
-        if (!m_angleAmplitude.doWork(m_mode))
-            return false;
+        // if (!m_angleAmplitude.doWork(m_mode))
+        //    return false;
 
         bool isOk = false;
         std::vector<approximation::nonlinnear::ApproximationResult> eqvivalentDampingCoefficientVector;
@@ -95,12 +94,14 @@ public:
             // l/v model, flow
             const double coeff = m_model->getL()/m_flow->getVelocity();
 
-            const size_t size = std::min(std::min(m_pitchMomentumBasic.size(), m_pitchStaticMomentum.size()), std::min(m_angle->size(), m_dangle->size()));
+            const size_t size = std::min(std::min(m_pitchMomentumBasic.size(), m_pitchStaticMomentum.size()),
+                                         std::min(m_angle->size(), m_dangle->size()));
 
             for (size_t i = 0; i < size; ++i)
             {
                m_pitchDynamicMomentum.push_back(m_pitchStaticMomentum.at(i) * m_angle->at(i) + coeff * m_pitchMomentumBasic.at(i) * m_dangle->at(i)); 
             }
+
             isOk = true;
         }
 
@@ -120,7 +121,7 @@ public:
 
         for (size_t i = 0; i < m_dangle->size()-1; i++)
         {
-            if (m_dangle->at(i) <= 0 && m_dangle->at(i+1)<= 0)
+            if (m_dangle->at(i) <= 0 && m_dangle->at(i+1)>= 0)
                 m_pitchStaticMomentum.push_back(Iz*m_ddangle->at(i) - coeffFriction);
         }
 
@@ -148,22 +149,30 @@ private:
         std::vector<approximation::nonlinnear::ApproximationResult> approximationResultVector;
 
         int periodCounter = 0;
+        int indexS = 0;
 
         while (m_angleAmplitude.m_angleAmplitudeBase.end() != it)
         {
-            for (size_t i = 0; i < m_numberOfPeriods * 2; i++, m_angleAmplitude.m_angleAmplitudeBase.end() != it)
+            for (size_t i = 0; i < m_numberOfPeriods * 2; i++)
             {
-                std::cout << "calculateEqvivalentDampingCoefficient: " << it->m_amplitudeIndexesFromInitialAngle << "\n";
+                indexS = it - m_angleAmplitude.m_angleAmplitudeBase.begin();
+                std::cout << "calculateEqvivalentDampingCoefficient: " << it->m_amplitudeIndexesFromInitialAngle
+                          << " index = " << indexS << "\t"
+                          << " size = " << m_angleAmplitude.m_angleAmplitudeBase.size() << "\n";
                 dataToApproximateX.push_back(it->m_amplitudeTime);
-                dataToApproximateY.push_back((ABS_AMPLITUDE == m_mode) ? std::abs(it->m_amplitudeAngle) : it->m_amplitudeAngle);
+                dataToApproximateY.push_back(it->m_amplitudeAngle);
                 it++;
+
+                if (m_angleAmplitude.m_angleAmplitudeBase.end() == it)
+                    break;
             }
 
             std::string hiddenName = std::string();
             if (m_hiddenIndex)
+            {
                 hiddenName = "_" + std::to_string(m_hiddenIndex.get()) + "_";
-
-            saveData("approx" + hiddenName + std::to_string(periodCounter), dataToApproximateX, dataToApproximateY);
+                saveData("approx" + hiddenName + std::to_string(periodCounter), dataToApproximateX, dataToApproximateY);
+            }
 
             if (dataToApproximateY.size() < 2)
                 break;
