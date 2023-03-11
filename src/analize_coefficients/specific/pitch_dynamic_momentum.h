@@ -13,12 +13,6 @@
 #include "flow/wt_flow.h"
 #include "analize_coefficients/specific/amplitude.h"
 
-enum Mode
-{
-    ABS_AMPLITUDE
-    // todo other mode
-};
-
 enum Method
 {
     METHOD_1 = 1, // direct amplitude approximation
@@ -49,10 +43,10 @@ public:
     {
     }
 
-    std::tuple<std::vector<double>, std::vector<double>, std::vector<double>>
+    std::tuple<std::vector<double>, std::vector<double>, std::vector<double>, std::vector<AngleAmplitudeBase>>
     getData() const
     {
-        return std::make_tuple(m_pitchStaticMomentum, m_pitchMomentumBasic, m_pitchDynamicMomentum);
+        return std::make_tuple(m_pitchStaticMomentum, m_pitchMomentumBasic, m_pitchDynamicMomentum, m_angleAmplitude.m_angleAmplitudeBase);
     }
 
     void setHiddenIndex(int index)
@@ -65,12 +59,13 @@ public:
     {
         m_method = method;
 
-        if (!m_angleAmplitude.doWork())
+        if (!m_angleAmplitude.doWork(m_mode))
             return false;
 
         bool isOk = false;
         std::vector<approximation::nonlinnear::ApproximationResult> eqvivalentDampingCoefficientVector;
 
+        std::cout << "calculateEqvivalentDampingCoefficients\n";
         {
             // damping coeffiients assumed to be constant on each calcuilated point
             std::tie(isOk, eqvivalentDampingCoefficientVector) = calculateEqvivalentDampingCoefficient();
@@ -158,6 +153,7 @@ private:
         {
             for (size_t i = 0; i < m_numberOfPeriods * 2; i++, m_angleAmplitude.m_angleAmplitudeBase.end() != it)
             {
+                std::cout << "calculateEqvivalentDampingCoefficient: " << it->m_amplitudeIndexesFromInitialAngle << "\n";
                 dataToApproximateX.push_back(it->m_amplitudeTime);
                 dataToApproximateY.push_back((ABS_AMPLITUDE == m_mode) ? std::abs(it->m_amplitudeAngle) : it->m_amplitudeAngle);
                 it++;

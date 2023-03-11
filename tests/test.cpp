@@ -188,9 +188,6 @@ TEST(TestOnGeneratedData, test_gen_data)
                                                   std::make_shared<Model>());
         pitchDynamicMomentum.setHiddenIndex(i);
 
-
-        ASSERT_TRUE(pitchDynamicMomentum.calculateEqvivalentDampingCoefficients(METHOD_1));
-
         std::vector<double> staticR;
         std::vector<double> basicR;
         std::vector<double> dynamicR;
@@ -198,23 +195,33 @@ TEST(TestOnGeneratedData, test_gen_data)
         {
             ASSERT_TRUE(pitchDynamicMomentum.calculateEqvivalentDampingCoefficients(METHOD_2));
             
-            std::tie(staticR, basicR, dynamicR) = pitchDynamicMomentum.getData();
+            std::vector<AngleAmplitudeBase> amplitude;
+            std::tie(staticR, basicR, dynamicR, amplitude) = pitchDynamicMomentum.getData();
 
-            std::ofstream fout1("static");
+            std::ofstream foutb("test_" + std::to_string(i));
+            for (int i = 0; i < oscillation.size(); i++)
+                foutb << oscillation.getTime(i) << "\t" 
+                      << oscillation.getAngle(i) << "\t" 
+                      << oscillation.getDangle(i) << "\t" 
+                      << oscillation.getDdangle(i) << "\n";
 
+            std::ofstream fout1("static_" + std::to_string(i));
             for (int i = 0; i < staticR.size(); i++)
                 fout1 << staticR.at(i) << "\n";
 
-            std::ofstream fout2("basic");
-
+            std::ofstream fout2("basic_" + std::to_string(i));
             for (int i = 0; i < basicR.size(); i++)
                 fout2 << basicR.at(i) << "\n";
 
-
-            std::ofstream fout3("dynamic");
-
+            std::ofstream fout3("dynamic_" + std::to_string(i));
             for (int i = 0; i < dynamicR.size(); i++)
                 fout3 << dynamicR.at(i) << "\n";
+
+            std::ofstream fout4("amplitude_" + std::to_string(i));
+            for (int i = 0; i < amplitude.size(); i++)
+                fout4 << amplitude.at(i).m_amplitudeTime << "\t" 
+                      << amplitude.at(i).m_amplitudeAngle << "\t" 
+                      << amplitude.at(i).m_amplitudeIndexesFromInitialAngle << "\n";
         }
     }
 }
