@@ -2,10 +2,12 @@
 
 #include <iostream>
 
+#include <algorithm>
 #include <memory>
 #include <vector>
 #include <tuple>
 #include <cstdlib>
+#include <boost/optional/optional.hpp>
 
 #include "gnusl_proc/approximation/nonlinear.h"
 #include "flow/wt_flow.h"
@@ -47,10 +49,15 @@ public:
     {
     }
 
-    std::tuple<std::vector<double>, std::vector<double>>
-    getData()
+    std::tuple<std::vector<double>, std::vector<double>, std::vector<double>>
+    getData() const
     {
-        return std::make_tuple(m_pitchStaticMomentum, m_pitchMomentumBasic);
+        return std::make_tuple(m_pitchStaticMomentum, m_pitchMomentumBasic, m_pitchDynamicMomentum);
+    }
+
+    void setHiddenIndex(int index)
+    {
+        m_hiddenIndex = index;
     }
 
     // todo unittests
@@ -64,9 +71,6 @@ public:
         bool isOk = false;
         std::vector<approximation::nonlinnear::ApproximationResult> eqvivalentDampingCoefficientVector;
 
-        std::vector<double> dynamicDampingCoefficient;
-        
-        if (METHOD_1 == m_method)
         {
             // damping coeffiients assumed to be constant on each calcuilated point
             std::tie(isOk, eqvivalentDampingCoefficientVector) = calculateEqvivalentDampingCoefficient();
@@ -79,14 +83,13 @@ public:
 
             for (const auto &eqvivalentDampingCoefficient : eqvivalentDampingCoefficientVector)
             {
-                dynamicDampingCoefficient.push_back(eqvivalentDampingCoefficient.lambda);
+                m_pitchMomentumBasic.push_back(eqvivalentDampingCoefficient.lambda);
             }
 
-            m_pitchMomentumBasic = dynamicDampingCoefficient;
-            
             isOk = true;
         }
-        else if (METHOD_2 == m_method)
+
+        if (isOk)
         {
             if (!calcuatePitchStaticMomentum())
                 return false;
@@ -97,11 +100,12 @@ public:
             // l/v model, flow
             const double coeff = m_model->getL()/m_flow->getVelocity();
 
-            for (size_t i = 0; i < m_pitchMomentumBasic.size(); ++i)
-            {
-               dynamicDampingCoefficient.push_back(m_pitchStaticMomentum.at(i) * m_angle->at(i) + coeff * m_pitchMomentumBasic.at(i) * m_dangle->at(i)); 
-            }
+            const size_t size = std::min(std::min(m_pitchMomentumBasic.size(), m_pitchStaticMomentum.size()), std::min(m_angle->size(), m_dangle->size()));
 
+            for (size_t i = 0; i < size; ++i)
+            {
+               m_pitchDynamicMomentum.push_back(m_pitchStaticMomentum.at(i) * m_angle->at(i) + coeff * m_pitchMomentumBasic.at(i) * m_dangle->at(i)); 
+            }
             isOk = true;
         }
 
@@ -130,6 +134,14 @@ public:
 
 private:
 
+    void saveData(const std::string& fileName, std::vector<double> v1, std::vector<double> v2)
+    {
+        std::ofstream fout(fileName);
+
+        for(size_t i = 0; i < v1.size(); i++)
+            fout << v1.at(i) << "\t" << v2.at(i) << "\n";
+    }
+
     std::tuple<bool, std::vector<approximation::nonlinnear::ApproximationResult>>
     calculateEqvivalentDampingCoefficient()
     {
@@ -140,6 +152,8 @@ private:
         bool isOk = false;
         std::vector<approximation::nonlinnear::ApproximationResult> approximationResultVector;
 
+        int periodCounter = 0;
+
         while (m_angleAmplitude.m_angleAmplitudeBase.end() != it)
         {
             for (size_t i = 0; i < m_numberOfPeriods * 2; i++, m_angleAmplitude.m_angleAmplitudeBase.end() != it)
@@ -148,6 +162,12 @@ private:
                 dataToApproximateY.push_back((ABS_AMPLITUDE == m_mode) ? std::abs(it->m_amplitudeAngle) : it->m_amplitudeAngle);
                 it++;
             }
+
+            std::string hiddenName = std::string();
+            if (m_hiddenIndex)
+                hiddenName = "_" + std::to_string(m_hiddenIndex.get()) + "_";
+
+            saveData("approx" + hiddenName + std::to_string(periodCounter), dataToApproximateX, dataToApproximateY);
 
             if (dataToApproximateY.size() < 2)
                 break;
@@ -165,6 +185,8 @@ private:
                 continue;
 
             approximationResultVector.push_back(approximationResult);
+
+            periodCounter++;
         }
 
         isOk = !approximationResultVector.empty();
@@ -185,9 +207,11 @@ private:
     int m_numberOfPeriods; // количество периодов колебаний
     int m_mode;
     int m_method;
+    boost::optional<int> m_hiddenIndex;
 
     // INTERNAL
     std::vector<double> m_pitchStaticMomentum;
+    std::vector<double> m_pitchDynamicMomentum;
     std::vector<double> m_pitchMomentumBasic;
 
     AngleAmplitude m_angleAmplitude;

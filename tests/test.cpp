@@ -104,12 +104,12 @@ TEST(TestOnGeneratedData, test_gen_data)
         function_generator::FunctionProbeData functionProbeData;
 
         // consider exception inside function
-        auto function1 = [](double argument, std::vector<double> coeff)
+        auto function0 = [](double argument, std::vector<double> coeff)
         {
             return coeff.at(1) / abs(argument) * sin(coeff.at(0) * argument);
         };
 
-        functionProbeData.setData(function1,
+        functionProbeData.setData(function0,
                                   1.0,
                                   500,
                                   0.01,
@@ -117,14 +117,21 @@ TEST(TestOnGeneratedData, test_gen_data)
 
         functionProbeDataVector.push_back(functionProbeData);
 
+        ///
+        auto function1 = [](double argument, std::vector<double> coeff)
+        {
+            return coeff.at(1) * sin(coeff.at(0) * argument) * exp(coeff.at(2) * argument);
+        };
+
         functionProbeData.setData(function1,
                                   1.0,
                                   500,
                                   0.01,
-                                  {10, 0.2});
+                                  {10, 1, -0.1});
 
         functionProbeDataVector.push_back(functionProbeData);
 
+        ///
         auto function2 = [](double argument, std::vector<double> coeff)
         {
             return coeff.at(1) * sin(coeff.at(0) * argument) * exp(coeff.at(2) * argument);
@@ -135,6 +142,20 @@ TEST(TestOnGeneratedData, test_gen_data)
                                   500,
                                   0.01,
                                   {10, 1, -0.2});
+
+        functionProbeDataVector.push_back(functionProbeData);
+
+        ///
+        auto function3 = [](double argument, std::vector<double> coeff)
+        {
+            return coeff.at(1) * sin(coeff.at(0) * argument) * exp(coeff.at(2) * argument);
+        };
+
+        functionProbeData.setData(function3,
+                                  1.0,
+                                  500,
+                                  0.01,
+                                  {10, 1, -0.3});
 
         functionProbeDataVector.push_back(functionProbeData);
     }
@@ -165,34 +186,35 @@ TEST(TestOnGeneratedData, test_gen_data)
                                                   std::make_shared<std::vector<double>>(oscillation.getDdangle()),
                                                   std::make_shared<wt_flow::Flow>(),
                                                   std::make_shared<Model>());
+        pitchDynamicMomentum.setHiddenIndex(i);
+
 
         ASSERT_TRUE(pitchDynamicMomentum.calculateEqvivalentDampingCoefficients(METHOD_1));
 
-        std::vector<double> v1;
-        std::vector<double> v2;
-
-        {
-            std::tie(v1, v2) = pitchDynamicMomentum.getData();
-
-            std::ofstream fout1("v1_1");
-
-            for (int i = 0; i < v1.size(); i++)
-                fout1 << v1.at(i) << "\n";
-        }
+        std::vector<double> staticR;
+        std::vector<double> basicR;
+        std::vector<double> dynamicR;
 
         {
             ASSERT_TRUE(pitchDynamicMomentum.calculateEqvivalentDampingCoefficients(METHOD_2));
-            std::ofstream fout1("v1_2");
+            
+            std::tie(staticR, basicR, dynamicR) = pitchDynamicMomentum.getData();
 
-            std::tie(v1, v2) = pitchDynamicMomentum.getData();
+            std::ofstream fout1("static");
 
-            for (int i = 0; i < v1.size(); i++)
-                fout1 << v1.at(i) << "\n";
+            for (int i = 0; i < staticR.size(); i++)
+                fout1 << staticR.at(i) << "\n";
 
-            std::ofstream fout2("v2");
+            std::ofstream fout2("basic");
 
-            for (int i = 0; i < v2.size(); i++)
-                fout2 << v2.at(i) << "\n";
+            for (int i = 0; i < basicR.size(); i++)
+                fout2 << basicR.at(i) << "\n";
+
+
+            std::ofstream fout3("dynamic");
+
+            for (int i = 0; i < dynamicR.size(); i++)
+                fout3 << dynamicR.at(i) << "\n";
         }
     }
 }

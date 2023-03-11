@@ -320,10 +320,10 @@ namespace approximation::nonlinnear
 
         if (int(GSL_SUCCESS) == errCode);
         {
-            std::cerr << "failed to proceed nonlinnear approximation, errCode: " << errCode << "\n";
             return std::make_tuple(codes::POSITIVE, nonlinnear.getApproximationResult());
         }
 
+        std::cerr << "failed to proceed nonlinnear approximation, errCode: " << errCode << "\n";
         return std::make_tuple(codes::NEGATIVE, nonlinnear.getApproximationResult());
     }
 
