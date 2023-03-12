@@ -1,0 +1,12 @@
+rm plotScript*
+rm dynamic_* 
+rm static_* 
+rm approx*
+rm test_* 
+rm test_*
+rm basic_*
+rm tmp
+rm test*
+rm plotApprox*
+rm amplitude*
+rm fit.log

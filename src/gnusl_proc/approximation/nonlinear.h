@@ -98,7 +98,7 @@ namespace approximation::nonlinnear
         {
             std::cout << "A      = " << A << " +/- " << errA << "\n"
                       << "lambda = " << lambda << " +/- " << errLambda << "\n"
-                      << "b      = " << B << " +/- " << errB << "\n";
+                      << "b      = " << B << " +/- " << errB << "\n";                     
         }
     };
 
@@ -151,11 +151,11 @@ namespace approximation::nonlinnear
                 double ti = i * m_tMax / (m_nuberPointsToFit - 1.0);
                 double yi = dataToFitY.at(i); // 1.0 + 5 * exp(-1.5 * ti); //
                 double si = 0.1 * yi;
-                double disturbance = gsl_ran_gaussian(r, si);
-                disturbance = 0;
+                // double disturbance = gsl_ran_gaussian(r, si);
+                // disturbance = 0;
 
                 t[i] = ti;
-                y[i] = yi + disturbance;
+                y[i] = yi; //+ disturbance;
                 weights[i] = 1.0 / (si * si);
 
                 m_resultInformation << "data: " << ti << " " << y[i] << " " << si << "\n";
@@ -163,9 +163,11 @@ namespace approximation::nonlinnear
 
             const gsl_multifit_nlinear_type *T = gsl_multifit_nlinear_trust;
 
+            const int ITERATIONS = 0;
+
             /* allocate workspace with default parameters */
             gsl_multifit_nlinear_parameters fdf_params = gsl_multifit_nlinear_default_parameters();
-            w = gsl_multifit_nlinear_alloc(T, &fdf_params, m_nuberPointsToFit, p);
+            w = gsl_multifit_nlinear_alloc(T, &fdf_params, m_nuberPointsToFit + ITERATIONS, p);
 
             /* initialize solver with starting point and weights */
             gsl_multifit_nlinear_winit(&x.vector, &wts.vector, &fdf, w);
@@ -243,6 +245,11 @@ namespace approximation::nonlinnear
             return m_resultInformation.str();
         }
 
+        std::string getResultInformation() const
+        {
+            return m_resultInformation.str();
+        }
+
     private:
         void proceedWorkspace()
         {
@@ -252,8 +259,8 @@ namespace approximation::nonlinnear
 
             gsl_blas_ddot(f, f, &chisq0);
 
-            const double xtol = 1e-8;
-            const double gtol = 1e-8;
+            const double xtol = 1e-12;// 1e-8;
+            const double gtol = 1e-12;// 1e-8;
             const double ftol = 0.0;
             /* solve the system with a maximum of 100 iterations */
             int status;
@@ -268,7 +275,6 @@ namespace approximation::nonlinnear
             gsl_multifit_nlinear_covar(J, 0.0, covar);
 
             /* compute final cost */
-
             gsl_blas_ddot(f, f, &chisq);
         }
 
@@ -331,6 +337,10 @@ namespace approximation::nonlinnear
         fout.close();       
 
         const int errCode = nonlinnear.act(inputDataX, inputDataY);
+
+        // todo if loggingEnabled == true
+        std::cout << nonlinnear.getResultInformation() << "\n";
+        std::cout << nonlinnear.getResults() << "\n";
 
         if (int(GSL_SUCCESS) == errCode);
         {

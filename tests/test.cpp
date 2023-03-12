@@ -52,7 +52,7 @@ TEST(Test, Freq)
     ASSERT_TRUE(abs(w - wCalculated) / w < 0.05); // todo cash presision
 }
 
-TEST(TestApproximation, approximation)
+TEST(TestApproximation, Approximation1)
 {
     std::vector<double> dataX;
     std::vector<double> dataY;
@@ -76,6 +76,15 @@ TEST(TestApproximation, approximation)
         }
     }
 
+    /*double dx, dy;
+    std::ifstream fin("approx_1_1");
+    for (int i = 0; i < 4; i++)
+    {
+        fin >> dx >> dy;
+        dataX.push_back(dx);
+        dataY.push_back(dy);
+    }*/
+
     AngleHistory angleHistory(dataX, dataY);
 
     int errCode = 1;
@@ -83,20 +92,67 @@ TEST(TestApproximation, approximation)
 
     std::tie(errCode, approximationResult) = approximation::nonlinnear::approximate(angleHistory.getTime(), angleHistory.getAngle());
 
-    std::ofstream foutIn("approxTest_input");
+    std::ofstream foutIn("approxTest_input1");
     
     for (size_t i = 0; i < dataX.size(); i++)
     {
         foutIn << dataX.at(i) << "\t" << dataY.at(i) << "\n";
     }
 
-    std::ofstream foutOut("approxTest_out");
+    std::ofstream foutOut("approxTest_out1");
     foutOut << approximationResult.A << "\t" << approximationResult.B << "\t" << approximationResult.lambda << "\n";
 
     ASSERT_TRUE(std::abs(A - approximationResult.A) < 0.0001);
     ASSERT_TRUE(std::abs(B - approximationResult.B) < 0.0001);
     ASSERT_TRUE(std::abs(lambda - approximationResult.lambda) < 0.0001);
 }
+
+TEST(TestApproximation, Approximation2)
+{
+    std::vector<double> dataX;
+    std::vector<double> dataY;
+    size_t N = 100;
+
+    double A = 50;
+    double B = 0.0;
+    double lambda = 1.5;
+
+    for (int i = 0; i < N; ++i)
+    {
+        dataX.resize(N);
+        dataY.resize(N);
+
+        double dt = 0.1;
+
+        for (int i = 0; i < dataX.size(); ++i)
+        {
+            dataX.at(i) = dt * i;
+            dataY.at(i) = (B + A * exp(-1.0*lambda * i * dt));
+        }
+    }
+
+    AngleHistory angleHistory(dataX, dataY);
+
+    int errCode = 1;
+    approximation::nonlinnear::ApproximationResult approximationResult;
+
+    std::tie(errCode, approximationResult) = approximation::nonlinnear::approximate(angleHistory.getTime(), angleHistory.getAngle());
+
+    std::ofstream foutIn("approxTest_input2");
+    
+    for (size_t i = 0; i < dataX.size(); i++)
+    {
+        foutIn << dataX.at(i) << "\t" << dataY.at(i) << "\n";
+    }
+
+    std::ofstream foutOut("approxTest_out2");
+    foutOut << approximationResult.A << "\t" << approximationResult.B << "\t" << approximationResult.lambda << "\n";
+
+    ASSERT_TRUE(std::abs(A - approximationResult.A) < 0.0001);
+    ASSERT_TRUE(std::abs(B - approximationResult.B) < 0.0001);
+    ASSERT_TRUE(std::abs(lambda - approximationResult.lambda) < 0.0001);
+}
+
 /*
 TEST(TestOnGeneratedData, testBasicsInitialisation)
 {
@@ -217,7 +273,7 @@ TEST(TestOnGeneratedData, test_gen_data)
 
     // todo check actial functuanallity
 
-    for (int i = 0; i < functionVector.size(); i++) // functionVector.size()
+    for (int i = 0; i < functionVector.size(); i++) // 
     {
         AngleHistory angleHistory(functionVector.at(i).getDomain(), functionVector.at(i).getCodomain());
 
