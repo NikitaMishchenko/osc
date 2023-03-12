@@ -7,6 +7,8 @@
 #include <vector>
 #include <tuple>
 #include <cstdlib>
+#include <sstream>
+
 #include <boost/optional/optional.hpp>
 
 #include "gnusl_proc/approximation/nonlinear.h"
@@ -17,6 +19,15 @@ enum Method
 {
     METHOD_1 = 1, // direct amplitude approximation
     METHOD_2      // combined
+};
+
+struct PitchMomentumBasic
+{
+    double momentum;
+    double timeI;
+    double timeF;
+    double angleI;
+    double angleF;
 };
 
 class PitchDynamicMomentum
@@ -43,13 +54,18 @@ public:
     {
     }
 
-    std::tuple<std::vector<double>, std::vector<double>, std::vector<double>, std::vector<AngleAmplitudeBase>>
+    std::tuple<std::vector<double>, std::vector<PitchMomentumBasic>, std::vector<double>, std::vector<AngleAmplitudeBase>>
     getData() const
     {
-        return std::make_tuple(m_pitchStaticMomentum, m_pitchMomentumBasic, m_pitchDynamicMomentum, m_angleAmplitude.m_angleAmplitudeBase);
+        return std::make_tuple(m_pitchStaticMomentum, m_pitchMomentumBasicVector, m_pitchDynamicMomentum, m_angleAmplitude.m_angleAmplitudeBase);
     }
 
-    void setHiddenIndex(int index)
+    std::string getPlottScript()
+    {
+        return m_plotApprox.str();
+    }
+
+    void setHiddenIndex(const std::string& index)
     {
         m_hiddenIndex = index;
     }
@@ -75,9 +91,17 @@ public:
             // -2.0*I*v/q/s/l/l // model flow
             const double coeff = -2.0*m_model->getI()*m_flow->getVelocity()/m_flow->getDynamicPressure()/m_model->getS()/m_model->getL()/m_model->getL();
 
+            PitchMomentumBasic pitchMomentumBasic;
+
             for (const auto &eqvivalentDampingCoefficient : eqvivalentDampingCoefficientVector)
             {
-                m_pitchMomentumBasic.push_back(eqvivalentDampingCoefficient.lambda);
+                pitchMomentumBasic.momentum = coeff*eqvivalentDampingCoefficient.lambda;
+                pitchMomentumBasic.timeI = eqvivalentDampingCoefficient.argInitial;
+                pitchMomentumBasic.timeF = eqvivalentDampingCoefficient.argFinal;
+                pitchMomentumBasic.angleI = eqvivalentDampingCoefficient.funcInitial;
+                pitchMomentumBasic.angleF = eqvivalentDampingCoefficient.funcFinal;
+
+                m_pitchMomentumBasicVector.push_back(pitchMomentumBasic);
             }
 
             isOk = true;
@@ -94,12 +118,12 @@ public:
             // l/v model, flow
             const double coeff = m_model->getL()/m_flow->getVelocity();
 
-            const size_t size = std::min(std::min(m_pitchMomentumBasic.size(), m_pitchStaticMomentum.size()),
+            const size_t size = std::min(std::min(m_pitchMomentumBasicVector.size(), m_pitchStaticMomentum.size()),
                                          std::min(m_angle->size(), m_dangle->size()));
 
             for (size_t i = 0; i < size; ++i)
             {
-               m_pitchDynamicMomentum.push_back(m_pitchStaticMomentum.at(i) * m_angle->at(i) + coeff * m_pitchMomentumBasic.at(i) * m_dangle->at(i)); 
+               m_pitchDynamicMomentum.push_back(m_pitchStaticMomentum.at(i) * m_angle->at(i) + coeff * m_pitchMomentumBasicVector.at(i).momentum * m_dangle->at(i)); 
             }
 
             isOk = true;
@@ -170,8 +194,12 @@ private:
             std::string hiddenName = std::string();
             if (m_hiddenIndex)
             {
-                hiddenName = "_" + std::to_string(m_hiddenIndex.get()) + "_";
-                saveData("approx" + hiddenName + std::to_string(periodCounter), dataToApproximateX, dataToApproximateY);
+                hiddenName = "_" + m_hiddenIndex.get() + "_";
+                const std::string fileName = "approx" + hiddenName + std::to_string(periodCounter);
+                
+                std::cout << "saving tmp file: \"" << fileName << "\"\n";
+                
+                saveData(fileName, dataToApproximateX, dataToApproximateY);
             }
 
             if (dataToApproximateY.size() < 2)
@@ -196,6 +224,16 @@ private:
 
         isOk = !approximationResultVector.empty();
 
+        if (m_hiddenIndex)
+        {
+            std::cout << "saving plotApprox file\n";
+            // std::ofstream plotApprox("plotApprox_" + std::to_string(m_hiddenIndex.get()));
+            
+            m_plotApprox << "filename(n) = sprintf(\"approx_" << m_hiddenIndex.get() << std::string("_%d\", n)\n") 
+                         << "plot for [i=0:20] filename(i) using 1:2 with linespoints";
+        }
+
+
         return std::make_tuple(isOk, approximationResultVector);
     }
 
@@ -212,12 +250,14 @@ private:
     int m_numberOfPeriods; // количество периодов колебаний
     int m_mode;
     int m_method;
-    boost::optional<int> m_hiddenIndex;
+    boost::optional<std::string> m_hiddenIndex;
 
     // INTERNAL
     std::vector<double> m_pitchStaticMomentum;
     std::vector<double> m_pitchDynamicMomentum;
-    std::vector<double> m_pitchMomentumBasic;
+    std::vector<PitchMomentumBasic> m_pitchMomentumBasicVector;
 
     AngleAmplitude m_angleAmplitude;
+
+    std::stringstream m_plotApprox;
 };

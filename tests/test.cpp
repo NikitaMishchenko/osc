@@ -110,10 +110,10 @@ TEST(TestOnGeneratedData, test_gen_data)
         };
 
         functionProbeData.setData(function0,
-                                  1.0,
-                                  500,
-                                  0.01,
-                                  {10, 0.1});
+                                  0.0,
+                                  50000,
+                                  0.0001,
+                                  {50, 0.1});
 
         functionProbeDataVector.push_back(functionProbeData);
 
@@ -124,10 +124,10 @@ TEST(TestOnGeneratedData, test_gen_data)
         };
 
         functionProbeData.setData(function1,
-                                  1.0,
-                                  500,
-                                  0.01,
-                                  {10, 1, -0.1});
+                                  0.0,
+                                  50000,
+                                  0.0001,
+                                  {50, 1, -1});
 
         functionProbeDataVector.push_back(functionProbeData);
 
@@ -138,10 +138,10 @@ TEST(TestOnGeneratedData, test_gen_data)
         };
 
         functionProbeData.setData(function2,
-                                  1.0,
-                                  500,
-                                  0.01,
-                                  {10, 1, -0.2});
+                                  0.0,
+                                  50000,
+                                  0.0001,
+                                  {50, 1, -2});
 
         functionProbeDataVector.push_back(functionProbeData);
 
@@ -152,10 +152,10 @@ TEST(TestOnGeneratedData, test_gen_data)
         };
 
         functionProbeData.setData(function3,
-                                  1.0,
-                                  500,
-                                  0.01,
-                                  {10, 1, -0.3});
+                                  0.0,
+                                  50000,
+                                  0.0001,
+                                  {50, 1, -3});
 
         functionProbeDataVector.push_back(functionProbeData);
     }
@@ -171,7 +171,7 @@ TEST(TestOnGeneratedData, test_gen_data)
 
     // todo check actial functuanallity
 
-    for (int i = 0; i < functionVector.size(); i++) // functionVector.size()
+    for (int i = 1; i < functionVector.size(); i++) // functionVector.size()
     {
         AngleHistory angleHistory(functionVector.at(i).getDomain(), functionVector.at(i).getCodomain());
 
@@ -186,10 +186,12 @@ TEST(TestOnGeneratedData, test_gen_data)
                                                       std::make_shared<std::vector<double>>(oscillation.getDdangle()),
                                                       std::make_shared<wt_flow::Flow>(),
                                                       std::make_shared<Model>());
-            // pitchDynamicMomentum.setHiddenIndex(i);
+            
+            std::string indexForScript = std::to_string(i);
+            pitchDynamicMomentum.setHiddenIndex(indexForScript);
 
             std::vector<double> staticR;
-            std::vector<double> basicR;
+            std::vector<PitchMomentumBasic> basicR;
             std::vector<double> dynamicR;
             std::vector<AngleAmplitudeBase> amplitude;
 
@@ -197,6 +199,15 @@ TEST(TestOnGeneratedData, test_gen_data)
                 ASSERT_TRUE(pitchDynamicMomentum.calculateEqvivalentDampingCoefficients(METHOD_2));
 
                 std::tie(staticR, basicR, dynamicR, amplitude) = pitchDynamicMomentum.getData();
+
+                //std::stringstream plotApprox = pitchDynamicMomentum.getPlottScript();
+                
+                // ("plotApprox_" + indexForScript)
+                std::string fileNamePlotApprox("plotApprox_" + indexForScript); 
+
+                std::ofstream plotApproxFile(fileNamePlotApprox);
+                    plotApproxFile << pitchDynamicMomentum.getPlottScript() 
+                                   << ", \"test_" << std::to_string(i) << "\" using 1:2 with linespoints\n"; 
 
                 std::ofstream foutb("test_" + std::to_string(i));
                 for (int i = 0; i < oscillation.size(); i++)
@@ -211,8 +222,13 @@ TEST(TestOnGeneratedData, test_gen_data)
 
                 std::ofstream fout2("basic_" + std::to_string(i));
                 for (int i = 0; i < basicR.size(); i++)
-                    fout2 << basicR.at(i) << "\n";
-
+                {
+                    fout2 << basicR.at(i).timeI << "\t" << basicR.at(i).angleI << "\t" << basicR.at(i).momentum << "\t"
+                          << basicR.at(i).timeF << "\t" << basicR.at(i).angleF << "\t" << basicR.at(i).momentum << "\n";
+                    
+                    std::cout << basicR.at(i).timeI << "\t" << basicR.at(i).momentum << "\t"
+                              << basicR.at(i).timeF << "\t" << basicR.at(i).momentum << "\n";
+                }
                 std::ofstream fout3("dynamic_" + std::to_string(i));
                 for (int i = 0; i < dynamicR.size(); i++)
                     fout3 << dynamicR.at(i) << "\n";

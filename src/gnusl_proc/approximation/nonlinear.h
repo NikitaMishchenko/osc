@@ -89,6 +89,11 @@ namespace approximation::nonlinnear
         double B;
         double errB;
 
+        double funcInitial;
+        double funcFinal;
+        double argInitial;
+        double argFinal;
+
         void print()
         {
             std::cout << "A      = " << A << " +/- " << errA << "\n"
@@ -178,6 +183,10 @@ namespace approximation::nonlinnear
                 m_approximationResult.errB = sqrt(gsl_matrix_get(covar, 1, 1));
                 m_approximationResult.lambda = gsl_vector_get(w->x, 2);
                 m_approximationResult.errLambda = sqrt(gsl_matrix_get(covar, 2, 2));
+                m_approximationResult.argInitial = dataToFitX.front();
+                m_approximationResult.argFinal = dataToFitX.back();
+                m_approximationResult.funcInitial = dataToFitY.front();
+                m_approximationResult.funcFinal = dataToFitY.back();
             }
 
             return GSL_SUCCESS;
@@ -311,10 +320,10 @@ namespace approximation::nonlinnear
     {
         approximation::nonlinnear::ProceedApproximation nonlinnear;
 
-        std::ofstream fout("tmp");
+        /*std::ofstream fout("tmp");
         for ( int i = 0; i < inputDataX.size(); i++)
             fout << inputDataX.at(i) << "\t" << inputDataY.at(i) << "\n";
-        fout.close();        
+        fout.close();*/        
 
         const int errCode = nonlinnear.act(inputDataX, inputDataY);
 
