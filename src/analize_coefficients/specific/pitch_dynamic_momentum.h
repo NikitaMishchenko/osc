@@ -30,6 +30,10 @@ struct PitchMomentumBasic
     double angleF;
 };
 
+const std::string FILE_NAME_DATA_TO_APPROX = "approx";
+
+const std::string FILE_NAME_APPROX_RESULT = "approxRes";
+
 class PitchDynamicMomentum
 {
 public:
@@ -65,9 +69,9 @@ public:
         return m_plotApprox.str();
     }
 
-    void setHiddenIndex(const std::string& index)
+    void setHiddenIndex(const std::string& specificName)
     {
-        m_hiddenIndex = index;
+        m_specificName = specificName;
     }
 
     bool calculateEqvivalentDampingCoefficients(int method) 
@@ -81,6 +85,7 @@ public:
         std::vector<approximation::nonlinnear::ApproximationResult> eqvivalentDampingCoefficientVector;
 
         std::cout << "calculateEqvivalentDampingCoefficients\n";
+
         {
             // damping coeffiients assumed to be constant on each calcuilated point
             std::tie(isOk, eqvivalentDampingCoefficientVector) = calculateEqvivalentDampingCoefficient();
@@ -162,6 +167,14 @@ private:
             fout << v1.at(i) << "\t" << v2.at(i) << "\n";
     }
 
+    void saveData(const std::string& fileName, std::vector<double> v1, std::vector<double> v2, std::vector<double> v3)
+    {
+        std::ofstream fout(fileName);
+
+        for(size_t i = 0; i < v1.size(); i++)
+            fout << v1.at(i) << "\t" << v2.at(i) << "\t" << v3.at(i) << "\n";
+    }
+
     std::tuple<bool, std::vector<approximation::nonlinnear::ApproximationResult>>
     calculateEqvivalentDampingCoefficient()
     {
@@ -175,31 +188,25 @@ private:
         int periodCounter = 0;
         int indexS = 0;
 
+        const std::string fileNameApproxRes = FILE_NAME_APPROX_RESULT + "_" + (m_specificName ? m_specificName.get() : "");
+        std::ofstream foutApproxRes;
+        if (m_specificName)
+            foutApproxRes.open(fileNameApproxRes);
+
         while (m_angleAmplitude.m_angleAmplitudeBase.end() != it)
         {
             for (size_t i = 0; i < m_numberOfPeriods * 2; i++)
             {
                 indexS = it - m_angleAmplitude.m_angleAmplitudeBase.begin();
-                std::cout << "calculateEqvivalentDampingCoefficient: " << it->m_amplitudeIndexesFromInitialAngle
+                /*std::cout << "calculateEqvivalentDampingCoefficient: " << it->m_amplitudeIndexesFromInitialAngle
                           << " index = " << indexS << "\t"
-                          << " size = " << m_angleAmplitude.m_angleAmplitudeBase.size() << "\n";
+                          << " size = " << m_angleAmplitude.m_angleAmplitudeBase.size() << "\n";*/
                 dataToApproximateX.push_back(it->m_amplitudeTime);
                 dataToApproximateY.push_back(it->m_amplitudeAngle);
                 it++;
 
                 if (m_angleAmplitude.m_angleAmplitudeBase.end() == it)
                     break;
-            }
-
-            std::string hiddenName = std::string();
-            if (m_hiddenIndex)
-            {
-                hiddenName = "_" + m_hiddenIndex.get() + "_";
-                const std::string fileName = "approx" + hiddenName + std::to_string(periodCounter);
-                
-                std::cout << "saving tmp file: \"" << fileName << "\"\n";
-                
-                saveData(fileName, dataToApproximateX, dataToApproximateY);
             }
 
             if (dataToApproximateY.size() < 2)
@@ -210,6 +217,20 @@ private:
 
             // Model Yi = A * exp(-lambda * t_i) + b
             std::tie(errCode, approximationResult) = approximation::nonlinnear::approximate(dataToApproximateX, dataToApproximateY);
+
+            std::string specificName = std::string();
+            if (m_specificName)
+            {
+                specificName = "_" + m_specificName.get() + "_";
+                const std::string fileNameApprox = FILE_NAME_DATA_TO_APPROX + specificName + std::to_string(periodCounter);
+
+                std::cout << "saving tmp file: \"" << fileNameApprox << "\"\n";
+                
+                saveData(fileNameApprox, dataToApproximateX, dataToApproximateY);
+                
+                foutApproxRes << approximationResult.A << "\t" << approximationResult.B << "\t" << approximationResult.lambda << "\n";
+                std::cout << approximationResult.A << "\t" << approximationResult.B << "\t" << approximationResult.lambda << "\n";
+            }
 
             dataToApproximateX.clear();
             dataToApproximateY.clear();
@@ -224,12 +245,11 @@ private:
 
         isOk = !approximationResultVector.empty();
 
-        if (m_hiddenIndex)
+        if (m_specificName)
         {
             std::cout << "saving plotApprox file\n";
-            // std::ofstream plotApprox("plotApprox_" + std::to_string(m_hiddenIndex.get()));
             
-            m_plotApprox << "filename(n) = sprintf(\"approx_" << m_hiddenIndex.get() << std::string("_%d\", n)\n") 
+            m_plotApprox << "filename(n) = sprintf(\"" << FILE_NAME_DATA_TO_APPROX << "_" << m_specificName.get() << std::string("_%d\", n)\n") 
                          << "plot for [i=0:20] filename(i) using 1:2 with linespoints";
         }
 
@@ -250,7 +270,7 @@ private:
     int m_numberOfPeriods; // количество периодов колебаний
     int m_mode;
     int m_method;
-    boost::optional<std::string> m_hiddenIndex;
+    boost::optional<std::string> m_specificName;
 
     // INTERNAL
     std::vector<double> m_pitchStaticMomentum;

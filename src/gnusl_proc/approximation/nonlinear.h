@@ -79,7 +79,7 @@ namespace approximation::nonlinnear
         ApproximationResult()
         {
             m_method = "nonlinear";
-            m_model = "f(x) = A*exp(lambda*x) + B";
+            m_model = "f(x) = A*exp(-lambda*x) + B";
         }
 
         double A;
@@ -127,7 +127,7 @@ namespace approximation::nonlinnear
             if (dataToFitY.size() < m_nuberPointsToFit)
                 return GSL_FAILURE;
 
-            double x_init[3] = {1.0, 1.0, 0.0}; /* starting values */
+            double x_init[3] = {0.0, 0.0, 0.0}; /* starting values */
 
             gsl_vector_view x = gsl_vector_view_array(x_init, p);
 
@@ -179,15 +179,20 @@ namespace approximation::nonlinnear
 
                 m_approximationResult.A = gsl_vector_get(w->x, 0);
                 m_approximationResult.errA = sqrt(gsl_matrix_get(covar, 0, 0));
-                m_approximationResult.B = gsl_vector_get(w->x, 1);
-                m_approximationResult.errB = sqrt(gsl_matrix_get(covar, 1, 1));
-                m_approximationResult.lambda = gsl_vector_get(w->x, 2);
-                m_approximationResult.errLambda = sqrt(gsl_matrix_get(covar, 2, 2));
+
+                m_approximationResult.lambda = gsl_vector_get(w->x, 1);
+                m_approximationResult.errLambda = sqrt(gsl_matrix_get(covar, 1, 1));
+
+                m_approximationResult.B = gsl_vector_get(w->x, 2);
+                m_approximationResult.errB = sqrt(gsl_matrix_get(covar, 2, 2));
+
                 m_approximationResult.argInitial = dataToFitX.front();
                 m_approximationResult.argFinal = dataToFitX.back();
                 m_approximationResult.funcInitial = dataToFitY.front();
                 m_approximationResult.funcFinal = dataToFitY.back();
             }
+
+            m_approximationResult.print();
 
             return GSL_SUCCESS;
         }
@@ -320,10 +325,10 @@ namespace approximation::nonlinnear
     {
         approximation::nonlinnear::ProceedApproximation nonlinnear;
 
-        /*std::ofstream fout("tmp");
+        std::ofstream fout("tmp");
         for ( int i = 0; i < inputDataX.size(); i++)
             fout << inputDataX.at(i) << "\t" << inputDataY.at(i) << "\n";
-        fout.close();*/        
+        fout.close();       
 
         const int errCode = nonlinnear.act(inputDataX, inputDataY);
 

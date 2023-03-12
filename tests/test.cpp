@@ -51,6 +51,52 @@ TEST(Test, Freq)
 
     ASSERT_TRUE(abs(w - wCalculated) / w < 0.05); // todo cash presision
 }
+
+TEST(TestApproximation, approximation)
+{
+    std::vector<double> dataX;
+    std::vector<double> dataY;
+    size_t N = 100;
+
+    double A = 50;
+    double B = 1.0;
+    double lambda = 1.5;
+
+    for (int i = 0; i < N; ++i)
+    {
+        dataX.resize(N);
+        dataY.resize(N);
+
+        double dt = 0.1;
+
+        for (int i = 0; i < dataX.size(); ++i)
+        {
+            dataX.at(i) = dt * i;
+            dataY.at(i) = (B + A * exp(-1.0*lambda * i * dt));
+        }
+    }
+
+    AngleHistory angleHistory(dataX, dataY);
+
+    int errCode = 1;
+    approximation::nonlinnear::ApproximationResult approximationResult;
+
+    std::tie(errCode, approximationResult) = approximation::nonlinnear::approximate(angleHistory.getTime(), angleHistory.getAngle());
+
+    std::ofstream foutIn("approxTest_input");
+    
+    for (size_t i = 0; i < dataX.size(); i++)
+    {
+        foutIn << dataX.at(i) << "\t" << dataY.at(i) << "\n";
+    }
+
+    std::ofstream foutOut("approxTest_out");
+    foutOut << approximationResult.A << "\t" << approximationResult.B << "\t" << approximationResult.lambda << "\n";
+
+    ASSERT_TRUE(std::abs(A - approximationResult.A) < 0.0001);
+    ASSERT_TRUE(std::abs(B - approximationResult.B) < 0.0001);
+    ASSERT_TRUE(std::abs(lambda - approximationResult.lambda) < 0.0001);
+}
 /*
 TEST(TestOnGeneratedData, testBasicsInitialisation)
 {
@@ -171,7 +217,7 @@ TEST(TestOnGeneratedData, test_gen_data)
 
     // todo check actial functuanallity
 
-    for (int i = 1; i < functionVector.size(); i++) // functionVector.size()
+    for (int i = 0; i < functionVector.size(); i++) // functionVector.size()
     {
         AngleHistory angleHistory(functionVector.at(i).getDomain(), functionVector.at(i).getCodomain());
 
@@ -185,8 +231,9 @@ TEST(TestOnGeneratedData, test_gen_data)
                                                       std::make_shared<std::vector<double>>(oscillation.getDangle()),
                                                       std::make_shared<std::vector<double>>(oscillation.getDdangle()),
                                                       std::make_shared<wt_flow::Flow>(),
-                                                      std::make_shared<Model>());
-            
+                                                      std::make_shared<Model>(),
+                                                      20);
+
             std::string indexForScript = std::to_string(i);
             pitchDynamicMomentum.setHiddenIndex(indexForScript);
 
@@ -200,14 +247,10 @@ TEST(TestOnGeneratedData, test_gen_data)
 
                 std::tie(staticR, basicR, dynamicR, amplitude) = pitchDynamicMomentum.getData();
 
-                //std::stringstream plotApprox = pitchDynamicMomentum.getPlottScript();
-                
-                // ("plotApprox_" + indexForScript)
-                std::string fileNamePlotApprox("plotApprox_" + indexForScript); 
-
+                std::string fileNamePlotApprox("plotApprox_" + indexForScript);
                 std::ofstream plotApproxFile(fileNamePlotApprox);
-                    plotApproxFile << pitchDynamicMomentum.getPlottScript() 
-                                   << ", \"test_" << std::to_string(i) << "\" using 1:2 with linespoints\n"; 
+                plotApproxFile << pitchDynamicMomentum.getPlottScript()
+                               << ", \"test_" << std::to_string(i) << "\" using 1:2 with linespoints\n";
 
                 std::ofstream foutb("test_" + std::to_string(i));
                 for (int i = 0; i < oscillation.size(); i++)
@@ -225,7 +268,7 @@ TEST(TestOnGeneratedData, test_gen_data)
                 {
                     fout2 << basicR.at(i).timeI << "\t" << basicR.at(i).angleI << "\t" << basicR.at(i).momentum << "\t"
                           << basicR.at(i).timeF << "\t" << basicR.at(i).angleF << "\t" << basicR.at(i).momentum << "\n";
-                    
+
                     std::cout << basicR.at(i).timeI << "\t" << basicR.at(i).momentum << "\t"
                               << basicR.at(i).timeF << "\t" << basicR.at(i).momentum << "\n";
                 }
