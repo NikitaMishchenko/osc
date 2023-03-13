@@ -62,7 +62,7 @@ public:
     {
     }
 
-    std::tuple<std::vector<double>, std::vector<PitchMomentumBasic>, std::vector<double>, std::vector<AngleAmplitudeBase>>
+    std::tuple<std::vector<PitchMomentumBasic>, std::vector<PitchMomentumBasic>, std::vector<PitchMomentumBasic>, std::vector<AngleAmplitudeBase>>
     getData() const
     {
         return std::make_tuple(m_pitchStaticMomentum, m_pitchMomentumBasicVector, m_pitchDynamicMomentum, m_angleAmplitude.m_angleAmplitudeBase);
@@ -73,12 +73,12 @@ public:
         return m_plotApprox.str();
     }
 
-    void setHiddenIndex(const std::string& specificName)
+    void setHiddenIndex(const std::string &specificName)
     {
         m_specificName = specificName;
     }
 
-    bool calculateEqvivalentDampingCoefficients(int method) 
+    bool calculateEqvivalentDampingCoefficients(int method)
     {
         m_method = method;
 
@@ -98,18 +98,18 @@ public:
             // m_dyn = -2I*n(Ampl)*V/q/s/l/l
 
             // -2.0*I*v/q/s/l/l // model flow
-            const double coeff = -2.0*m_model->getI()*m_flow->getVelocity()/m_flow->getDynamicPressure()/m_model->getS()/m_model->getL()/m_model->getL();
+            const double coeff = -2.0 * m_model->getI() * m_flow->getVelocity() / m_flow->getDynamicPressure() / m_model->getS() / m_model->getL() / m_model->getL();
 
             PitchMomentumBasic pitchMomentumBasic;
 
             for (const auto &eqvivalentDampingCoefficient : eqvivalentDampingCoefficientVector)
             {
-                pitchMomentumBasic.momentum = coeff*eqvivalentDampingCoefficient.lambda;
-                
+                pitchMomentumBasic.momentum = coeff * eqvivalentDampingCoefficient.lambda;
+
                 pitchMomentumBasic.time = eqvivalentDampingCoefficient.arg;
                 pitchMomentumBasic.timeI = eqvivalentDampingCoefficient.argInitial;
                 pitchMomentumBasic.timeF = eqvivalentDampingCoefficient.argFinal;
-                
+
                 pitchMomentumBasic.angle = eqvivalentDampingCoefficient.func;
                 pitchMomentumBasic.angleI = eqvivalentDampingCoefficient.funcInitial;
                 pitchMomentumBasic.angleF = eqvivalentDampingCoefficient.funcFinal;
@@ -124,19 +124,47 @@ public:
         {
             if (!calcuatePitchStaticMomentum())
                 return false;
-            
+
             if (m_dangle->empty() || m_pitchStaticMomentum.empty()) // || (m_dangle.size() != m_pitchStaticMomentum.size()))
                 return false;
 
             // l/v model, flow
-            const double coeff = m_model->getL()/m_flow->getVelocity();
+            const double coeff = m_model->getL() / m_flow->getVelocity();
 
             const size_t size = std::min(std::min(m_pitchMomentumBasicVector.size(), m_pitchStaticMomentum.size()),
                                          std::min(m_angle->size(), m_dangle->size()));
 
-            for (size_t i = 0; i < size; ++i)
+            if (m_pitchStaticMomentum.size() < m_pitchMomentumBasicVector.size())
             {
-               m_pitchDynamicMomentum.push_back(m_pitchStaticMomentum.at(i) * m_angle->at(i) + coeff * m_pitchMomentumBasicVector.at(i).momentum * m_dangle->at(i)); 
+                PitchMomentumBasic dynamic;
+                // based on staticMomentum
+                while (m_pitchStaticMomentum.at(i).time <= m_pitchMomentumBasicVector.at(i).time)
+                {
+                    double dyn = m_pitchStaticMomentum.at(i).momentum * m_angle->at(i) + coeff * m_pitchMomentumBasicVector.at(i).momentum * m_dangle->at(i);
+
+                    dynamic.momentum = dyn;
+                    m_pitchDynamicMomentum.push_back(dynamic);
+                    i++;
+
+                    if (m_pitchStaticMomentum.size() == i)
+                        break;
+                }
+            }
+            else
+            {
+                PitchMomentumBasic dynamic;
+                // based on momentumBasic
+                while (m_pitchMomentumBasicVector.at(i).time <= m_pitchStaticMomentum.at(i).time)
+                {
+                    double dyn = m_pitchStaticMomentum.at(i).momentum * m_angle->at(i) + coeff * m_pitchMomentumBasicVector.at(i).momentum * m_dangle->at(i);
+
+                    dynamic.momentum = dyn;
+                    m_pitchDynamicMomentum.push_back(dynamic);
+                    i++;
+
+                    if (m_pitchMomentumBasicVector.size() == i)
+                        break;
+                }
             }
 
             isOk = true;
@@ -147,39 +175,51 @@ public:
 
     bool calcuatePitchStaticMomentum()
     {
-        std::cout << "calcuatePitchStaticMomentum(): m_dangle.size() = " << m_dangle->size() << "\t" << "m_ddangle.size() = " << m_ddangle->size() << "\n";
+        std::cout << "calcuatePitchStaticMomentum(): m_dangle.size() = " << m_dangle->size() << "\t"
+                  << "m_ddangle.size() = " << m_ddangle->size() << "\n";
 
-        const double M_fr = m_Mfr ? *m_Mfr : 0; // fixme 
-        const double coeffFriction = M_fr/m_flow->calculateDynamicPressure()/m_model->getS()/m_model->getL(); // 1/q/s/l // model, flow
-        const double Iz = m_model->getI(); // model
+        const double M_fr = m_Mfr ? *m_Mfr : 0;                                                                     // fixme
+        const double coeffFriction = M_fr / m_flow->calculateDynamicPressure() / m_model->getS() / m_model->getL(); // 1/q/s/l // model, flow
+        const double Iz = m_model->getI();                                                                          // model
 
         if (m_dangle->empty() || m_ddangle->empty())
             return false;
 
-        for (size_t i = 0; i < m_dangle->size()-1; i++)
+        PitchMomentumBasic pitchMomentumBasic;
+        double timeI = m_time->at(0);
+        double timeF;
+
+        for (size_t i = 0; i < m_dangle->size() - 1; i++)
         {
-            if (m_dangle->at(i) <= 0 && m_dangle->at(i+1)>= 0)
-                m_pitchStaticMomentum.push_back(Iz*m_ddangle->at(i) - coeffFriction);
+            if (m_dangle->at(i) <= 0 && m_dangle->at(i + 1) >= 0)
+            {
+                pitchMomentumBasic.momentum = Iz * m_ddangle->at(i) - coeffFriction;
+                pitchMomentumBasic.time = m_time->at(i);
+
+                m_pitchStaticMomentum.push_back(pitchMomentumBasic);
+            }
+
+            if (1 == m_pitchStaticMomentum.size())
+                m_pitchStaticMomentum.at(0).timeI = m_time->at(0);
         }
 
         return true;
     }
 
 private:
-
-    void saveData(const std::string& fileName, std::vector<double> v1, std::vector<double> v2)
+    void saveData(const std::string &fileName, std::vector<double> v1, std::vector<double> v2) const
     {
         std::ofstream fout(fileName);
 
-        for(size_t i = 0; i < v1.size(); i++)
+        for (size_t i = 0; i < v1.size(); i++)
             fout << v1.at(i) << "\t" << v2.at(i) << "\n";
     }
 
-    void saveData(const std::string& fileName, std::vector<double> v1, std::vector<double> v2, std::vector<double> v3)
+    void saveData(const std::string &fileName, std::vector<double> v1, std::vector<double> v2, std::vector<double> v3) const
     {
         std::ofstream fout(fileName);
 
-        for(size_t i = 0; i < v1.size(); i++)
+        for (size_t i = 0; i < v1.size(); i++)
             fout << v1.at(i) << "\t" << v2.at(i) << "\t" << v3.at(i) << "\n";
     }
 
@@ -233,9 +273,9 @@ private:
                 const std::string fileNameApprox = FILE_NAME_DATA_TO_APPROX + specificName + std::to_string(periodCounter);
 
                 std::cout << "saving tmp file: \"" << fileNameApprox << "\"\n";
-                
+
                 saveData(fileNameApprox, dataToApproximateX, dataToApproximateY);
-                
+
                 foutApproxRes << approximationResult.A << "\t" << approximationResult.B << "\t" << approximationResult.lambda << "\n";
                 std::cout << approximationResult.A << "\t" << approximationResult.B << "\t" << approximationResult.lambda << "\n";
             }
@@ -256,18 +296,15 @@ private:
         if (m_specificName)
         {
             std::cout << "saving plotApprox file\n";
-            
-            m_plotApprox << "filename(n) = sprintf(\"" << FILE_NAME_DATA_TO_APPROX << "_" << m_specificName.get() << std::string("_%d\", n)\n") 
+
+            m_plotApprox << "filename(n) = sprintf(\"" << FILE_NAME_DATA_TO_APPROX << "_" << m_specificName.get() << std::string("_%d\", n)\n")
                          << "plot for [i=0:20] filename(i) using 1:2 with linespoints";
         }
-
 
         return std::make_tuple(isOk, approximationResultVector);
     }
 
-    
-
-    double getAvgAmplitude(const std::vector<double>& ampl, const int currentIndex, const int pointCounter) const
+    double getAvgAmplitude(const std::vector<double> &ampl, const int currentIndex, const int pointCounter) const
     {
         double avgAmpl = 0;
 
@@ -275,11 +312,11 @@ private:
         {
             if (ampl.size() == currentIndex + pointCounter)
                 break;
-            
+
             avgAmpl += ampl.at(i);
         }
 
-        return avgAmpl/pointCounter;
+        return avgAmpl / pointCounter;
     }
 
     // INPUT
@@ -298,12 +335,11 @@ private:
     boost::optional<std::string> m_specificName;
 
     // INTERNAL
-    std::vector<double> m_pitchStaticMomentum;
-    std::vector<double> m_pitchDynamicMomentum;
+    std::vector<PitchMomentumBasic> m_pitchStaticMomentum;
+    std::vector<PitchMomentumBasic> m_pitchDynamicMomentum;
     std::vector<PitchMomentumBasic> m_pitchMomentumBasicVector;
 
     AngleAmplitude m_angleAmplitude;
 
     std::stringstream m_plotApprox;
 };
- 

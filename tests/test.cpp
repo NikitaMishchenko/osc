@@ -293,9 +293,9 @@ TEST(TestOnGeneratedData, test_gen_data)
             std::string indexForScript = std::to_string(i);
             pitchDynamicMomentum.setHiddenIndex(indexForScript);
 
-            std::vector<double> staticR;
+            std::vector<PitchMomentumBasic> staticR;
             std::vector<PitchMomentumBasic> basicR;
-            std::vector<double> dynamicR;
+            std::vector<PitchMomentumBasic> dynamicR;
             std::vector<AngleAmplitudeBase> amplitude;
 
             {
@@ -317,7 +317,8 @@ TEST(TestOnGeneratedData, test_gen_data)
 
                 std::ofstream fout1("static_" + std::to_string(i));
                 for (int i = 0; i < staticR.size(); i++)
-                    fout1 << staticR.at(i) << "\n";
+                    fout1 << staticR.at(i).time << "\t"
+                          << staticR.at(i).momentum << "\n";
 
                 std::ofstream fout2("basic_" + std::to_string(i));
                 for (int i = 0; i < basicR.size(); i++)
@@ -332,7 +333,8 @@ TEST(TestOnGeneratedData, test_gen_data)
                 }
                 std::ofstream fout3("dynamic_" + std::to_string(i));
                 for (int i = 0; i < dynamicR.size(); i++)
-                    fout3 << dynamicR.at(i) << "\n";
+                    fout3 << dynamicR.at(i).time << "\t"
+                          << dynamicR.at(i).momentum << "\n";
 
                 std::ofstream fout4("amplitude_" + std::to_string(i));
                 for (int i = 0; i < amplitude.size(); i++)
