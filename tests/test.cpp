@@ -322,11 +322,13 @@ TEST(TestOnGeneratedData, test_gen_data)
                 std::ofstream fout2("basic_" + std::to_string(i));
                 for (int i = 0; i < basicR.size(); i++)
                 {
-                    fout2 << basicR.at(i).timeI << "\t" << basicR.at(i).angleI << "\t" << basicR.at(i).momentum << "\t"
+                    fout2 << basicR.at(i).time << "\t" << basicR.at(i).angle << "\t" << basicR.at(i).momentum << "\t" 
+                          << basicR.at(i).timeI << "\t" << basicR.at(i).angleI << "\t" << basicR.at(i).momentum << "\t"
                           << basicR.at(i).timeF << "\t" << basicR.at(i).angleF << "\t" << basicR.at(i).momentum << "\n";
 
-                    std::cout << basicR.at(i).timeI << "\t" << basicR.at(i).momentum << "\t"
-                              << basicR.at(i).timeF << "\t" << basicR.at(i).momentum << "\n";
+                    std::cout << basicR.at(i).time << "\t" << basicR.at(i).angle << "\t" << basicR.at(i).momentum << "\t"
+                              << basicR.at(i).timeI << "\t" << basicR.at(i).angleI << "\t" << basicR.at(i).momentum << "\t"
+                              << basicR.at(i).timeF << "\t" << basicR.at(i).angleF << "\t" << basicR.at(i).momentum << "\n";
                 }
                 std::ofstream fout3("dynamic_" + std::to_string(i));
                 for (int i = 0; i < dynamicR.size(); i++)
@@ -341,3 +343,7 @@ TEST(TestOnGeneratedData, test_gen_data)
         }
     }
 }
+
+// plot "basic_1" using 1:2 with linespoints, "test_1" using 1:2 with linespoints, 0.97*exp(-1.1*x)+0.0, "approx_1_0" using 1:2
+// f(x) = A*exp(-1.0*l*x)+B
+// fit f(x) "approx_1_0" using 1:2 via A,l,B

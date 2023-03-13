@@ -24,8 +24,12 @@ enum Method
 struct PitchMomentumBasic
 {
     double momentum;
+
+    double time;
     double timeI;
     double timeF;
+
+    double angle;
     double angleI;
     double angleF;
 };
@@ -101,8 +105,12 @@ public:
             for (const auto &eqvivalentDampingCoefficient : eqvivalentDampingCoefficientVector)
             {
                 pitchMomentumBasic.momentum = coeff*eqvivalentDampingCoefficient.lambda;
+                
+                pitchMomentumBasic.time = eqvivalentDampingCoefficient.arg;
                 pitchMomentumBasic.timeI = eqvivalentDampingCoefficient.argInitial;
                 pitchMomentumBasic.timeF = eqvivalentDampingCoefficient.argFinal;
+                
+                pitchMomentumBasic.angle = eqvivalentDampingCoefficient.func;
                 pitchMomentumBasic.angleI = eqvivalentDampingCoefficient.funcInitial;
                 pitchMomentumBasic.angleF = eqvivalentDampingCoefficient.funcFinal;
 
@@ -257,6 +265,23 @@ private:
         return std::make_tuple(isOk, approximationResultVector);
     }
 
+    
+
+    double getAvgAmplitude(const std::vector<double>& ampl, const int currentIndex, const int pointCounter) const
+    {
+        double avgAmpl = 0;
+
+        for (int i = currentIndex; i < currentIndex + pointCounter; i++)
+        {
+            if (ampl.size() == currentIndex + pointCounter)
+                break;
+            
+            avgAmpl += ampl.at(i);
+        }
+
+        return avgAmpl/pointCounter;
+    }
+
     // INPUT
     std::shared_ptr<std::vector<double>> m_time;
     std::shared_ptr<std::vector<double>> m_angle;
@@ -281,3 +306,4 @@ private:
 
     std::stringstream m_plotApprox;
 };
+ 

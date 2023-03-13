@@ -89,8 +89,11 @@ namespace approximation::nonlinnear
         double B;
         double errB;
 
+        double func;
         double funcInitial;
         double funcFinal;
+
+        double arg;
         double argInitial;
         double argFinal;
 
@@ -188,8 +191,19 @@ namespace approximation::nonlinnear
                 m_approximationResult.B = gsl_vector_get(w->x, 2);
                 m_approximationResult.errB = sqrt(gsl_matrix_get(covar, 2, 2));
 
+                double argAvg = 0;
+                for (const auto& a : dataToFitX)
+                    argAvg += a;
+
+                double funcAvg = 0;
+                for (const auto& a : dataToFitX)
+                    funcAvg += a;
+
+                m_approximationResult.arg = argAvg/dataToFitX.size();
                 m_approximationResult.argInitial = dataToFitX.front();
                 m_approximationResult.argFinal = dataToFitX.back();
+
+                m_approximationResult.func = funcAvg/dataToFitY.size();
                 m_approximationResult.funcInitial = dataToFitY.front();
                 m_approximationResult.funcFinal = dataToFitY.back();
             }
