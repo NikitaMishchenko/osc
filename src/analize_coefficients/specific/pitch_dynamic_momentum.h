@@ -82,9 +82,6 @@ public:
     {
         m_method = method;
 
-        // if (!m_angleAmplitude.doWork(m_mode))
-        //    return false;
-
         bool isOk = false;
         std::vector<approximation::nonlinnear::ApproximationResult> eqvivalentDampingCoefficientVector;
 
@@ -134,37 +131,25 @@ public:
             const size_t size = std::min(std::min(m_pitchMomentumBasicVector.size(), m_pitchStaticMomentum.size()),
                                          std::min(m_angle->size(), m_dangle->size()));
 
-            if (m_pitchStaticMomentum.size() < m_pitchMomentumBasicVector.size())
+            PitchMomentumBasic dynamic;
+            // based on momentumBasic
+            int iBasic = 0, iStatic = 0;
+
+            for (const auto &basicThrough : m_pitchMomentumBasicVector)
             {
-                PitchMomentumBasic dynamic;
-                // based on staticMomentum
-                while (m_pitchStaticMomentum.at(i).time <= m_pitchMomentumBasicVector.at(i).time)
-                {
-                    double dyn = m_pitchStaticMomentum.at(i).momentum * m_angle->at(i) + coeff * m_pitchMomentumBasicVector.at(i).momentum * m_dangle->at(i);
+                double staticMomentum, basicMomentum, angle, dangle;
 
-                    dynamic.momentum = dyn;
-                    m_pitchDynamicMomentum.push_back(dynamic);
-                    i++;
+                std::tie(staticMomentum, basicMomentum, angle, dangle) = getAtTimeForBasic(basicThrough.time,
+                                                                                           m_pitchMomentumBasicVector,
+                                                                                           m_pitchStaticMomentum,
+                                                                                           m_time,
+                                                                                           m_angle,
+                                                                                           m_dangle);
 
-                    if (m_pitchStaticMomentum.size() == i)
-                        break;
-                }
-            }
-            else
-            {
-                PitchMomentumBasic dynamic;
-                // based on momentumBasic
-                while (m_pitchMomentumBasicVector.at(i).time <= m_pitchStaticMomentum.at(i).time)
-                {
-                    double dyn = m_pitchStaticMomentum.at(i).momentum * m_angle->at(i) + coeff * m_pitchMomentumBasicVector.at(i).momentum * m_dangle->at(i);
+                dynamic.momentum = staticMomentum * angle + coeff * basicMomentum * dangle;
+                dynamic.time = basicThrough.time;
 
-                    dynamic.momentum = dyn;
-                    m_pitchDynamicMomentum.push_back(dynamic);
-                    i++;
-
-                    if (m_pitchMomentumBasicVector.size() == i)
-                        break;
-                }
+                m_pitchDynamicMomentum.push_back(dynamic);
             }
 
             isOk = true;
@@ -207,6 +192,54 @@ public:
     }
 
 private:
+    std::tuple<double, double, double, double>
+    getAtTimeForBasic(double targetTime,
+                      const std::vector<PitchMomentumBasic> &pitcBasicMomentumVector,
+                      const std::vector<PitchMomentumBasic> &pitchStaticMomentumVector,
+                      const std::shared_ptr<std::vector<double>> timeVector,
+                      const std::shared_ptr<std::vector<double>> angleVector,
+                      const std::shared_ptr<std::vector<double>> dangleVector) const
+    {
+        double basicMomentum, staticMomentum, angle, dangle;
+
+        {
+            std::vector<PitchMomentumBasic>::const_iterator pitcBasicMomentumVectorIt = pitcBasicMomentumVector.begin();
+            while (pitcBasicMomentumVectorIt != pitcBasicMomentumVector.end() && pitcBasicMomentumVectorIt->time <= targetTime)
+            {
+                pitcBasicMomentumVectorIt++;
+            }
+            basicMomentum = pitcBasicMomentumVectorIt->momentum;
+        }
+
+        {
+            std::vector<PitchMomentumBasic>::const_iterator pitchStaticMomentumVectorIt = pitchStaticMomentumVector.begin();
+            while (pitchStaticMomentumVectorIt != pitchStaticMomentumVector.end() && pitchStaticMomentumVectorIt->time <= targetTime)
+            {
+                pitchStaticMomentumVectorIt++;
+            }
+            staticMomentum = pitchStaticMomentumVectorIt->momentum;
+        }
+
+        {
+            std::vector<double>::const_iterator timeVectorIt = timeVector->begin();
+            std::vector<double>::const_iterator angleVectorIt = angleVector->begin();
+            std::vector<double>::const_iterator dangleVectorIt = dangleVector->begin();
+            while (timeVectorIt != timeVector->end() &&
+                   angleVectorIt != angleVector->end() &&
+                   dangleVectorIt != dangleVector->end() && 
+                   *timeVectorIt <= targetTime)
+            {
+                timeVectorIt++;
+                angleVectorIt++;
+                dangleVectorIt++;
+            }
+            angle = *angleVectorIt;
+            dangle = *dangleVectorIt;
+        }
+
+        return std::make_tuple(staticMomentum, basicMomentum, angle, dangle);
+    }
+
     void saveData(const std::string &fileName, std::vector<double> v1, std::vector<double> v2) const
     {
         std::ofstream fout(fileName);
