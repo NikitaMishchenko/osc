@@ -204,7 +204,9 @@ private:
 
         {
             std::vector<PitchMomentumBasic>::const_iterator pitcBasicMomentumVectorIt = pitcBasicMomentumVector.begin();
-            while (pitcBasicMomentumVectorIt != pitcBasicMomentumVector.end() && pitcBasicMomentumVectorIt->time <= targetTime)
+            while (pitcBasicMomentumVectorIt != pitcBasicMomentumVector.end()-1 && 
+                   pitcBasicMomentumVectorIt->time <= targetTime && 
+                   (pitcBasicMomentumVectorIt->time+1) > targetTime)
             {
                 pitcBasicMomentumVectorIt++;
             }
@@ -213,7 +215,9 @@ private:
 
         {
             std::vector<PitchMomentumBasic>::const_iterator pitchStaticMomentumVectorIt = pitchStaticMomentumVector.begin();
-            while (pitchStaticMomentumVectorIt != pitchStaticMomentumVector.end() && pitchStaticMomentumVectorIt->time <= targetTime)
+            while (pitchStaticMomentumVectorIt != pitchStaticMomentumVector.end()-1 && 
+                   pitchStaticMomentumVectorIt->time <= targetTime &&
+                   (pitchStaticMomentumVectorIt+1)->time >= targetTime)
             {
                 pitchStaticMomentumVectorIt++;
             }
@@ -224,10 +228,11 @@ private:
             std::vector<double>::const_iterator timeVectorIt = timeVector->begin();
             std::vector<double>::const_iterator angleVectorIt = angleVector->begin();
             std::vector<double>::const_iterator dangleVectorIt = dangleVector->begin();
-            while (timeVectorIt != timeVector->end() &&
-                   angleVectorIt != angleVector->end() &&
-                   dangleVectorIt != dangleVector->end() && 
-                   *timeVectorIt <= targetTime)
+            while (timeVectorIt != timeVector->end()-1 &&
+                   angleVectorIt != angleVector->end()-1 &&
+                   dangleVectorIt != dangleVector->end()-1 && 
+                   *timeVectorIt <= targetTime &&
+                   *(timeVectorIt+1) >= targetTime)
             {
                 timeVectorIt++;
                 angleVectorIt++;

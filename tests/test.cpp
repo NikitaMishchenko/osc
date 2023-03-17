@@ -288,7 +288,7 @@ TEST(TestOnGeneratedData, test_gen_data)
                                                       std::make_shared<std::vector<double>>(oscillation.getDdangle()),
                                                       std::make_shared<wt_flow::Flow>(),
                                                       std::make_shared<Model>(),
-                                                      20);
+                                                      2);
 
             std::string indexForScript = std::to_string(i);
             pitchDynamicMomentum.setHiddenIndex(indexForScript);
@@ -334,6 +334,7 @@ TEST(TestOnGeneratedData, test_gen_data)
                 std::ofstream fout3("dynamic_" + std::to_string(i));
                 for (int i = 0; i < dynamicR.size(); i++)
                     fout3 << dynamicR.at(i).time << "\t"
+                          << dynamicR.at(i).angle << "\t"  
                           << dynamicR.at(i).momentum << "\n";
 
                 std::ofstream fout4("amplitude_" + std::to_string(i));
@@ -349,3 +350,6 @@ TEST(TestOnGeneratedData, test_gen_data)
 // plot "basic_1" using 1:2 with linespoints, "test_1" using 1:2 with linespoints, 0.97*exp(-1.1*x)+0.0, "approx_1_0" using 1:2
 // f(x) = A*exp(-1.0*l*x)+B
 // fit f(x) "approx_1_0" using 1:2 via A,l,B
+
+// plot "basic_0" using 2:3 with linespoints, "basic_1" using 2:3 with linespoints, "basic_2" using 2:3 with linespoints, "basic_3" using 2:3 with linespoints
+

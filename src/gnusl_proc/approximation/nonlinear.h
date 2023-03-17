@@ -195,13 +195,13 @@ namespace approximation::nonlinnear
                 for (const auto& a : dataToFitX)
                     argAvg += a;
 
-                double funcAvg = 0;
-                for (const auto& a : dataToFitX)
-                    funcAvg += a;
-
                 m_approximationResult.arg = argAvg/dataToFitX.size();
                 m_approximationResult.argInitial = dataToFitX.front();
                 m_approximationResult.argFinal = dataToFitX.back();
+
+                double funcAvg = 0;
+                for (const auto& a : dataToFitY)
+                    funcAvg += a;
 
                 m_approximationResult.func = funcAvg/dataToFitY.size();
                 m_approximationResult.funcInitial = dataToFitY.front();
