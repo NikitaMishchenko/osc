@@ -101,7 +101,7 @@ namespace approximation::nonlinnear
         {
             std::cout << "A      = " << A << " +/- " << errA << "\n"
                       << "lambda = " << lambda << " +/- " << errLambda << "\n"
-                      << "b      = " << B << " +/- " << errB << "\n";                     
+                      << "b      = " << B << " +/- " << errB << "\n";
         }
     };
 
@@ -192,18 +192,18 @@ namespace approximation::nonlinnear
                 m_approximationResult.errB = sqrt(gsl_matrix_get(covar, 2, 2));
 
                 double argAvg = 0;
-                for (const auto& a : dataToFitX)
+                for (const auto &a : dataToFitX)
                     argAvg += a;
 
-                m_approximationResult.arg = argAvg/dataToFitX.size();
+                m_approximationResult.arg = argAvg / dataToFitX.size();
                 m_approximationResult.argInitial = dataToFitX.front();
                 m_approximationResult.argFinal = dataToFitX.back();
 
                 double funcAvg = 0;
-                for (const auto& a : dataToFitY)
+                for (const auto &a : dataToFitY)
                     funcAvg += a;
 
-                m_approximationResult.func = funcAvg/dataToFitY.size();
+                m_approximationResult.func = funcAvg / dataToFitY.size();
                 m_approximationResult.funcInitial = dataToFitY.front();
                 m_approximationResult.funcFinal = dataToFitY.back();
             }
@@ -273,8 +273,8 @@ namespace approximation::nonlinnear
 
             gsl_blas_ddot(f, f, &chisq0);
 
-            const double xtol = 1e-12;// 1e-8;
-            const double gtol = 1e-12;// 1e-8;
+            const double xtol = 1e-12; // 1e-8;
+            const double gtol = 1e-12; // 1e-8;
             const double ftol = 0.0;
             /* solve the system with a maximum of 100 iterations */
             int status;
@@ -336,19 +336,19 @@ namespace approximation::nonlinnear
     };
 
     /*
-    *   Model Yi = A * exp(-lambda * t_i) + b
-    */
-    std::tuple<int, ApproximationResult>
-    approximate(const std::vector<double> &inputDataX,
-                const std::vector<double> &inputDataY)
-                //const std::optional<std::vector<double>> &err = std::optional<std::vector<double>>())
+     *   Model Yi = A * exp(-lambda * t_i) + b
+     */
+    std::tuple<int, ApproximationResult, std::string>
+    approximateAndInfo(const std::vector<double> &inputDataX,
+                       const std::vector<double> &inputDataY)
+    // const std::optional<std::vector<double>> &err = std::optional<std::vector<double>>())
     {
         approximation::nonlinnear::ProceedApproximation nonlinnear;
 
         std::ofstream fout("tmp");
-        for ( int i = 0; i < inputDataX.size(); i++)
+        for (int i = 0; i < inputDataX.size(); i++)
             fout << inputDataX.at(i) << "\t" << inputDataY.at(i) << "\n";
-        fout.close();       
+        fout.close();
 
         const int errCode = nonlinnear.act(inputDataX, inputDataY);
 
@@ -356,13 +356,13 @@ namespace approximation::nonlinnear
         std::cout << nonlinnear.getResultInformation() << "\n";
         std::cout << nonlinnear.getResults() << "\n";
 
-        if (int(GSL_SUCCESS) == errCode);
+        if (int(GSL_SUCCESS) == errCode)
         {
-            return std::make_tuple(codes::POSITIVE, nonlinnear.getApproximationResult());
+            return std::make_tuple(codes::POSITIVE, nonlinnear.getApproximationResult(), std::string(nonlinnear.getResultInformation() + "\n" + nonlinnear.getResults()));
         }
 
         std::cerr << "failed to proceed nonlinnear approximation, errCode: " << errCode << "\n";
-        return std::make_tuple(codes::NEGATIVE, nonlinnear.getApproximationResult());
+        return std::make_tuple(codes::NEGATIVE, nonlinnear.getApproximationResult(), std::string(nonlinnear.getResultInformation() + "\n" + nonlinnear.getResults()));
     }
 
 } // namespace

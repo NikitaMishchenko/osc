@@ -10,3 +10,5 @@ rm test*
 rm plotApprox*
 rm amplitude*
 rm fit.log
+rm log
+rm description

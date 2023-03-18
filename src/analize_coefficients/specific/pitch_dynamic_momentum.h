@@ -32,7 +32,25 @@ struct PitchMomentumBasic
     double angle;
     double angleI;
     double angleF;
+
+    double dangle; // optional
 };
+
+namespace helpers
+{
+    inline PitchMomentumBasic getAtTime(const std::vector<PitchMomentumBasic> &base, const double targetTime)
+    {
+        std::vector<PitchMomentumBasic>::const_iterator it = base.begin();
+
+        for (; it != base.end() - 1; it++)
+        {
+            if ((it + 1)->time > targetTime)
+                break;
+        }
+
+        return *it;
+    }
+}
 
 const std::string FILE_NAME_DATA_TO_APPROX = "approx";
 
@@ -68,9 +86,14 @@ public:
         return std::make_tuple(m_pitchStaticMomentum, m_pitchMomentumBasicVector, m_pitchDynamicMomentum, m_angleAmplitude.m_angleAmplitudeBase);
     }
 
-    std::string getPlottScript()
+    std::string getPlottScript() const
     {
         return m_plotApprox.str();
+    }
+
+    std::string getProceduresHistory() const
+    {
+        return m_proceduresHistory.str();
     }
 
     void setHiddenIndex(const std::string &specificName)
@@ -78,14 +101,14 @@ public:
         m_specificName = specificName;
     }
 
-    bool calculateEqvivalentDampingCoefficients(int method)
+    bool calculateEqvivalentDampingCoefficients(int method = 0)
     {
         m_method = method;
 
         bool isOk = false;
         std::vector<approximation::nonlinnear::ApproximationResult> eqvivalentDampingCoefficientVector;
 
-        std::cout << "calculateEqvivalentDampingCoefficients\n";
+        m_proceduresHistory << "calculateEqvivalentDampingCoefficients\n";
 
         {
             // damping coeffiients assumed to be constant on each calcuilated point
@@ -146,15 +169,26 @@ public:
                                                                                            m_angle,
                                                                                            m_dangle);
                 dynamic.momentum = staticMomentum * angle + coeff * basicMomentum * dangle;
-                dynamic.angle = angle;
+                dynamic.angle = basicThrough.angle;
+                dynamic.dangle = dangle;
                 dynamic.time = basicThrough.time;
 
-                std::cout << "Calculated dynamic:\n"
-                          << "\tstaticMomentum: " << staticMomentum << "\n"
-                          << "\tangle: " << angle << "\n"
-                          << "\tbasicMomentum: " << basicMomentum << "\n"
-                          << "\tdangle: " << dangle << "\n"
-                          << "\t\tresultDynamic: " << dynamic.momentum << "\n";
+                std::string fileInfo;
+                if (m_specificName)
+                    fileInfo = "(" + FILE_NAME_DATA_TO_APPROX + "_" + m_specificName.get() + ")";
+                m_proceduresHistory << "Calculated dynamic" << fileInfo << ":\n"
+                                    << "\ttime: " << dynamic.time << "\n"
+                                    << "\tangle: " << dynamic.angle << "\n"
+                                    << "\tdangle: " << dynamic.dangle << "\n"
+                                    << "\tcoeff: " << coeff << " (m_model->getL() / m_flow->getVelocity())\n"
+                                    << "\tstaticMomentum: " << staticMomentum << "\n"
+                                    << "\tbasicMomentum: " << basicMomentum << "\n"
+                                    << "\t\tresultDynamic: " << dynamic.momentum << "\n"
+                                    << "______________________________________________________________________________\n"
+                                    << "\t\t"
+                                    << "staticMomentum * angle  + coeff * basicMomentum * dangle\n"
+                                    << "\t\t" << staticMomentum * angle << " + " << coeff * basicMomentum * dangle << "\n"
+                                    << "******************************************************************************\n";
 
                 m_pitchDynamicMomentum.push_back(dynamic);
             }
@@ -167,8 +201,8 @@ public:
 
     bool calcuatePitchStaticMomentum()
     {
-        std::cout << "calcuatePitchStaticMomentum(): m_dangle.size() = " << m_dangle->size() << "\t"
-                  << "m_ddangle.size() = " << m_ddangle->size() << "\n";
+        m_proceduresHistory << "calcuatePitchStaticMomentum(): m_dangle.size() = " << m_dangle->size() << "\t"
+                            << "m_ddangle.size() = " << m_ddangle->size() << "\n";
 
         const double M_fr = m_Mfr ? *m_Mfr : 0;                                                      // fixme
         const double coeff = m_flow->calculateDynamicPressure() * m_model->getS() * m_model->getL(); // 1/q/s/l // model, flow
@@ -189,7 +223,7 @@ public:
                 m_dangle->at(i) >= 0 && m_dangle->at(i + 1) <= 0)
             {
                 staticMomentum = (Iz * m_ddangle->at(i) - M_fr) / coeff;
-                
+
                 pitchMomentumBasic.momentum = std::abs(staticMomentum);
                 pitchMomentumBasic.time = m_time->at(i);
                 pitchMomentumBasic.angle = m_angle->at(i);
@@ -216,25 +250,27 @@ private:
         double basicMomentum, staticMomentum, angle, dangle;
 
         {
-            std::vector<PitchMomentumBasic>::const_iterator pitcBasicMomentumVectorIt = pitcBasicMomentumVector.begin();
+            /*std::vector<PitchMomentumBasic>::const_iterator pitcBasicMomentumVectorIt = pitcBasicMomentumVector.begin();
             while (pitcBasicMomentumVectorIt != pitcBasicMomentumVector.end() - 1 &&
                    pitcBasicMomentumVectorIt->time <= targetTime &&
                    (pitcBasicMomentumVectorIt->time + 1) > targetTime)
             {
                 pitcBasicMomentumVectorIt++;
             }
-            basicMomentum = pitcBasicMomentumVectorIt->momentum;
+            basicMomentum = pitcBasicMomentumVectorIt->momentum;*/
+            basicMomentum = helpers::getAtTime(pitcBasicMomentumVector, targetTime).momentum;
         }
 
         {
-            std::vector<PitchMomentumBasic>::const_iterator pitchStaticMomentumVectorIt = pitchStaticMomentumVector.begin();
+            /*std::vector<PitchMomentumBasic>::const_iterator pitchStaticMomentumVectorIt = pitchStaticMomentumVector.begin();
             while (pitchStaticMomentumVectorIt != pitchStaticMomentumVector.end() - 1 &&
                    pitchStaticMomentumVectorIt->time <= targetTime &&
                    (pitchStaticMomentumVectorIt + 1)->time >= targetTime)
             {
                 pitchStaticMomentumVectorIt++;
             }
-            staticMomentum = pitchStaticMomentumVectorIt->momentum;
+            staticMomentum = pitchStaticMomentumVectorIt->momentum;*/
+            staticMomentum = helpers::getAtTime(pitchStaticMomentumVector, targetTime).momentum;
         }
 
         {
@@ -247,10 +283,6 @@ private:
                     *(timeVectorIt + 1) > targetTime)
                 {
                     break;
-                }
-                if (timeVectorIt - timeVector->begin() > 1849)
-                {
-                    // std::cout << *angleVectorIt << "\n";
                 }
 
                 timeVectorIt++;
@@ -335,9 +367,14 @@ private:
 
             int errCode = approximation::codes::NEGATIVE;
             approximation::nonlinnear::ApproximationResult approximationResult;
+            std::string approximateInfo;
 
             // Model Yi = A * exp(-lambda * t_i) + b
-            std::tie(errCode, approximationResult) = approximation::nonlinnear::approximate(dataToApproximateX, dataToApproximateY);
+            // m_proceduresHistory
+            std::tie(errCode, approximationResult, approximateInfo) =
+                approximation::nonlinnear::approximateAndInfo(dataToApproximateX, dataToApproximateY);
+
+            m_proceduresHistory << approximateInfo << "\n";
 
             std::string specificName = std::string();
             if (m_specificName)
@@ -345,12 +382,14 @@ private:
                 specificName = "_" + m_specificName.get() + "_";
                 const std::string fileNameApprox = FILE_NAME_DATA_TO_APPROX + specificName + std::to_string(periodCounter);
 
-                std::cout << "saving tmp file: \"" << fileNameApprox << "\"\n";
+                m_proceduresHistory << "saving tmp file: \"" << fileNameApprox << "\"\n";
 
                 saveData(fileNameApprox, dataToApproximateX, dataToApproximateY);
 
+                m_proceduresHistory << "A = " << approximationResult.A
+                                    << ", B = " << approximationResult.B
+                                    << ", lambda =" << approximationResult.lambda << "\n";
                 foutApproxRes << approximationResult.A << "\t" << approximationResult.B << "\t" << approximationResult.lambda << "\n";
-                std::cout << approximationResult.A << "\t" << approximationResult.B << "\t" << approximationResult.lambda << "\n";
             }
 
             dataToApproximateX.clear();
@@ -368,7 +407,7 @@ private:
 
         if (m_specificName)
         {
-            std::cout << "saving plotApprox file\n";
+            m_proceduresHistory << "saving plotApprox file\n";
 
             m_plotApprox << "filename(n) = sprintf(\"" << FILE_NAME_DATA_TO_APPROX << "_" << m_specificName.get() << std::string("_%d\", n)\n")
                          << "plot for [i=0:20] filename(i) using 1:2 with linespoints";
@@ -414,5 +453,6 @@ private:
 
     AngleAmplitude m_angleAmplitude;
 
+    std::stringstream m_proceduresHistory;
     std::stringstream m_plotApprox;
 };

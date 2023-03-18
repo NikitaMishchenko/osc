@@ -213,8 +213,9 @@ namespace dynamic_coefficients
             // nonlenear
             int errCode = 1;
             approximation::nonlinnear::ApproximationResult approximationResult;
+            std::string approximationInfo;
 
-            std::tie(errCode, approximationResult) = approximation::nonlinnear::approximate(m_wtOscillation.getTime(), m_wtOscillation.getAngle());
+            std::tie(errCode, approximationResult, approximationInfo) = approximation::nonlinnear::approximateAndInfo(m_wtOscillation.getTime(), m_wtOscillation.getAngle());
 
             std::cout << res.size() << "\n";
 

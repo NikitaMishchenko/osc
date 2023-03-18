@@ -29,7 +29,7 @@ namespace wt_flow
         {
             /**
              *   make special object of each table to perform better parsing
-             *   ex: table discription, tavble, ended, tableDtat(data1, data2, etc...)
+             *   ex: table description, tavble, ended, tableDtat(data1, data2, etc...)
              */
             if (N_smth_Tx_POb_PC_M_AP_AI_P0_M_pkt_ls_t1_t2 == table)
                 return (
@@ -70,10 +70,10 @@ namespace wt_flow
             return true; /// todo return errcode
         }
 
-        void parseToTableBegining(std::ifstream &fin, const int ptlTableDiscription, int &counter)
+        void parseToTableBegining(std::ifstream &fin, const int ptlTableDescription, int &counter)
         {
             std::string buff_s;
-            while (!parsedContains(buff_s, ptlTableDiscription))
+            while (!parsedContains(buff_s, ptlTableDescription))
             {
                 std::getline(fin, buff_s);
                 counter++;
