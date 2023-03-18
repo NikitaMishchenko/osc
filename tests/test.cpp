@@ -72,7 +72,7 @@ TEST(TestApproximation, Approximation1)
         for (int i = 0; i < dataX.size(); ++i)
         {
             dataX.at(i) = dt * i;
-            dataY.at(i) = (B + A * exp(-1.0*lambda * i * dt));
+            dataY.at(i) = (B + A * exp(-1.0 * lambda * i * dt));
         }
     }
 
@@ -93,7 +93,7 @@ TEST(TestApproximation, Approximation1)
     std::tie(errCode, approximationResult) = approximation::nonlinnear::approximate(angleHistory.getTime(), angleHistory.getAngle());
 
     std::ofstream foutIn("approxTest_input1");
-    
+
     for (size_t i = 0; i < dataX.size(); i++)
     {
         foutIn << dataX.at(i) << "\t" << dataY.at(i) << "\n";
@@ -127,7 +127,7 @@ TEST(TestApproximation, Approximation2)
         for (int i = 0; i < dataX.size(); ++i)
         {
             dataX.at(i) = dt * i;
-            dataY.at(i) = (B + A * exp(-1.0*lambda * i * dt));
+            dataY.at(i) = (B + A * exp(-1.0 * lambda * i * dt));
         }
     }
 
@@ -139,7 +139,7 @@ TEST(TestApproximation, Approximation2)
     std::tie(errCode, approximationResult) = approximation::nonlinnear::approximate(angleHistory.getTime(), angleHistory.getAngle());
 
     std::ofstream foutIn("approxTest_input2");
-    
+
     for (size_t i = 0; i < dataX.size(); i++)
     {
         foutIn << dataX.at(i) << "\t" << dataY.at(i) << "\n";
@@ -273,7 +273,15 @@ TEST(TestOnGeneratedData, test_gen_data)
 
     // todo check actial functuanallity
 
-    for (int i = 0; i < functionVector.size(); i++) // 
+    const int PERIODS_IN_CALC = 2;
+    std::string fileNameBasicPlotApprox = "plotApprox_";
+    std::string fileNameBasicResultStatic = "static_";
+    std::string fileNameBasicBasicCoeff = "basic_";
+    std::string fileNameBasicDynamicCoeff = "dynamic_";
+    std::string fileNameBasicAmplitude = "amplitude_";
+    std::string fileNameBaseTestData = "test_";
+
+    for (int i = 0; i < functionVector.size(); i++)
     {
         AngleHistory angleHistory(functionVector.at(i).getDomain(), functionVector.at(i).getCodomain());
 
@@ -288,7 +296,7 @@ TEST(TestOnGeneratedData, test_gen_data)
                                                       std::make_shared<std::vector<double>>(oscillation.getDdangle()),
                                                       std::make_shared<wt_flow::Flow>(),
                                                       std::make_shared<Model>(),
-                                                      2);
+                                                      PERIODS_IN_CALC);
 
             std::string indexForScript = std::to_string(i);
             pitchDynamicMomentum.setHiddenIndex(indexForScript);
@@ -303,27 +311,29 @@ TEST(TestOnGeneratedData, test_gen_data)
 
                 std::tie(staticR, basicR, dynamicR, amplitude) = pitchDynamicMomentum.getData();
 
-                std::string fileNamePlotApprox("plotApprox_" + indexForScript);
-                std::ofstream plotApproxFile(fileNamePlotApprox);
-                plotApproxFile << pitchDynamicMomentum.getPlottScript()
-                               << ", \"test_" << std::to_string(i) << "\" using 1:2 with linespoints\n";
+                std::string fileNameTestData = fileNameBaseTestData + std::to_string(i);
+                {
+                    std::ofstream foutb(fileNameTestData);
+                    for (int i = 0; i < oscillation.size(); i++)
+                        foutb << oscillation.getTime(i) << "\t"
+                              << oscillation.getAngle(i) << "\t"
+                              << oscillation.getDangle(i) << "\t"
+                              << oscillation.getDdangle(i) << "\n";
+                }
 
-                std::ofstream foutb("test_" + std::to_string(i));
-                for (int i = 0; i < oscillation.size(); i++)
-                    foutb << oscillation.getTime(i) << "\t"
-                          << oscillation.getAngle(i) << "\t"
-                          << oscillation.getDangle(i) << "\t"
-                          << oscillation.getDdangle(i) << "\n";
+                std::string fileNameResultStatic = fileNameBasicResultStatic + std::to_string(i);
+                {
+                    std::ofstream fout1(fileNameResultStatic);
+                    for (int i = 0; i < staticR.size(); i++)
+                        fout1 << staticR.at(i).time << "\t"
+                              << staticR.at(i).angle << "\t"
+                              << staticR.at(i).momentum << "\n";
+                }
 
-                std::ofstream fout1("static_" + std::to_string(i));
-                for (int i = 0; i < staticR.size(); i++)
-                    fout1 << staticR.at(i).time << "\t"
-                          << staticR.at(i).momentum << "\n";
-
-                std::ofstream fout2("basic_" + std::to_string(i));
+                std::ofstream fout2(fileNameBasicBasicCoeff + std::to_string(i));
                 for (int i = 0; i < basicR.size(); i++)
                 {
-                    fout2 << basicR.at(i).time << "\t" << basicR.at(i).angle << "\t" << basicR.at(i).momentum << "\t" 
+                    fout2 << basicR.at(i).time << "\t" << basicR.at(i).angle << "\t" << basicR.at(i).momentum << "\t"
                           << basicR.at(i).timeI << "\t" << basicR.at(i).angleI << "\t" << basicR.at(i).momentum << "\t"
                           << basicR.at(i).timeF << "\t" << basicR.at(i).angleF << "\t" << basicR.at(i).momentum << "\n";
 
@@ -331,25 +341,56 @@ TEST(TestOnGeneratedData, test_gen_data)
                               << basicR.at(i).timeI << "\t" << basicR.at(i).angleI << "\t" << basicR.at(i).momentum << "\t"
                               << basicR.at(i).timeF << "\t" << basicR.at(i).angleF << "\t" << basicR.at(i).momentum << "\n";
                 }
-                std::ofstream fout3("dynamic_" + std::to_string(i));
+
+                std::ofstream fout3(fileNameBasicDynamicCoeff + std::to_string(i));
                 for (int i = 0; i < dynamicR.size(); i++)
                     fout3 << dynamicR.at(i).time << "\t"
-                          << dynamicR.at(i).angle << "\t"  
+                          << dynamicR.at(i).angle << "\t"
                           << dynamicR.at(i).momentum << "\n";
 
-                std::ofstream fout4("amplitude_" + std::to_string(i));
+                std::ofstream fout4(fileNameBasicAmplitude + std::to_string(i));
                 for (int i = 0; i < amplitude.size(); i++)
                     fout4 << amplitude.at(i).m_amplitudeTime << "\t"
                           << amplitude.at(i).m_amplitudeAngle << "\t"
                           << amplitude.at(i).m_amplitudeIndexesFromInitialAngle << "\n";
+
+                std::string fileNamePlotApprox(fileNameBasicPlotApprox + indexForScript);
+                std::ofstream plotApproxFile(fileNamePlotApprox);
+                plotApproxFile << pitchDynamicMomentum.getPlottScript()
+                               << ", \"" << fileNameTestData << "\" using 1:2 with linespoints\n";
             }
         }
+    }
+
+    {
+        std::ofstream foutDiscription("discription");
+        foutDiscription
+            << "Результаты обработки: \n"
+            << "Использовано периодов для рассчета: " << PERIODS_IN_CALC << "\n"
+            << fileNameBasicPlotApprox << " - скрипт построения тестовых данных,\n";
+            << fileNameBasicBasicCoeff << " - результаты обработки Статический коэффициент ()\n";
     }
 }
 
 // plot "basic_1" using 1:2 with linespoints, "test_1" using 1:2 with linespoints, 0.97*exp(-1.1*x)+0.0, "approx_1_0" using 1:2
-// f(x) = A*exp(-1.0*l*x)+B
-// fit f(x) "approx_1_0" using 1:2 via A,l,B
+// f(x) = A*exp(-1.0*lambda*x)+B
+// fit f(x) "approx_1_0" using 1:2 via A,lambda,B
 
+// eqvivalent damping Method 1
+// time angleAvg momentum
+// plot "basic_0" using 1:2 with linespoints, "basic_1" using 1:2 with linespoints, "basic_2" using 1:2 with linespoints, "basic_3" using 1:2 with linespoints
+// plot "basic_0" using 1:3 with linespoints, "basic_1" using 1:3 with linespoints, "basic_2" using 1:3 with linespoints, "basic_3" using 1:3 with linespoints
 // plot "basic_0" using 2:3 with linespoints, "basic_1" using 2:3 with linespoints, "basic_2" using 2:3 with linespoints, "basic_3" using 2:3 with linespoints
 
+// ok
+// pitch static momentum at time = 0 // (Iz * m_ddangle->at(i) - M_fr) / coeff
+// time angleAvg momentum
+// ! plot "static_0" using 2:3 with linespoints, "static_1" using 2:3 with linespoints, "static_2" using 2:3 with linespoints, "static_3" using 2:3 with linespoints
+// plot "static_0" using 1:2 with linespoints, "static_1" using 1:2 with linespoints, "static_2" using 1:2 with linespoints, "static_3" using 1:2 with linespoints
+// plot "static_0" using 1:3 with linespoints, "static_1" using 1:3 with linespoints, "static_2" using 1:3 with linespoints, "static_3" using 1:3 with linespoints
+
+// eqvivalent dynamic damping Method 2
+// time angleAvg momentum
+// plot "dynamic_0" using 1:2 with linespoints, "dynamic_1" using 1:2 with linespoints, "dynamic_2" using 1:2 with linespoints, "dynamic_3" using 1:2 with linespoints
+// plot "dynamic_0" using 1:3 with linespoints, "dynamic_1" using 1:3 with linespoints, "dynamic_2" using 1:3 with linespoints, "dynamic_3" using 1:3 with linespoints
+// plot "dynamic_0" using 2:3 with linespoints, "dynamic_1" using 2:3 with linespoints, "dynamic_2" using 2:3 with linespoints, "dynamic_3" using 2:3 with linespoints

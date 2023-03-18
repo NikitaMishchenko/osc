@@ -145,9 +145,16 @@ public:
                                                                                            m_time,
                                                                                            m_angle,
                                                                                            m_dangle);
-
                 dynamic.momentum = staticMomentum * angle + coeff * basicMomentum * dangle;
+                dynamic.angle = angle;
                 dynamic.time = basicThrough.time;
+
+                std::cout << "Calculated dynamic:\n"
+                          << "\tstaticMomentum: " << staticMomentum << "\n"
+                          << "\tangle: " << angle << "\n"
+                          << "\tbasicMomentum: " << basicMomentum << "\n"
+                          << "\tdangle: " << dangle << "\n"
+                          << "\t\tresultDynamic: " << dynamic.momentum << "\n";
 
                 m_pitchDynamicMomentum.push_back(dynamic);
             }
@@ -163,9 +170,9 @@ public:
         std::cout << "calcuatePitchStaticMomentum(): m_dangle.size() = " << m_dangle->size() << "\t"
                   << "m_ddangle.size() = " << m_ddangle->size() << "\n";
 
-        const double M_fr = m_Mfr ? *m_Mfr : 0;                                                                     // fixme
-        const double coeffFriction = M_fr / m_flow->calculateDynamicPressure() / m_model->getS() / m_model->getL(); // 1/q/s/l // model, flow
-        const double Iz = m_model->getI();                                                                          // model
+        const double M_fr = m_Mfr ? *m_Mfr : 0;                                                      // fixme
+        const double coeff = m_flow->calculateDynamicPressure() * m_model->getS() * m_model->getL(); // 1/q/s/l // model, flow
+        const double Iz = m_model->getI();                                                           // model
 
         if (m_dangle->empty() || m_ddangle->empty())
             return false;
@@ -174,12 +181,18 @@ public:
         double timeI = m_time->at(0);
         double timeF;
 
+        double staticMomentum = 0;
+
         for (size_t i = 0; i < m_dangle->size() - 1; i++)
         {
-            if (m_dangle->at(i) <= 0 && m_dangle->at(i + 1) >= 0)
+            if (m_dangle->at(i) <= 0 && m_dangle->at(i + 1) >= 0 ||
+                m_dangle->at(i) >= 0 && m_dangle->at(i + 1) <= 0)
             {
-                pitchMomentumBasic.momentum = Iz * m_ddangle->at(i) - coeffFriction;
+                staticMomentum = (Iz * m_ddangle->at(i) - M_fr) / coeff;
+                
+                pitchMomentumBasic.momentum = std::abs(staticMomentum);
                 pitchMomentumBasic.time = m_time->at(i);
+                pitchMomentumBasic.angle = m_angle->at(i);
 
                 m_pitchStaticMomentum.push_back(pitchMomentumBasic);
             }
@@ -204,9 +217,9 @@ private:
 
         {
             std::vector<PitchMomentumBasic>::const_iterator pitcBasicMomentumVectorIt = pitcBasicMomentumVector.begin();
-            while (pitcBasicMomentumVectorIt != pitcBasicMomentumVector.end()-1 && 
-                   pitcBasicMomentumVectorIt->time <= targetTime && 
-                   (pitcBasicMomentumVectorIt->time+1) > targetTime)
+            while (pitcBasicMomentumVectorIt != pitcBasicMomentumVector.end() - 1 &&
+                   pitcBasicMomentumVectorIt->time <= targetTime &&
+                   (pitcBasicMomentumVectorIt->time + 1) > targetTime)
             {
                 pitcBasicMomentumVectorIt++;
             }
@@ -215,9 +228,9 @@ private:
 
         {
             std::vector<PitchMomentumBasic>::const_iterator pitchStaticMomentumVectorIt = pitchStaticMomentumVector.begin();
-            while (pitchStaticMomentumVectorIt != pitchStaticMomentumVector.end()-1 && 
+            while (pitchStaticMomentumVectorIt != pitchStaticMomentumVector.end() - 1 &&
                    pitchStaticMomentumVectorIt->time <= targetTime &&
-                   (pitchStaticMomentumVectorIt+1)->time >= targetTime)
+                   (pitchStaticMomentumVectorIt + 1)->time >= targetTime)
             {
                 pitchStaticMomentumVectorIt++;
             }
@@ -228,18 +241,40 @@ private:
             std::vector<double>::const_iterator timeVectorIt = timeVector->begin();
             std::vector<double>::const_iterator angleVectorIt = angleVector->begin();
             std::vector<double>::const_iterator dangleVectorIt = dangleVector->begin();
-            while (timeVectorIt != timeVector->end()-1 &&
-                   angleVectorIt != angleVector->end()-1 &&
-                   dangleVectorIt != dangleVector->end()-1 && 
-                   *timeVectorIt <= targetTime &&
-                   *(timeVectorIt+1) >= targetTime)
+            while (1)
             {
+                if (timeVectorIt != timeVector->end() - 1 &&
+                    *(timeVectorIt + 1) > targetTime)
+                {
+                    break;
+                }
+                if (timeVectorIt - timeVector->begin() > 1849)
+                {
+                    // std::cout << *angleVectorIt << "\n";
+                }
+
                 timeVectorIt++;
                 angleVectorIt++;
                 dangleVectorIt++;
             }
-            angle = *angleVectorIt;
-            dangle = *dangleVectorIt;
+            if (*angleVectorIt < 0)
+            {
+                angle = -1 * (*angleVectorIt);
+            }
+            else
+            {
+                angle = *angleVectorIt;
+                dangle = *dangleVectorIt;
+            }
+
+            if (*dangleVectorIt < 0)
+            {
+                dangle = -1 * (*dangleVectorIt);
+            }
+            else
+            {
+                dangle = *dangleVectorIt;
+            }
         }
 
         return std::make_tuple(staticMomentum, basicMomentum, angle, dangle);
