@@ -1,6 +1,7 @@
 #include <iostream>
 
 #include <string>
+#include <sstream>
 #include <vector>
 
 namespace function_generator
@@ -35,6 +36,16 @@ namespace function_generator
         {
         }
 
+        ~FunctionProbeData()
+        {
+            m_functionDescription.clear();
+        }
+
+        std::string getProcInfo() const
+        {
+            return m_procInfo;
+        }
+
         void setFileName(const std::string &fileName)
         {
             m_fileName = fileName;
@@ -45,12 +56,35 @@ namespace function_generator
             m_function = function;
         }
 
+        void setFunctionDescription(const std::string descr)
+        {
+            m_functionDescription = descr;
+        }
+
+        void setFunction(double (*function)(double, std::vector<double>), const std::string descr)
+        {
+            m_function = function;
+            m_functionDescription = descr;
+        }
+
+        void setData(double (*function)(double, std::vector<double>),
+                            const std::string& functionDescription, 
+                            double time0,
+                            size_t length,
+                            double dt,
+                            std::vector<double> coeff = std::vector<double>())
+        {
+            this->setFunctionDescription(functionDescription);
+            this->setData(function, time0, length, dt, coeff);
+        }
+
         void setData(double (*function)(double, std::vector<double>),
                      double time0,
                      size_t length,
                      double dt,
                      std::vector<double> coeff = std::vector<double>())
-        {
+        {           
+
             m_function = function;
             m_time0 = time0;
             m_length = length;
@@ -105,6 +139,7 @@ namespace function_generator
         }
 
         std::string m_fileName;
+        std::string m_functionDescription;
 
         double (*m_function)(double, std::vector<double>);
 
@@ -112,6 +147,7 @@ namespace function_generator
         size_t m_length;
         double m_dt;
         std::vector<double> m_coeff;
+        std::string m_procInfo;
     };
 
 } // namespace function_generator

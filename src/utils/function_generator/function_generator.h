@@ -30,6 +30,11 @@ namespace function_generator
         {
         }
 
+        std::string getProcInfo() const
+        {
+            return m_procInfo.str();
+        }
+
         void setMode(const int mode)
         {
             m_mode = mode;
@@ -57,7 +62,10 @@ namespace function_generator
 
             for (size_t i = 0; i < numberOfTests; i++)
             {
+                m_procInfo << "proceeding all functions...\n";
+
                 std::string fileName = m_basicFileName + std::to_string(i);
+                m_procInfo << "\t" << fileName << "...\n";
 
                 functionProbeDataVector.at(i).setFileName(fileName);
 
@@ -96,10 +104,12 @@ namespace function_generator
                 func.push_back(function(t, functionProbeData.m_coeff));
             }
 
+            m_procInfo << "calculating function:" << functionProbeData.getProcInfo() << "\n";
+
             return std::make_tuple(time, func);
         }
 
-        // arg, unction
+        // arg, function
         Function actAndSaveData(const FunctionProbeData &functionProbeData)
         {
             std::vector<double> func;
@@ -108,7 +118,7 @@ namespace function_generator
             std::tie(arg, func) = getFuncionResult(functionProbeData.m_function,
                                                    functionProbeData);
 
-            std::cout << "trying to save data to file " << functionProbeData.m_fileName << "\n";
+            m_procInfo << "trying to save data of function probe to file \"" << functionProbeData.m_fileName << "\"\n";
 
             if (SAVE_FILE == m_mode)
             {
@@ -129,11 +139,15 @@ namespace function_generator
         std::string appendPlotterScript(const std::string &fileName)
         {
             std::string result = "\"" + fileName + "\" " + "using 1:2 with linespoints";
+
+            m_procInfo << "appending script for plotting: " << result << "\n";
+
             return result;
         }
 
         std::string m_basicFileName;
         int m_mode;
+        std::stringstream m_procInfo;
     };
 
 } // namespace function_generator

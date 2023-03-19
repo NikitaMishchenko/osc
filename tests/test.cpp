@@ -6,6 +6,7 @@
 #include <fstream>
 #include <vector>
 #include <string>
+#include <sstream>
 #include <memory>
 
 #include "oscillation/wt_oscillation.h"
@@ -235,72 +236,154 @@ TEST(TestOnGeneratedData, test_gen_data)
 
     std::vector<function_generator::FunctionProbeData> functionProbeDataVector;
 
+    std::stringstream totalInfo;
+
     {
         function_generator::FunctionProbeData functionProbeData;
+
+        std::vector<double> coeff;
+        double time0 = 0.0, dt = 0.0001;
+        int length = 50000;
 
         // consider exception inside function
         auto function0 = [](double argument, std::vector<double> coeff)
         {
             return coeff.at(1) / abs(argument) * sin(coeff.at(0) * argument);
         };
+        {
+            coeff = {50, 0.5};
+            std::stringstream descriptionFunc;
 
-        functionProbeData.setData(function0,
-                                  0.0,
-                                  50000,
-                                  0.0001,
-                                  {50, 0.1});
+            descriptionFunc << "f(arg) = " << coeff.at(1) << " * sin(" << coeff.at(0) << " * arg) " << "/abs(arg)\n";
 
-        functionProbeDataVector.push_back(functionProbeData);
+            totalInfo << "setting probe function:\n\t" << descriptionFunc.str() << "\n";
+
+            totalInfo << "setting function coefficients: \n"
+                     << "\ttime0 = " << time0 << "\n"
+                     << "\tlength0 = " << length << "\n"
+                     << "\tdt = " << dt << "\n"
+                     << "\tcoefficients = ";
+            for (const auto& c : coeff)
+                totalInfo  << c << ", ";
+            totalInfo << "\n______________________\n\n";
+
+            functionProbeData.setData(function0,
+                                      descriptionFunc.str(),
+                                      time0,
+                                      length,
+                                      dt,
+                                      coeff);
+
+            functionProbeDataVector.push_back(functionProbeData);
+        }
 
         ///
         auto function1 = [](double argument, std::vector<double> coeff)
         {
             return coeff.at(1) * sin(coeff.at(0) * argument) * exp(coeff.at(2) * argument);
         };
+        {
+            std::vector<double> coeff = {50, 1, -1};
+            std::stringstream descriptionFunc;
 
-        functionProbeData.setData(function1,
-                                  0.0,
-                                  50000,
-                                  0.0001,
-                                  {50, 1, -1});
+            descriptionFunc << "f(arg) = " << coeff.at(1) << " * sin(" << coeff.at(0) << " * arg) * exp(" << coeff.at(2) << "*arg)\n";
 
-        functionProbeDataVector.push_back(functionProbeData);
+            totalInfo << "setting probe function:\n\t" << descriptionFunc.str() << "\n";
+
+            totalInfo << "setting function coefficients: \n"
+                     << "\ttime0 = " << time0 << "\n"
+                     << "\tlength0 = " << length << "\n"
+                     << "\tdt = " << dt << "\n"
+                     << "\tcoefficients = ";
+            for (const auto& c : coeff)
+                totalInfo  << c << ", ";
+            totalInfo << "\n______________________\n\n";
+
+            functionProbeData.setData(function1,
+                                      descriptionFunc.str(),
+                                      time0,
+                                      length,
+                                      dt,
+                                      coeff);
+
+            functionProbeDataVector.push_back(functionProbeData);
+        }
 
         ///
         auto function2 = [](double argument, std::vector<double> coeff)
         {
             return coeff.at(1) * sin(coeff.at(0) * argument) * exp(coeff.at(2) * argument);
         };
+        {
+            std::vector<double> coeff = {50, 1, -2};
+            std::stringstream descriptionFunc;
 
-        functionProbeData.setData(function2,
-                                  0.0,
-                                  50000,
-                                  0.0001,
-                                  {50, 1, -2});
+            descriptionFunc << "f(arg) = " << coeff.at(1) << " * sin(" << coeff.at(0) << " * arg) * exp(" << coeff.at(2) << "*arg)\n";
 
-        functionProbeDataVector.push_back(functionProbeData);
+            totalInfo << "setting probe function:\n\t" << descriptionFunc.str() << "\n";
+
+            totalInfo << "setting function coefficients: \n"
+                     << "\ttime0 = " << time0 << "\n"
+                     << "\tlength0 = " << length << "\n"
+                     << "\tdt = " << dt << "\n"
+                     << "\tcoefficients = ";
+            for (const auto& c : coeff)
+                totalInfo  << c << ", ";
+            totalInfo << "\n______________________\n\n";
+
+            functionProbeData.setData(function2,
+                                      descriptionFunc.str(),
+                                      time0,
+                                      length,
+                                      dt,
+                                      coeff);
+
+            functionProbeDataVector.push_back(functionProbeData);
+        }
 
         ///
         auto function3 = [](double argument, std::vector<double> coeff)
         {
             return coeff.at(1) * sin(coeff.at(0) * argument) * exp(coeff.at(2) * argument);
         };
+        {
+            std::vector<double> coeff = {50, 1, -3};
+            std::stringstream descriptionFunc;
 
-        functionProbeData.setData(function3,
-                                  0.0,
-                                  50000,
-                                  0.0001,
-                                  {50, 1, -3});
+            descriptionFunc << "f(arg) = " << coeff.at(1) << " * sin(" << coeff.at(0) << " * arg) * exp(" << coeff.at(2) << "*arg)\n";
 
-        functionProbeDataVector.push_back(functionProbeData);
+            totalInfo << "setting probe function:\n\t" << descriptionFunc.str() << "\n";
+
+            totalInfo << "setting function coefficients: \n"
+                     << "\ttime0 = " << time0 << "\n"
+                     << "\tlength0 = " << length << "\n"
+                     << "\tdt = " << dt << "\n"
+                     << "\tcoefficients = ";
+            for (const auto& c : coeff)
+                totalInfo  << c << ", ";
+            totalInfo << "\n______________________\n\n";
+
+            functionProbeData.setData(function3,
+                                      descriptionFunc.str(),
+                                      time0,
+                                      length,
+                                      dt,
+                                      coeff);
+
+            functionProbeDataVector.push_back(functionProbeData);
+        }
+
+        totalInfo << "\n";
     }
 
-    std::cout << "functionProbeDataVector.size() = " << functionProbeDataVector.size() << "\n";
+    totalInfo << "functionProbeDataVector.size() = " << functionProbeDataVector.size() << "\n";
 
     bool isOk = false;
     std::vector<Function> functionVector;
 
     std::tie(isOk, functionVector) = functionGenerator.actOnData(functionProbeDataVector);
+
+    totalInfo << functionGenerator.getProcInfo() << "\n";
 
     ASSERT_TRUE(isOk);
 
@@ -313,8 +396,6 @@ TEST(TestOnGeneratedData, test_gen_data)
     std::string fileNameBasicResultStatic = "static_";
     std::string fileNameBasicBasicCoeff = "basic_";
     std::string fileNameBasicDynamicCoeff = "dynamic_";
-
-    std::string totalInfo;
 
     for (int i = 0; i < functionVector.size(); i++)
     {
@@ -344,7 +425,7 @@ TEST(TestOnGeneratedData, test_gen_data)
             {
                 ASSERT_TRUE(pitchDynamicMomentum.calculateEqvivalentDampingCoefficients());
 
-                totalInfo += pitchDynamicMomentum.getProceduresHistory();
+                totalInfo << pitchDynamicMomentum.getProceduresHistory();
 
                 std::tie(staticR, basicR, dynamicR, amplitude) = pitchDynamicMomentum.getData();
 
@@ -401,21 +482,42 @@ TEST(TestOnGeneratedData, test_gen_data)
 
     {
         std::ofstream foutDescription("description");
-        foutDescription
-            << "Результаты обработки: \n"
-            << "\t"
+        std::stringstream streamDescription;
+        streamDescription
+            << "\n******************************************************************************\n"
+            << "\n******************************************************************************\n"
+            << "Результаты обработки, где i - номер теста, j - номер части исходных данных по периодам:\n"
             << "использовано периодов для рассчета: " << PERIODS_IN_CALC << "\n"
-            << "\t" << fileNameBasicPlotApprox << " - скрипт построения тестовых данных,\n"
-            << "\t" << fileNameBasicBasicCoeff << " - \n"
-            << "\t" << fileNameBasicResultStatic << " - результаты обработки Статический коэффициент () []\n"
-            << "\t" << fileNameBasicAmplitude << " - амплитуда колебаний [время, угол, индекс строки тестовых данных]\n"
-            << "\t" << fileNameBasicDynamicCoeff << " - динамический коэффициент [время, угол, ускорение, коэффициент]\n";
+            << "\t" << fileNameBasicPlotApprox << " - скрипт построения тестовых данных к аппроксимации в программе Gnuplot (есть для Linux и Windows) (Использовать команду load '" << fileNameBasicPlotApprox << "_i_j'),\n"
+            << "\t" << fileNameBasicBasicCoeff << "i - coffDampEqv = -2I*lambda(average Ampl)*V/q/s/l/l [time, angle, coeff, timeInitial, angleInitial, momentum, timeFinal, angleFinal, momentum]\n"
+            << "\t" << fileNameBasicResultStatic << "i - результаты обработки Статический коэффициент на максимальных амплитудах [время, угол, ускорение, коэффициент]\n"
+            << "\t" << fileNameBasicAmplitude << "i - амплитуда колебаний [время, угол, индекс строки тестовых данных]\n"
+            << "\t" << fileNameBasicDynamicCoeff << "i - динамический коэффициент [время, угол, ускорение, коэффициент]\n"
+            << "\t" << fileNameBaseTestData << "i - тестовые данные [время, угол, первая произодная угла, вторая производная угла]\n";
+
+        foutDescription << streamDescription.str();
+        totalInfo << streamDescription.str();
     }
 
-    std::cout << totalInfo;
+    std::cout << totalInfo.str();
+
+    totalInfo << "\n\n\nпрочие построения (нет генерации скрипта):\n"
+                     "plot \"basic_0\" using 1:2 with linespoints, \"basic_1\" using 1:2 with linespoints, \"basic_2\" using 1:2 with linespoints, \"basic_3\" using 1:2 with linespoints"
+                     "plot \"basic_0\" using 1:3 with linespoints, \"basic_1\" using 1:3 with linespoints, \"basic_2\" using 1:3 with linespoints, \"basic_3\" using 1:3 with linespoints\n"
+                     "plot \"basic_0\" using 2:3 with linespoints, \"basic_1\" using 2:3 with linespoints, \"basic_2\" using 2:3 with linespoints, \"basic_3\" using 2:3 with linespoints\n"
+                     "\n"
+                     "plot \"static_0\" using 1:2 with linespoints, \"static_1\" using 1:2 with linespoints, \"static_2\" using 1:2 with linespoints, \"static_3\" using 1:2 with linespoints\n"
+                     "plot \"static_0\" using 1:3 with linespoints, \"static_1\" using 1:3 with linespoints, \"static_2\" using 1:3 with linespoints, \"static_3\" using 1:3 with linespoints\n"
+                     "\n"
+                     "plot \"dynamic_0\" using 1:2 with linespoints, \"dynamic_1\" using 1:2 with linespoints, \"dynamic_2\" using 1:2 with linespoints, \"dynamic_3\" using 1:2 with linespoints\n"
+                     "plot \"dynamic_0\" using 1:3 with linespoints, \"dynamic_1\" using 1:3 with linespoints, \"dynamic_2\" using 1:3 with linespoints, \"dynamic_3\" using 1:3 with linespoints\n"
+                     "plot \"dynamic_0\" using 1:4 with linespoints, \"dynamic_1\" using 1:4 with linespoints, \"dynamic_2\" using 1:4 with linespoints, \"dynamic_4\" using 1:3 with linespoints\n"
+                     "plot \"dynamic_0\" using 2:3 with linespoints, \"dynamic_1\" using 2:3 with linespoints, \"dynamic_2\" using 2:3 with linespoints, \"dynamic_3\" using 2:3 with linespoints\n"
+                     "plot \"dynamic_0\" using 2:4 with linespoints, \"dynamic_1\" using 2:4 with linespoints, \"dynamic_2\" using 2:4 with linespoints, \"dynamic_3\" using 2:4 with linespoints\n"
+                     "\n";
 
     std::ofstream foutTotalInfo("log");
-    foutTotalInfo << totalInfo;
+    foutTotalInfo << totalInfo.str();
 }
 
 // plot "basic_1" using 1:2 with linespoints, "test_1" using 1:2 with linespoints, 0.97*exp(-1.1*x)+0.0, "approx_1_0" using 1:2

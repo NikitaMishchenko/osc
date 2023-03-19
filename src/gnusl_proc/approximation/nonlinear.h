@@ -161,7 +161,7 @@ namespace approximation::nonlinnear
                 y[i] = yi; //+ disturbance;
                 weights[i] = 1.0 / (si * si);
 
-                m_resultInformation << "data: " << ti << " " << y[i] << " " << si << "\n";
+                m_resultInformation << "data:\n\targ = " << ti << ", func = " << y[i] << ", si = " << si << "\n";
             }
 
             const gsl_multifit_nlinear_type *T = gsl_multifit_nlinear_trust;
@@ -227,9 +227,6 @@ namespace approximation::nonlinnear
 
         std::string getResults()
         {
-#define FIT(i) gsl_vector_get(w->x, i)
-#define ERR(i) sqrt(gsl_matrix_get(covar, i, i))
-
             m_resultInformation << "summary from method "
                                 << "\'" << gsl_multifit_nlinear_name(w) << "//" << gsl_multifit_nlinear_trs_name(w) << "\'"
                                 << "\n"
@@ -252,9 +249,9 @@ namespace approximation::nonlinnear
             double c = GSL_MAX_DBL(1, sqrt(chisq / dof));
 
             m_resultInformation << "chisq/dof = " << chisq / dof << "\n"
-                                << "A      = " << FIT(0) << " +/- " << c * ERR(0) << "\n"
-                                << "lambda = " << FIT(1) << " +/- " << c * ERR(1) << "\n"
-                                << "b      = " << FIT(2) << " +/- " << c * ERR(2) << "\n";
+                                << "A      = " << gsl_vector_get(w->x, 0) << " +/- " << c * sqrt(gsl_matrix_get(covar, 0, 0)) << "\n"
+                                << "lambda = " << gsl_vector_get(w->x, 1) << " +/- " << c * sqrt(gsl_matrix_get(covar, 1, 1)) << "\n"
+                                << "b      = " << gsl_vector_get(w->x, 2) << " +/- " << c * sqrt(gsl_matrix_get(covar, 2, 2)) << "\n";
 
             return m_resultInformation.str();
         }

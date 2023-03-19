@@ -1,5 +1,9 @@
 #pragma once
 
+#include <iostream>
+#include <sstream>
+#include <string>
+
 class Model
 {
 public:
@@ -53,6 +57,19 @@ public:
                   << "\tI = " << m_momentOfInertia << "\n";
     }
 
+    std::string getInfoString() const
+    {
+        std::stringstream ss;
+
+        ss << "Model:\n"
+           << "\tname = " << m_name << "\n"
+           << "\ts = " << m_refSquare << "\n"
+           << "\tl = " << m_refLength << "\n"
+           << "\tI = " << m_momentOfInertia << "\n";
+
+        return ss.str();
+    }
+
     /*
      *   todo .model file
      */
@@ -68,10 +85,7 @@ public:
         }
 
         std::string buff_s;
-        fin >> buff_s >> buff_s >> m_name
-            >> buff_s >> buff_s >> m_refSquare 
-            >> buff_s >> buff_s >> m_refLength 
-            >> buff_s >> buff_s >> m_momentOfInertia;
+        fin >> buff_s >> buff_s >> m_name >> buff_s >> buff_s >> m_refSquare >> buff_s >> buff_s >> m_refLength >> buff_s >> buff_s >> m_momentOfInertia;
 
         fin.close();
 

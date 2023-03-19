@@ -78,6 +78,10 @@ public:
                                                         m_method(method),
                                                         m_angleAmplitude(m_time, m_angle, m_dangle)
     {
+        m_proceduresHistory << "PitchDynamicMomentum constructor acts: dangle, ddngle, amplitude calculated...\n";
+        m_proceduresHistory << "number of periods to calculate coeff: " << numberOfPeriods << "\n";
+        m_proceduresHistory << "Данные модели при рассчете: " << m_model->getInfoString() << "\n";
+        m_proceduresHistory << "Данные потока при рассчете: " << m_flow->getInfoString() << "\n";
     }
 
     std::tuple<std::vector<PitchMomentumBasic>, std::vector<PitchMomentumBasic>, std::vector<PitchMomentumBasic>, std::vector<AngleAmplitudeBase>>
@@ -108,8 +112,6 @@ public:
         bool isOk = false;
         std::vector<approximation::nonlinnear::ApproximationResult> eqvivalentDampingCoefficientVector;
 
-        m_proceduresHistory << "calculateEqvivalentDampingCoefficients\n";
-
         {
             // damping coeffiients assumed to be constant on each calcuilated point
             std::tie(isOk, eqvivalentDampingCoefficientVector) = calculateEqvivalentDampingCoefficient();
@@ -119,6 +121,8 @@ public:
 
             // -2.0*I*v/q/s/l/l // model flow
             const double coeff = -2.0 * m_model->getI() * m_flow->getVelocity() / m_flow->getDynamicPressure() / m_model->getS() / m_model->getL() / m_model->getL();
+
+            m_proceduresHistory << "calculating eqvDamp = -2*Iz*lambda(fromApprox of " << m_numberOfPeriods << " periods)*V/(qsl*l)\n";
 
             PitchMomentumBasic pitchMomentumBasic;
 
@@ -203,6 +207,7 @@ public:
     {
         m_proceduresHistory << "calcuatePitchStaticMomentum(): m_dangle.size() = " << m_dangle->size() << "\t"
                             << "m_ddangle.size() = " << m_ddangle->size() << "\n";
+        m_proceduresHistory << "calculating at max amplitude: m_z_static = (Iz * ddangle(i=maxAmpl) - M_fr)/(qsl)\n";
 
         const double M_fr = m_Mfr ? *m_Mfr : 0;                                                      // fixme
         const double coeff = m_flow->calculateDynamicPressure() * m_model->getS() * m_model->getL(); // 1/q/s/l // model, flow
@@ -331,6 +336,9 @@ private:
     std::tuple<bool, std::vector<approximation::nonlinnear::ApproximationResult>>
     calculateEqvivalentDampingCoefficient()
     {
+        m_proceduresHistory << "calculateEqvivalentDampingCoefficients()\n";
+        m_proceduresHistory << "approximate abs amplitude via model: Amplitude(time) = f(time) = A*exp(-lambda*time) + B\n";
+
         std::vector<AngleAmplitudeBase>::const_iterator it = m_angleAmplitude.m_angleAmplitudeBase.begin();
         std::vector<double> dataToApproximateY;
         std::vector<double> dataToApproximateX;

@@ -104,7 +104,8 @@ namespace wt_flow
         }
 
         /// IO
-        void print();
+        void print() const;
+        std::string getInfoString() const;
 
         /**
         *   Load data from txt-file of avg flow data:
