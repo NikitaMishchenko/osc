@@ -21,9 +21,29 @@ TEST(TestOfTest, test1)
 
 TEST(TestGnuplot, BasicTest)
 {
-    gnuplot::Wrapper wrapper;
-}
+    {
+        const size_t size = 1000;
+        
+        std::vector<double> arg, func;
+        arg.reserve(size);
+        func.reserve(size);
 
+        for (size_t i = 0; i < size; i++)
+        {
+            arg.push_back(i*0.1);
+            func.push_back(arg.back()*arg.back() + arg.back());
+        }
+
+        gnuplot::Gnuplot1d gnuplot1d(arg, func);
+
+        gnuplot1d.setTitle("testTitle");
+        gnuplot1d.act1dVector();
+    }
+
+    //gnuplot::example::example1();
+    //gnuplot::example::example2();
+}
+/*
 TEST(Test, Freq)
 {
     const size_t size = 2000;
@@ -82,15 +102,6 @@ TEST(TestApproximation, Approximation1)
             dataY.at(i) = (B + A * exp(-1.0 * lambda * i * dt));
         }
     }
-
-    /*double dx, dy;
-    std::ifstream fin("approx_1_1");
-    for (int i = 0; i < 4; i++)
-    {
-        fin >> dx >> dy;
-        dataX.push_back(dx);
-        dataY.push_back(dy);
-    }*/
 
     AngleHistory angleHistory(dataX, dataY);
 
@@ -162,7 +173,7 @@ TEST(TestApproximation, Approximation2)
     ASSERT_TRUE(std::abs(lambda - approximationResult.lambda) < 0.0001);
 }
 
-/*
+
 TEST(TestOnGeneratedData, testBasicsInitialisation)
 {
     std::vector<double> x;
@@ -203,7 +214,7 @@ TEST(TestOnGeneratedData, testBasicsInitialisation)
 
         ASSERT_TRUE(pitchDynamicMomentum.calcuatePitchStaticMomentum());
     }
-}*/
+}
 
 TEST(TestPitchMomentumBasicVector, atTimeTest)
 {
@@ -525,7 +536,7 @@ TEST(TestOnGeneratedData, test_gen_data)
     std::ofstream foutTotalInfo("log");
     foutTotalInfo << totalInfo.str();
 }
-
+*/
 // plot "basic_1" using 1:2 with linespoints, "test_1" using 1:2 with linespoints, 0.97*exp(-1.1*x)+0.0, "approx_1_0" using 1:2
 // f(x) = A*exp(-1.0*lambda*x)+B
 // fit f(x) "approx_1_0" using 1:2 via A,lambda,B
