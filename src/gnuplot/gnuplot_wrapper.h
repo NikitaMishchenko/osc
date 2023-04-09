@@ -33,11 +33,15 @@ namespace gnuplot
     {
     public:
         Gnuplot1d(std::vector<double> &argument,
-                  std::vector<double> &function) : m_argument(argument), m_function(function)
+                  std::vector<double> &function)
         {
-            // if (m_argument.size() != m_function.size())
-            //     throw std::exception();
+            if (argument.size() != function.size())
+                 throw std::exception();
 
+            for (size_t i = 0; i < argument.size(); i++)
+            {
+                m_xyPts.push_back(std::make_pair(argument.at(i), function.at(i)));
+            }
 
         }
 
@@ -45,13 +49,10 @@ namespace gnuplot
         {
             Gnuplot gp;
 
-            for (size_t i = 0; i < m_argument.size(); i++)
-            {
-                m_xyPts.push_back(std::make_pair(m_argument.at(i), m_function.at(i)));
-            }
-
-            gp << setRanges()
-               << setAxies()
+            gp << setPlotTitle("TITLE")
+               << setPlotGrid()
+               << setPlotRanges()
+               << setPlotAxies("x", "y")
                << "plot" << gp.file1d(m_xyPts) << "with lines"
                << m_title.str()
                << "\n"; /// !
@@ -60,20 +61,30 @@ namespace gnuplot
         // todo saveScript
 
     private:
-        std::string setRanges() const
+        std::string setPlotRanges()
         {
             std::stringstream ss;
 
-            const double ymax = *std::max_element(m_function.begin(), m_function.end()) * 1.1;
-            const double ymin = *std::min_element(m_function.begin(), m_function.end()) * 1.1;
+            const double ymax = std::max_element(m_xyPts.begin(), m_xyPts.end(),
+                                                 [](const std::pair<double, double>& aPts,
+                                                 const std::pair<double, double>& bPts)
+                                                 {return aPts.second < bPts.second; })->second;
+            const double ymin = std::min_element(m_xyPts.begin(), m_xyPts.end(),
+                                                  [](const std::pair<double, double> aPts,
+                                                  const std::pair<double, double> bPts)
+                                                  {return (aPts.second < bPts.second);})->second;
+            const double xmin = m_xyPts.front().first;
+            const double xmax = m_xyPts.back().first;
 
-            ss << "set xrange [" << m_argument.front() << ":" << m_argument.back() << "]\n";
-            ss << "set yrange [" << ymin << ":" << ymax << "]\n";
+            ss << "set xrange [" << xmin << ":" << xmax << "]\n";
+            ss << "set yrange [" << ymin * 1.1 << ":" << ymax *  1.1 << "]\n";
+
+            std::cout << ss.str(); 
 
             return ss.str();
         }
 
-        std::string setAxies(const std::string& xName, const std::string& yName)
+        std::string setPlotAxies(const std::string& xName, const std::string& yName) const
         {
             std::stringstream ss;
 
@@ -83,8 +94,22 @@ namespace gnuplot
             return ss.str();
         }
 
-        std::vector<double> m_argument;
-        std::vector<double> m_function;
+        std::string setPlotTitle(const std::string& title) const
+        {
+            std::stringstream ss;
+
+            ss << "set title \"" << title << "\"\n";
+
+            return ss.str();
+        }
+
+        std::string setPlotGrid() const
+        {
+            return "set grid\n";
+        }
+
+        // with lines with linespoints
+
         std::vector<std::pair<double, double>> m_xyPts;
     };
 
