@@ -85,6 +85,15 @@ target_link_libraries(wtOscillationlib
                       GSL::gsl
                       GSL::gslcblas)          
 
+add_library (gnuplotWrapperLib
+             ./src/gnuplot/gnuplot_wrapper.h)
+
+set_target_properties(gnuplotWrapperLib PROPERTIES LINKER_LANGUAGE CXX)
+target_link_libraries(gnuplotWrapperLib
+                      libboost_iostreams.a
+                      libboost_system.a
+                      libboost_filesystem.a)
+
 add_executable(oscillation
               ./src/main.cpp
               ./src/options.h
@@ -102,10 +111,12 @@ include_directories(${GTEST_INCLUDE_DIRS})
 
 # sudo apt-get install libgsl-dev libgsl-dev libboost-dev
 # libgtest-dev /usr/src/gtest make it
+# sudo apt install libgnuplot-iostream-dev
 target_link_libraries(oscillation
                       basic  
                       flow
                       wtOscillationlib
+                      gnuplotWrapperLib
                       libboost_program_options.a
                       GSL::gsl
                       GSL::gslcblas
@@ -116,7 +127,8 @@ add_executable(runTests tests/main.cpp tests/test.cpp)
 target_link_libraries(runTests
                      ${GTEST_LIBRARIES}
                      pthread
-                     oscillationlib)
+                     oscillationlib
+                     gnuplotWrapperLib)
 
 set(CPACK_PROJECT_NAME ${PROJECT_NAME})
 set(CPACK_PROJECT_VERSION ${PROJECT_VERSION})

@@ -12,10 +12,16 @@
 #include "oscillation/wt_oscillation.h"
 #include "utils/function_generator/function_generator.h"
 #include "analize_coefficients/specific/pitch_dynamic_momentum.h"
+#include "gnuplot/gnuplot_wrapper.h"
 
 TEST(TestOfTest, test1)
 {
     ASSERT_TRUE(true);
+}
+
+TEST(TestGnuplot, BasicTest)
+{
+    gnuplot::Wrapper wrapper;
 }
 
 TEST(Test, Freq)
