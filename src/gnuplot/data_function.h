@@ -8,6 +8,8 @@
 
 #include <boost/optional.hpp>
 
+#include "gnuplot/data_gnuplot_base.h"
+
 namespace gnuplot
 {
     enum LineType
@@ -35,7 +37,7 @@ namespace gnuplot
         int rangeYmode;
     };
 
-    class DataFunction
+    class DataFunction : public DataGnuplotBase
     {
     public:
         DataFunction(const std::vector<double> &argument,

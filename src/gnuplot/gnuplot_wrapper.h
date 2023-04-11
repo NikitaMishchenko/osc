@@ -23,6 +23,11 @@ namespace gnuplot
         {
         }
 
+        static std::string plotGrid()
+        {
+            return "set grid\n";
+        }
+
         virtual void setPlotTitle(const std::string &titleName)
         {
             std::stringstream ss;
@@ -66,7 +71,7 @@ namespace gnuplot
             std::stringstream scryptStream;
 
             scryptStream << plotTitle()
-                         << setPlotGrid()
+                         << plotGrid()
                          << setPlotRanges()
                          << setPlotAxies("x", "y");
             scryptStream << "plot";
@@ -96,13 +101,27 @@ namespace gnuplot
         {
             std::stringstream ss;
 
-            const double ymax = *std::max_element(m_maxYV.begin(), m_maxYV.end());
-            const double ymin = *std::min_element(m_minYV.begin(), m_minYV.end());
-            const double xmax = *std::max_element(m_maxXV.begin(), m_maxXV.end());
-            const double xmin = *std::min_element(m_minXV.begin(), m_minXV.end());
+            double ymax = 0;
+            if (!m_maxXV.empty())
+                ymax = *std::max_element(m_maxYV.begin(), m_maxYV.end());
+            
+            double ymin = 0;
+            if (!m_minYV.empty())
+                ymin = *std::min_element(m_minYV.begin(), m_minYV.end());
+            
+            double xmax = 0;
+            if (!m_maxXV.empty())
+                xmax = *std::max_element(m_maxXV.begin(), m_maxXV.end());
+            
+            double xmin = 0;
+            if (!m_minXV.empty())
+                xmin = *std::min_element(m_minXV.begin(), m_minXV.end());
 
-            ss << "set xrange [" << xmin << ":" << xmax << "]\n";
-            ss << "set yrange [" << ymin * Y_RANGE_COEFF << ":" << ymax * Y_RANGE_COEFF << "]\n";
+            if (ymin == ymax == 0)
+                ss << "set xrange [" << xmin << ":" << xmax << "]\n";
+            
+            if (ymax == ymin == 0)
+                ss << "set yrange [" << ymin * Y_RANGE_COEFF << ":" << ymax * Y_RANGE_COEFF << "]\n";
 
             std::cout << ss.str();
 
@@ -117,11 +136,6 @@ namespace gnuplot
             ss << "set ylabel \'" << yName << "\'\n";
 
             return ss.str();
-        }
-
-        std::string setPlotGrid() const
-        {
-            return "set grid\n";
         }
 
         std::vector<DataFunction> m_dataFunctionV; // todo std::variant 
