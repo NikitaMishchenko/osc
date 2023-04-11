@@ -22,26 +22,56 @@ TEST(TestOfTest, test1)
 TEST(TestGnuplot, BasicTest)
 {
     {
-        const size_t size = 1000;
-        
-        std::vector<double> arg, func;
-        arg.reserve(size);
-        func.reserve(size);
+        const size_t size = 100;
 
-        for (size_t i = 0; i < size; i++)
+        gnuplot::Gnuplot1d gnuplot1d;
+        std::vector<double> arg, func;
+
         {
-            arg.push_back(i*0.1);
-            func.push_back(arg.back()*arg.back() + arg.back());
+            arg.clear();
+            func.clear();
+
+            arg.reserve(size);
+            func.reserve(size);
+
+            for (size_t i = 0; i < size; i++)
+            {
+                arg.push_back(i * 0.1);
+                func.push_back(10*arg.back());
+            }
+
+            gnuplot::DataFunction dataFunction(arg, func);
+
+            dataFunction.setLineColor(gnuplot::RED);
+            dataFunction.setLineType(gnuplot::LINES);
+
+            gnuplot1d.addDataToPlot(dataFunction);
         }
 
-        gnuplot::Gnuplot1d gnuplot1d(arg, func);
+        {
+            arg.clear();
+            func.clear();
 
-        gnuplot1d.setTitle("testTitle");
+            arg.reserve(size);
+            func.reserve(size);
+
+            for (size_t i = 0; i < size; i++)
+            {
+                arg.push_back(i * 0.1);
+                func.push_back(arg.back() * arg.back() + arg.back());
+            }
+
+            gnuplot::DataFunction dataFunction(arg, func);
+
+            dataFunction.setLineColor(gnuplot::BLACK);
+            dataFunction.setLineType(gnuplot::LINES_POINTS);
+            
+            gnuplot1d.addDataToPlot(dataFunction);
+        }
+
+        gnuplot1d.setPlotTitle("testTitle");
         gnuplot1d.act1dVector();
     }
-
-    //gnuplot::example::example1();
-    //gnuplot::example::example2();
 }
 /*
 TEST(Test, Freq)

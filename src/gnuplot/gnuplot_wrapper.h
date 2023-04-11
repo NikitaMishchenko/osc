@@ -6,10 +6,13 @@
 #include <cmath>
 #include <algorithm>
 #include <stdexcept>
+#include <boost/optional.hpp>
 
 #include <boost/tuple/tuple.hpp>
 
 #include <gnuplot-iostream.h>
+
+#include "gnuplot/data_function.h"
 
 namespace gnuplot
 {
@@ -17,74 +20,96 @@ namespace gnuplot
     {
     public:
         Wrapper()
-        {}
-
-        void setTitle(const std::string &titleName)
         {
-            m_title << " title\'" << titleName << "\'";
+        }
+
+        virtual void setPlotTitle(const std::string &titleName)
+        {
+            std::stringstream ss;
+
+            ss << "set title \"" << titleName << "\"\n";
+
+            m_title = ss.str();
         }
 
     protected:
+        std::string plotTitle() const
+        {
+            return m_title;
+        }
 
-        std::stringstream m_title;
+        std::string m_title;
     };
+
+    const double Y_RANGE_COEFF = 1.1;
 
     class Gnuplot1d : public Wrapper
     {
     public:
-        Gnuplot1d(std::vector<double> &argument,
-                  std::vector<double> &function)
+        void addDataToPlot(const DataFunction &data)
         {
-            if (argument.size() != function.size())
-                 throw std::exception();
+            m_dataFunctionV.push_back(data);
+            double xmin, xmax, ymin, ymax;
+            std::tie(xmin, xmax, ymin, ymax) = data.getMaxPts();
 
-            for (size_t i = 0; i < argument.size(); i++)
-            {
-                m_xyPts.push_back(std::make_pair(argument.at(i), function.at(i)));
-            }
-
+            m_minXV.push_back(xmin);
+            m_maxXV.push_back(xmax);
+            m_minYV.push_back(ymin);
+            m_maxYV.push_back(ymax);
         }
 
         void act1dVector()
         {
             Gnuplot gp;
+            gp.debug_messages = true;
 
-            gp << setPlotTitle("TITLE")
-               << setPlotGrid()
-               << setPlotRanges()
-               << setPlotAxies("x", "y")
-               << "plot" << gp.file1d(m_xyPts) << "with lines"
-               << m_title.str()
-               << "\n"; /// !
+            std::stringstream scryptStream;
+
+            scryptStream << plotTitle()
+                         << setPlotGrid()
+                         << setPlotRanges()
+                         << setPlotAxies("x", "y");
+            scryptStream << "plot";
+
+            gp << scryptStream.str();
+            
+            // std::cout << scryptStream.str() << "\n";
+
+            for (std::vector<DataFunction>::iterator it = m_dataFunctionV.begin(); it != m_dataFunctionV.end(); it++)
+            {
+                gp << gp.file1d(it->getData()) << it->getDecorations() << it->title();
+                // std::cout <<  gp.file1d(it->getData()) << it->getDecorations() << m_title.str();
+                
+                if (m_dataFunctionV.end() != it)
+                    gp << ",";
+            }
+            
+            gp << "\n";
+            
+            m_scrypt = scryptStream.str();
         }
 
         // todo saveScript
 
     private:
-        std::string setPlotRanges()
+        std::string setPlotRanges() const
         {
             std::stringstream ss;
 
-            const double ymax = std::max_element(m_xyPts.begin(), m_xyPts.end(),
-                                                 [](const std::pair<double, double>& aPts,
-                                                 const std::pair<double, double>& bPts)
-                                                 {return aPts.second < bPts.second; })->second;
-            const double ymin = std::min_element(m_xyPts.begin(), m_xyPts.end(),
-                                                  [](const std::pair<double, double> aPts,
-                                                  const std::pair<double, double> bPts)
-                                                  {return (aPts.second < bPts.second);})->second;
-            const double xmin = m_xyPts.front().first;
-            const double xmax = m_xyPts.back().first;
+            const double ymax = *std::max_element(m_maxYV.begin(), m_maxYV.end());
+            const double ymin = *std::min_element(m_minYV.begin(), m_minYV.end());
+            const double xmax = *std::max_element(m_maxXV.begin(), m_maxXV.end());
+            const double xmin = *std::min_element(m_minXV.begin(), m_minXV.end());
 
             ss << "set xrange [" << xmin << ":" << xmax << "]\n";
-            ss << "set yrange [" << ymin * 1.1 << ":" << ymax *  1.1 << "]\n";
+            ss << "set yrange [" << ymin * Y_RANGE_COEFF << ":" << ymax * Y_RANGE_COEFF << "]\n";
 
-            std::cout << ss.str(); 
+            std::cout << ss.str();
 
             return ss.str();
         }
 
-        std::string setPlotAxies(const std::string& xName, const std::string& yName) const
+        std::string setPlotAxies(const std::string &xName, const std::string &yName) const
         {
             std::stringstream ss;
 
@@ -94,103 +119,18 @@ namespace gnuplot
             return ss.str();
         }
 
-        std::string setPlotTitle(const std::string& title) const
-        {
-            std::stringstream ss;
-
-            ss << "set title \"" << title << "\"\n";
-
-            return ss.str();
-        }
-
         std::string setPlotGrid() const
         {
             return "set grid\n";
         }
 
-        // with lines with linespoints
+        std::vector<DataFunction> m_dataFunctionV; // todo std::variant 
+        std::vector<double> m_minYV;
+        std::vector<double> m_maxYV;
+        std::vector<double> m_minXV;
+        std::vector<double> m_maxXV;
 
-        std::vector<std::pair<double, double>> m_xyPts;
+        std::string m_scrypt;
     };
 
-    namespace example
-    {
-        void example1()
-        {
-            Gnuplot gp;
-            // Create a script which can be manually fed into gnuplot later:
-            //    Gnuplot gp(">script.gp");
-            // Create script and also feed to gnuplot:
-            //    Gnuplot gp("tee plot.gp | gnuplot -persist");
-            // Or choose any of those options at runtime by setting the GNUPLOT_IOSTREAM_CMD
-            // environment variable.
-
-            // Gnuplot vectors (i.e. arrows) require four columns: (x,y,dx,dy)
-            std::vector<boost::tuple<double, double, double, double>> pts_A;
-
-            // You can also use a separate container for each column, like so:
-            std::vector<double> pts_B_x;
-            std::vector<double> pts_B_y;
-            std::vector<double> pts_B_dx;
-            std::vector<double> pts_B_dy;
-
-            // You could also use:
-            //   std::vector<std::vector<double> >
-            //   boost::tuple of four std::vector's
-            //   std::vector of std::tuple (if you have C++11)
-            //   arma::mat (with the Armadillo library)
-            //   blitz::Array<blitz::TinyVector<double, 4>, 1> (with the Blitz++ library)
-            // ... or anything of that sort
-
-            for (double alpha = 0; alpha < 1; alpha += 1.0 / 24.0)
-            {
-                double theta = alpha * 2.0 * 3.14159;
-                pts_A.push_back(boost::make_tuple(
-                    cos(theta),
-                    sin(theta),
-                    -cos(theta) * 0.1,
-                    -sin(theta) * 0.1));
-
-                pts_B_x.push_back(cos(theta) * 0.8);
-                pts_B_y.push_back(sin(theta) * 0.8);
-                pts_B_dx.push_back(sin(theta) * 0.1);
-                pts_B_dy.push_back(-cos(theta) * 0.1);
-            }
-
-            // Don't forget to put "\n" at the end of each line!
-            gp << "set xrange [-2:2]\nset yrange [-2:2]\n";
-            // '-' means read from stdin.  The send1d() function sends data to gnuplot's stdin.
-            gp << "plot '-' with vectors title 'pts_A', '-' with vectors title 'pts_B'\n";
-            gp.send1d(pts_A);
-            gp.send1d(boost::make_tuple(pts_B_x, pts_B_y, pts_B_dx, pts_B_dy));
-        }
-
-        void example2()
-        {
-            Gnuplot gp;
-
-            std::vector<std::pair<double, double>> xy_pts_A;
-            for (double x = -2; x < 2; x += 0.01)
-            {
-                double y = x * x * x;
-                xy_pts_A.push_back(std::make_pair(x, y));
-            }
-
-            std::vector<std::pair<double, double>> xy_pts_B;
-            for (double alpha = 0; alpha < 1; alpha += 1.0 / 24.0)
-            {
-                double theta = alpha * 2.0 * 3.14159;
-                xy_pts_B.push_back(std::make_pair(cos(theta), sin(theta)));
-            }
-
-            gp << "set xrange [-2:2]\nset yrange [-2:2]\n";
-            // Data will be sent via a temporary file.  These are erased when you call
-            // gp.clearTmpfiles() or when gp goes out of scope.  If you pass a filename
-            // (e.g. "gp.file1d(pts, 'mydata.dat')"), then the named file will be created
-            // and won't be deleted (this is useful when creating a script).
-            gp << "plot" << gp.file1d(xy_pts_A) << "with lines title 'cubic',"
-               << gp.file1d(xy_pts_B) << "with points title 'circle'" << std::endl;
-        }
-    }
-
-}
+} // namespace gnuplot
