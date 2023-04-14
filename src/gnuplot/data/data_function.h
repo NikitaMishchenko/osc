@@ -8,36 +8,17 @@
 
 #include <boost/optional.hpp>
 
-#include "gnuplot/data_gnuplot_base.h"
+#include "gnuplot/data/data_base.h"
 
 namespace gnuplot
 {
-    enum LineType
-    {
-        LINES,
-        LINES_POINTS,
-        POINTS
-    };
-
-    enum LineColor
-    {
-        BLACK  = -1,
-        GREY   = 0,
-        GREEN  = 2,
-        BLUE   = 3,
-        ORANGE = 4,
-        YELLOW = 5,
-        NAVY   = 6,
-        RED    = 7
-    };
-
     struct ConfigGnuplot1D
     {
         int rangeXMode;
         int rangeYmode;
     };
 
-    class DataFunction : public DataGnuplotBase
+    class DataFunction : public DataBase
     {
     public:
         DataFunction(const std::vector<double> &argument,
@@ -77,85 +58,9 @@ namespace gnuplot
             return m_xyPts;
         }
 
-        std::string getDecorations() const
-        {
-            std::stringstream ss;
-
-            ss << lineType() << lineColor();
-
-            return ss.str();
-        }
-
-        void setLineType(const int lineType)
-        {
-            m_lineType = lineType;
-        }
-
-        void setLineColor(const int lineColor)
-        {
-            m_lineColor = lineColor;
-        }
-
-        void setTitle(const std::string& title)
-        {
-            m_title = title;
-        }
-
-        std::string title() const
-        {
-            if (!m_title)
-                return std::string();
-
-            return m_title.get();
-        }
-
-        std::tuple<double, double, double, double> getMaxPts() const
-        {
-            return std::make_tuple(m_xmin, m_xmax, m_ymin, m_ymax);
-        }
-
     protected:
-        std::string lineType() const
-        {
-
-            if (m_lineType)
-                switch (m_lineType.get())
-                {
-                case LINES:
-                    return " with lines ";
-
-                case LINES_POINTS:
-                    return " with linespoints ";
-
-                case POINTS:
-                    return " with points ";
-
-                default:
-                    return std::string();
-                }
-
-            return std::string();
-        }
-
-        std::string lineColor() const
-        {
-            if (!m_lineColor)
-                return " linecolor -1";
-
-            std::stringstream ss;
-            ss << " linecolor " << m_lineColor.get() << " ";
-
-            return ss.str();
-        }
 
         std::vector<std::pair<double, double>> m_xyPts;
-        double m_xmin;
-        double m_xmax;
-        double m_ymin;
-        double m_ymax;
-        boost::optional<int> m_lineType;
-        boost::optional<int> m_lineColor;
-        boost::optional<std::string> m_title;
     };
 
 } // namespace gnuplot

@@ -13,6 +13,7 @@
 #include "utils/function_generator/function_generator.h"
 #include "analize_coefficients/specific/pitch_dynamic_momentum.h"
 #include "gnuplot/gnuplot_wrapper.h"
+#include "gnuplot/data/data.h"
 
 TEST(TestOfTest, test1)
 {
@@ -42,6 +43,7 @@ TEST(TestGnuplot, BasicTest)
 
             gnuplot::DataFunction dataFunction(arg, func);
 
+            dataFunction.setTitle("10*x");
             dataFunction.setLineColor(gnuplot::RED);
             dataFunction.setLineType(gnuplot::LINES);
 
@@ -63,10 +65,20 @@ TEST(TestGnuplot, BasicTest)
 
             gnuplot::DataFunction dataFunction(arg, func);
 
+            dataFunction.setTitle("x**2+x");
             dataFunction.setLineColor(gnuplot::BLACK);
             dataFunction.setLineType(gnuplot::LINES_POINTS);
             
             gnuplot1d.addDataToPlot(dataFunction);
+        }
+
+        {
+            std::string data = "100*sin(x)";
+            gnuplot::DataGnuplotFunction dataGnuplotFunction(data);
+
+            //dataGnuplotFunction.setTitle("100*sin(x)");
+
+            gnuplot1d.addDataToPlot(dataGnuplotFunction);
         }
 
         gnuplot1d.setPlotTitle("testTitle");

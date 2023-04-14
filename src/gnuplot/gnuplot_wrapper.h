@@ -12,7 +12,7 @@
 
 #include <gnuplot-iostream.h>
 
-#include "gnuplot/data_function.h"
+#include "gnuplot/data/data.h"
 
 namespace gnuplot
 {
@@ -37,6 +37,12 @@ namespace gnuplot
             m_title = ss.str();
         }
 
+        virtual void setPlotAxisName(const std::string& nameX, const std::string nameY)
+        {
+            m_nameX = nameX;
+            m_nameY = nameY;
+        } 
+
     protected:
         std::string plotTitle() const
         {
@@ -44,6 +50,8 @@ namespace gnuplot
         }
 
         std::string m_title;
+        std::string m_nameX;
+        std::string m_nameY;
     };
 
     const double Y_RANGE_COEFF = 1.1;
@@ -63,6 +71,11 @@ namespace gnuplot
             m_maxYV.push_back(ymax);
         }
 
+        void addDataToPlot(const DataGnuplotFunction& data)
+        {
+            m_dataGnuplotFunctionV.push_back(data);
+        }
+
         void act1dVector()
         {
             Gnuplot gp;
@@ -72,24 +85,30 @@ namespace gnuplot
 
             scryptStream << plotTitle()
                          << plotGrid()
-                         << setPlotRanges()
-                         << setPlotAxies("x", "y");
+                         << plotRanges()
+                         << plotAxiesName(m_nameX, m_nameY);
             scryptStream << "plot";
 
             gp << scryptStream.str();
-            
-            // std::cout << scryptStream.str() << "\n";
+
 
             for (std::vector<DataFunction>::iterator it = m_dataFunctionV.begin(); it != m_dataFunctionV.end(); it++)
             {
-                gp << gp.file1d(it->getData()) << it->getDecorations() << it->title();
+                gp << gp.file1d(it->getData()) << it->getFunctionDecorations();
                 // std::cout <<  gp.file1d(it->getData()) << it->getDecorations() << m_title.str();
                 
-                if (m_dataFunctionV.end() != it)
+                if (m_dataFunctionV.end() != it && !m_dataGnuplotFunctionV.empty())
                     gp << ",";
             }
             
+            for (std::vector<DataGnuplotFunction>::iterator it = m_dataGnuplotFunctionV.begin(); it != m_dataGnuplotFunctionV.end(); it++)
+            {
+                gp << it->dataFunction();
+            }
+
             gp << "\n";
+            
+            // std::cout << scryptStream.str() << "\n";
             
             m_scrypt = scryptStream.str();
         }
@@ -97,7 +116,8 @@ namespace gnuplot
         // todo saveScript
 
     private:
-        std::string setPlotRanges() const
+
+        std::string plotRanges() const
         {
             std::stringstream ss;
 
@@ -128,7 +148,7 @@ namespace gnuplot
             return ss.str();
         }
 
-        std::string setPlotAxies(const std::string &xName, const std::string &yName) const
+        std::string plotAxiesName(const std::string &xName, const std::string &yName) const
         {
             std::stringstream ss;
 
@@ -139,6 +159,7 @@ namespace gnuplot
         }
 
         std::vector<DataFunction> m_dataFunctionV; // todo std::variant 
+        std::vector<DataGnuplotFunction> m_dataGnuplotFunctionV;
         std::vector<double> m_minYV;
         std::vector<double> m_maxYV;
         std::vector<double> m_minXV;
