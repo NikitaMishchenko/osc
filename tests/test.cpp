@@ -14,6 +14,7 @@
 #include "analize_coefficients/specific/pitch_dynamic_momentum.h"
 #include "gnuplot/gnuplot_wrapper.h"
 #include "gnuplot/data/data.h"
+#include "gnuplot/gnuplot_1d.h"
 
 TEST(TestOfTest, test1)
 {
@@ -27,6 +28,14 @@ TEST(TestGnuplot, BasicTest)
 
         gnuplot::Gnuplot1d gnuplot1d;
         std::vector<double> arg, func;
+
+        gnuplot::png::PngProperties pngProperties(640, 480);
+
+        gnuplot::png::PngFile pngFile("testPic");
+        
+        pngFile.setPngProperties(pngProperties);
+
+        //gnuplot1d.setPngFile(pngFile);
 
         {
             arg.clear();

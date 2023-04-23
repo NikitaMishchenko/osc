@@ -86,7 +86,9 @@ target_link_libraries(wtOscillationlib
                       GSL::gslcblas)          
 
 add_library (gnuplotWrapperLib
-             ./src/gnuplot/gnuplot_wrapper.h)
+             ./src/gnuplot/gnuplot_wrapper.h
+             ./src/gnuplot/gnuplot_1d.h
+             )
 
 set_target_properties(gnuplotWrapperLib PROPERTIES LINKER_LANGUAGE CXX)
 target_link_libraries(gnuplotWrapperLib
