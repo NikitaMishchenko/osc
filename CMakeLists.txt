@@ -52,7 +52,7 @@ add_library(basic
 
 
 add_library(oscillationlib
-            ./src/gnusl_proc/approximation/linnear.h
+            ./src/gnusl_wrapper/approximation/linnear.h
             ./src/analize_coefficients/dynamic_coefficients.h
             ./src/filtration/butterworth_filter.h
             ./src/model/tr_rod_model_params.h

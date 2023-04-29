@@ -11,7 +11,7 @@
 
 #include <boost/optional/optional.hpp>
 
-#include "gnusl_proc/approximation/nonlinear.h"
+#include "gnusl_wrapper/approximation/nonlinear.h"
 #include "flow/wt_flow.h"
 #include "analize_coefficients/specific/amplitude.h"
 

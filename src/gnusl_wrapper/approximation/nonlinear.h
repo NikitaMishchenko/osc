@@ -15,8 +15,8 @@
 #include <gsl/gsl_blas.h>
 #include <gsl/gsl_multifit_nlinear.h>
 
-#include "gnusl_proc/approximation/basic.h"
-#include "gnusl_proc/approximation/codes.h"
+#include "gnusl_wrapper/approximation/basic.h"
+#include "gnusl_wrapper/approximation/codes.h"
 
 namespace approximation::nonlinnear
 {

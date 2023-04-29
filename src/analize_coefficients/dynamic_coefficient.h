@@ -10,7 +10,7 @@
 #include "src/analize_coefficients/specific/pitch_momentum.h"
 #include "src/analize_coefficients/specific/pitch_static_momentum.h"
 #include "src/analize_coefficients/specific/pitch_dynamic_momentum.h"
-#include "gnusl_proc/approximation/codes.h"
+#include "gnusl_wrapper/approximation/codes.h"
 
 // namespace dynamic_coefficents
 //{

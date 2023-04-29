@@ -13,8 +13,8 @@
 #include <gsl/gsl_randist.h>
 #include <gsl/gsl_vector.h>
 
-#include "core/gsl_wrapper.h"
-#include "filtration/helpers.h"
+#include "gnusl_wrapper/gsl_wrapper.h"
+#include "gnusl_wrapper/helpers.h"
 
 
 // todo start here and fill with external Data // leave basic realisation for testing

@@ -17,17 +17,17 @@
 #include "analize_coefficients/dynamic_coefficients.h"
 #include "errcodes.h"
 #include "pendulum/pendulum_analisys.h"
-#include "gnusl_proc/approximation/linnear.h"
+#include "gnusl_wrapper/approximation/linnear.h"
 #include "analize_coefficients/dynamic_coefficients.h"
 
 #include "signal_generator/operations_queue.h"
 
 // for testing
 #include "io_helpers/naive.h"
-#include "filtration/gsl_filters.h"
+#include "gnusl_wrapper/filters/gauissian.h"
 #include "core/vector_helpers.h"
 #include "analize_coefficients/dynamic_coefficient.h"
-#include "gnusl_proc/approximation/nonlinear.h"
+#include "gnusl_wrapper/approximation/nonlinear.h"
 
 namespace basic_procedures
 {

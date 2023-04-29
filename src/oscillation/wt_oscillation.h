@@ -9,7 +9,7 @@
 #include "oscillation_basic.h"
 #include "model/tr_rod_model_params.h"
 #include "flow/wt_flow.h"
-#include "filtration/gsl_filters.h"
+#include "gnusl_wrapper/filters/gauissian.h"
 #include "core/vector_helpers.h"
 
 struct Mz

@@ -14,8 +14,8 @@
 
 #include "oscillation/wt_oscillation.h"
 #include "model/tr_rod_model_params.h"
-#include "gnusl_proc/approximation/linnear.h"
-#include "gnusl_proc/approximation/nonlinear.h"
+#include "gnusl_wrapper/approximation/linnear.h"
+#include "gnusl_wrapper/approximation/nonlinear.h"
 
 namespace
 {

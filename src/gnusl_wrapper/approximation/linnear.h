@@ -9,7 +9,7 @@
 
 #include <gsl/gsl_fit.h>
 
-#include "gnusl_proc/approximation/basic.h"
+#include "gnusl_wrapper/approximation/basic.h"
 
 namespace approximation::linnear
 {

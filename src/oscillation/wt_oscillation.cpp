@@ -8,7 +8,7 @@
 #include "src/model/tr_rod_model_params.h"
 #include "src/flow/wt_flow.h"
 #include "io_helpers/naive.h"
-#include "filtration/gsl_filters.h"
+#include "gnusl_wrapper/filters/gauissian.h"
 #include "core/vector_helpers.h"
 
 #include "wt_oscillation.h"
