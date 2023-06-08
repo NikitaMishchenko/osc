@@ -25,7 +25,7 @@ namespace gnuplot
                      const std::vector<double> &function)
         {
             if (argument.size() != function.size())
-                throw std::exception();
+                throw std::out_of_range(std::string("DataFunction argument and function sizes was not matched").c_str());
 
             for (size_t i = 0; i < argument.size(); i++)
                 m_xyPts.push_back(std::make_pair(argument.at(i), function.at(i)));

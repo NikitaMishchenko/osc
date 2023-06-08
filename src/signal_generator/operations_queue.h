@@ -4,6 +4,8 @@
 #include <queue>
 #include <memory>
 
+#include <boost/filesystem.hpp>
+
 #include "signal_generator_base.h"
 #include "operations_factory.h"
 
@@ -20,9 +22,7 @@ public:
 
     bool loadOperationsConfiguration(const std::string &fileName)
     {
-        std::ifstream fin(fileName);
-
-        if (!fin.is_open())
+        if (!boost::filesystem::exists(fileName))
             throw std::string("OperationQueue cant load file:" + fileName);
 
         OperationsFactory factory(fileName);
@@ -41,8 +41,6 @@ public:
         } while (FactoryCode::WORK_DONE != factoryErrCode);
 
         std::cout << "OperationsQueue loaded with size of " << m_operations.size() << "\n";
-
-        fin.close();
 
         return true;
     }

@@ -27,7 +27,7 @@ public:
 
     OperationsFactory(const std::string &fileName)
     {
-        openFileSource(fileName); // err check
+        openFileSource(fileName); // err check throw
     }
 
     ~OperationsFactory()

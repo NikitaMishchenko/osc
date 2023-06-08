@@ -13,8 +13,8 @@ namespace signal_generator
     // todo to helpers time to index
     /**
      * Realisation of basic operations
-     * int getIndex(double time){std::find() return index };
-     *  std::tuple<int, int> getTimeRangeIndex(double timeForm, double timeTod);
+     * int getIndex(double time){std::find() return index;};
+     * std::tuple<int, int> getTimeRangeIndex(double timeForm, double timeTod);
      * std::tuple<iterator, iterator>(double timeFrom, timeTo);
      *
      * */

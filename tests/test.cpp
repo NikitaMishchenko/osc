@@ -12,6 +12,7 @@
 #include "oscillation/wt_oscillation.h"
 #include "utils/function_generator/function_generator.h"
 #include "analize_coefficients/specific/pitch_dynamic_momentum.h"
+#include "analize_coefficients/specific/amplitude/utils.h"
 #include "gnuplot/gnuplot_wrapper.h"
 #include "gnuplot/data/data.h"
 #include "gnuplot/gnuplot_1d.h"
@@ -32,10 +33,10 @@ TEST(TestGnuplot, BasicTest)
         gnuplot::png::PngProperties pngProperties(640, 480);
 
         gnuplot::png::PngFile pngFile("testPic");
-        
+
         pngFile.setPngProperties(pngProperties);
 
-        //gnuplot1d.setPngFile(pngFile);
+        // gnuplot1d.setPngFile(pngFile);
 
         {
             arg.clear();
@@ -44,10 +45,10 @@ TEST(TestGnuplot, BasicTest)
             arg.reserve(size);
             func.reserve(size);
 
-            for (size_t i = 0; i < size; i++)
+            for (size_t i = 0; i < size; i++) // todo wrap to esasy to use way
             {
                 arg.push_back(i * 0.1);
-                func.push_back(10*arg.back());
+                func.push_back(10 * arg.back());
             }
 
             gnuplot::DataFunction dataFunction(arg, func);
@@ -77,7 +78,7 @@ TEST(TestGnuplot, BasicTest)
             dataFunction.setTitle("x**2+x");
             dataFunction.setLineColor(gnuplot::BLACK);
             dataFunction.setLineType(gnuplot::LINES_POINTS);
-            
+
             gnuplot1d.addDataToPlot(dataFunction);
         }
 
@@ -85,12 +86,110 @@ TEST(TestGnuplot, BasicTest)
             std::string data = "100*sin(x)";
             gnuplot::DataGnuplotFunction dataGnuplotFunction(data);
 
-            //dataGnuplotFunction.setTitle("100*sin(x)");
+            // dataGnuplotFunction.setTitle("100*sin(x)");
 
             gnuplot1d.addDataToPlot(dataGnuplotFunction);
         }
 
         gnuplot1d.setPlotTitle("testTitle");
+        gnuplot1d.act1dVector();
+    }
+}
+
+TEST(Test, Amplitude)
+{
+    std::vector<function_generator::FunctionProbeData> functionProbeDataVector;
+
+    function_generator::FunctionGenerator functionGenerator;
+
+    {
+
+        function_generator::FunctionProbeData functionProbeData;
+
+        std::vector<double> coeff;
+        double time0 = 0.0, dt = 0.0001;
+        int length = 50000;
+
+        // consider exception inside function
+        auto function0 = [](double argument, std::vector<double> coeff)
+        {
+            return coeff.at(1) / abs(argument) * sin(coeff.at(0) * argument);
+        };
+        {
+            coeff = {50, 0.5};
+            std::stringstream descriptionFunc;
+
+            descriptionFunc << "f(arg) = " << coeff.at(1) << " * sin(" << coeff.at(0) << " * arg) "
+                            << "/abs(arg)\n";
+
+            functionProbeData.setData(function0,
+                                      descriptionFunc.str(),
+                                      time0,
+                                      length,
+                                      dt,
+                                      coeff);
+        }
+
+        functionProbeDataVector.push_back(functionProbeData);
+    }
+
+    bool isOk = false;
+    std::vector<Function> functionVector;
+
+    std::tie(isOk, functionVector) = functionGenerator.actOnData(functionProbeDataVector);
+
+    AngleHistory angleHistory(functionVector.at(0).getDomain(),
+                              functionVector.at(0).getCodomain());
+
+    Oscillation oscillation(angleHistory);
+
+    std::vector<double> time = oscillation.getTime();
+    // std::shared_ptr<std::vector<double>> time = std::make_shared<std::vector<double>>(oscillation.getTime());
+    // std::shared_ptr<std::vector<double>> angle;
+    // std::shared_ptr<std::vector<double>> dangle;
+
+    amplitude::AngleAmplitude angleAmplitude(std::make_shared<std::vector<double>>(oscillation.getTime()),
+                                             std::make_shared<std::vector<double>>(oscillation.getAngle()),
+                                             std::make_shared<std::vector<double>>(oscillation.getDangle()));
+
+    amplitude::AngleAmplitudeAnalyser angleAmplitudeAnalyser(angleAmplitude);
+
+    angleAmplitudeAnalyser.getMostFrequentAmplitudeValue(10);
+
+    std::vector<amplitude::AngleAmplitudeBase> sortedAmplitude = angleAmplitudeAnalyser.getSortedAmplitude();
+
+    ///
+    const size_t size = sortedAmplitude.size();
+    std::vector<double> arg, func;
+
+    for (const auto &k : sortedAmplitude)
+        arg.push_back(k.m_amplitudeTime);
+
+    for (const auto &k : sortedAmplitude)
+        func.push_back(k.m_amplitudeAngle);
+
+    // todo make wrap for easy to use
+    {
+
+        gnuplot::Gnuplot1d gnuplot1d;
+
+        gnuplot::png::PngProperties pngProperties(640, 480);
+
+        gnuplot::png::PngFile pngFile("testPic");
+
+        pngFile.setPngProperties(pngProperties);
+
+        // gnuplot1d.setPngFile(pngFile);
+
+        gnuplot::DataFunction dataFunction(arg, func);
+
+        dataFunction.setTitle("");
+        dataFunction.setLineColor(gnuplot::RED);
+        dataFunction.setLineType(gnuplot::LINES);
+
+        gnuplot1d.addDataToPlot(dataFunction);
+
+        gnuplot1d.setPlotTitle("");
         gnuplot1d.act1dVector();
     }
 }
@@ -488,7 +587,7 @@ TEST(TestOnGeneratedData, test_gen_data)
             std::vector<PitchMomentumBasic> staticR;
             std::vector<PitchMomentumBasic> basicR;
             std::vector<PitchMomentumBasic> dynamicR;
-            std::vector<AngleAmplitudeBase> amplitude;
+            std::vector<amplitudeLLAngleAmplitudeBase> amplitude;
 
             {
                 ASSERT_TRUE(pitchDynamicMomentum.calculateEqvivalentDampingCoefficients());

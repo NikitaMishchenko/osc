@@ -10,7 +10,7 @@
 /*
  * Assumed constant timeStep
  */
-class AngleHistory : public Function // todo rename it's better be like TwoVectors // on the higher lvl make it angle and time
+class  AngleHistory : public Function // todo rename it's better be like TwoVectors // on the higher lvl make it angle and time
 {
 public:
     AngleHistory() : Function(), m_timeStep(0.0)

@@ -13,7 +13,7 @@
 
 #include "gnusl_wrapper/approximation/nonlinear.h"
 #include "flow/wt_flow.h"
-#include "analize_coefficients/specific/amplitude.h"
+#include "analize_coefficients/specific/amplitude/basic.h"
 
 enum Method
 {
@@ -66,7 +66,7 @@ public:
                          const std::shared_ptr<wt_flow::Flow> flow,
                          const std::shared_ptr<Model> model,
                          const int numberOfPeriods = 2,
-                         const int mode = ABS_AMPLITUDE,
+                         const int mode = amplitude::ABS_AMPLITUDE,
                          const int method = METHOD_1) : m_time(time),
                                                         m_angle(angle),
                                                         m_dangle(dangle),
@@ -84,7 +84,7 @@ public:
         m_proceduresHistory << "Данные потока при рассчете: " << m_flow->getInfoString() << "\n";
     }
 
-    std::tuple<std::vector<PitchMomentumBasic>, std::vector<PitchMomentumBasic>, std::vector<PitchMomentumBasic>, std::vector<AngleAmplitudeBase>>
+    std::tuple<std::vector<PitchMomentumBasic>, std::vector<PitchMomentumBasic>, std::vector<PitchMomentumBasic>, std::vector<amplitude::AngleAmplitudeBase>>
     getData() const
     {
         return std::make_tuple(m_pitchStaticMomentum, m_pitchMomentumBasicVector, m_pitchDynamicMomentum, m_angleAmplitude.m_angleAmplitudeBase);
@@ -339,7 +339,7 @@ private:
         m_proceduresHistory << "calculateEqvivalentDampingCoefficients()\n";
         m_proceduresHistory << "approximate abs amplitude via model: Amplitude(time) = f(time) = A*exp(-lambda*time) + B\n";
 
-        std::vector<AngleAmplitudeBase>::const_iterator it = m_angleAmplitude.m_angleAmplitudeBase.begin();
+        std::vector<amplitude::AngleAmplitudeBase>::const_iterator it = m_angleAmplitude.m_angleAmplitudeBase.begin();
         std::vector<double> dataToApproximateY;
         std::vector<double> dataToApproximateX;
 
@@ -459,7 +459,7 @@ private:
     std::vector<PitchMomentumBasic> m_pitchDynamicMomentum;
     std::vector<PitchMomentumBasic> m_pitchMomentumBasicVector;
 
-    AngleAmplitude m_angleAmplitude;
+    amplitude::AngleAmplitude m_angleAmplitude;
 
     std::stringstream m_proceduresHistory;
     std::stringstream m_plotApprox;
