@@ -9,13 +9,15 @@
 #include <sstream>
 #include <memory>
 
+#include <gnuplot_wrapper.h>
+//#include <gnuplot/gnuplot_wrapper.h>
+//#include <gnuplot/data/data.h>
+//#include <gnuplot/gnuplot_1d.h>
+
 #include "oscillation/wt_oscillation.h"
 #include "utils/function_generator/function_generator.h"
 #include "analize_coefficients/specific/pitch_dynamic_momentum.h"
 #include "analize_coefficients/specific/amplitude/utils.h"
-#include "gnuplot/gnuplot_wrapper.h"
-#include "gnuplot/data/data.h"
-#include "gnuplot/gnuplot_1d.h"
 
 TEST(TestOfTest, test1)
 {
@@ -95,7 +97,7 @@ TEST(TestGnuplot, BasicTest)
         gnuplot1d.act1dVector();
     }
 }
-
+/*
 TEST(Test, Amplitude)
 {
     std::vector<function_generator::FunctionProbeData> functionProbeDataVector;

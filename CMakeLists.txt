@@ -85,17 +85,6 @@ target_link_libraries(wtOscillationlib
                       GSL::gsl
                       GSL::gslcblas)          
 
-add_library (gnuplotWrapperLib
-             ./src/gnuplot/gnuplot_wrapper.h
-             ./src/gnuplot/gnuplot_1d.h
-             )
-
-set_target_properties(gnuplotWrapperLib PROPERTIES LINKER_LANGUAGE CXX)
-target_link_libraries(gnuplotWrapperLib
-                      libboost_iostreams.a
-                      libboost_system.a
-                      libboost_filesystem.a)
-
 add_executable(oscillation
               ./src/main.cpp
               ./src/options.h
@@ -111,26 +100,38 @@ find_package(GSL REQUIRED)
 find_package(GTest REQUIRED)
 include_directories(${GTEST_INCLUDE_DIRS})
 
+add_library(gnuplot_wrapper SHARED IMPORTED)
+set_property(TARGET gnuplot_wrapper PROPERTY IMPORTED LOCATION "/home/mishnic/src/gnuplot_wrapper/build/libgnuplot_wrapper.so")
+#TARGET_LINK_LIBRARIES(gnuplot_wrapper "-L/home/mishnic/src/gnuplot_wrapper/build/" gnuplot_wrapper)
+
 # sudo apt-get install libgsl-dev libgsl-dev libboost-dev
 # libgtest-dev /usr/src/gtest make it
 # sudo apt install libgnuplot-iostream-dev
-target_link_libraries(oscillation
+target_link_libraries(${PROJECT_NAME}
                       basic  
                       flow
                       wtOscillationlib
-                      gnuplotWrapperLib
+                      #gnuplot_wrapper "-L/home/mishnic/src/gnuplot_wrapper/build/libgnuplot_wrapper.so"
                       libboost_program_options.a
                       GSL::gsl
                       GSL::gslcblas
                       fftw3
 )
+#target_include_directories(${PROJECT_NAME} "/home/mishnic/src/gnuplot_wrapper/")
+
+include_directories("/home/mishnic/src/gnuplot_wrapper/build")
 
 add_executable(runTests tests/main.cpp tests/test.cpp)
 target_link_libraries(runTests
                      ${GTEST_LIBRARIES}
                      pthread
-                     oscillationlib
-                     gnuplotWrapperLib)
+                     -pthread
+                     -lpthread
+                     -lboost_iostreams
+                     -lboost_system
+                     -lboost_filesystem
+                     "-L/home/mishnic/src/gnuplot_wrapper/build/libgnuplot_wrapper.a"
+                     oscillationlib)
 
 set(CPACK_PROJECT_NAME ${PROJECT_NAME})
 set(CPACK_PROJECT_VERSION ${PROJECT_VERSION})
