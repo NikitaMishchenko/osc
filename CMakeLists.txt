@@ -100,8 +100,9 @@ find_package(GSL REQUIRED)
 find_package(GTest REQUIRED)
 include_directories(${GTEST_INCLUDE_DIRS})
 
-add_library(gnuplot_wrapper SHARED IMPORTED)
-set_property(TARGET gnuplot_wrapper PROPERTY IMPORTED LOCATION "/home/mishnic/src/gnuplot_wrapper/build/libgnuplot_wrapper.so")
+# todo
+#add_library(gnuplot_wrapper SHARED IMPORTED)
+#set_property(TARGET gnuplot_wrapper PROPERTY IMPORTED LOCATION "/home/mishnic/src/gnuplot_wrapper/build/libgnuplot_wrapper.so")
 #TARGET_LINK_LIBRARIES(gnuplot_wrapper "-L/home/mishnic/src/gnuplot_wrapper/build/" gnuplot_wrapper)
 
 # sudo apt-get install libgsl-dev libgsl-dev libboost-dev
@@ -117,9 +118,11 @@ target_link_libraries(${PROJECT_NAME}
                       GSL::gslcblas
                       fftw3
 )
-#target_include_directories(${PROJECT_NAME} "/home/mishnic/src/gnuplot_wrapper/")
+#target_include_directories(${PROJECT_NAME} "/home/mishnic/src/gnuplot_wrapper/src/gnuplot")
 
-include_directories("/home/mishnic/src/gnuplot_wrapper/build")
+#target_include_directories(runTests PUBLIC "/home/mishnic/src/gnuplot_wrapper/src/gnuplot")
+
+
 
 add_executable(runTests tests/main.cpp tests/test.cpp)
 target_link_libraries(runTests
@@ -130,8 +133,14 @@ target_link_libraries(runTests
                      -lboost_iostreams
                      -lboost_system
                      -lboost_filesystem
-                     "-L/home/mishnic/src/gnuplot_wrapper/build/libgnuplot_wrapper.a"
+                     gnuplot_wrapper
+                     #"-L/home/mishnic/src/gnuplot_wrapper/build/libgnuplot_wrapper.a"
                      oscillationlib)
+
+target_include_directories(runTests PUBLIC "/home/mishnic/src/gnuplot_wrapper/src/gnuplot")
+target_include_directories(runTests PUBLIC "/home/mishnic/src/gnuplot_wrapper/src/gnuplot/data")
+target_include_directories(runTests PUBLIC "/home/mishnic/src/gnuplot_wrapper/src/gnuplot/picture")
+target_link_directories(runTests PUBLIC "/home/mishnic/src/gnuplot_wrapper")
 
 set(CPACK_PROJECT_NAME ${PROJECT_NAME})
 set(CPACK_PROJECT_VERSION ${PROJECT_VERSION})
