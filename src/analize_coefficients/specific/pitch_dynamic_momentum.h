@@ -14,6 +14,7 @@
 #include "gnusl_wrapper/approximation/nonlinear.h"
 #include "flow/wt_flow.h"
 #include "analize_coefficients/specific/amplitude/basic.h"
+#include "model/tr_rod_model_params.h"
 
 enum Method
 {
