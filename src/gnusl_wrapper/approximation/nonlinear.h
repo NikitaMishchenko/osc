@@ -335,7 +335,7 @@ namespace approximation::nonlinnear
     /*
      *   Model Yi = A * exp(-lambda * t_i) + b
      */
-    std::tuple<int, ApproximationResult, std::string>
+    inline std::tuple<int, ApproximationResult, std::string>
     approximateAndInfo(const std::vector<double> &inputDataX,
                        const std::vector<double> &inputDataY)
     // const std::optional<std::vector<double>> &err = std::optional<std::vector<double>>())

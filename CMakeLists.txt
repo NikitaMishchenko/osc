@@ -124,7 +124,11 @@ target_link_libraries(${PROJECT_NAME}
 
 
 
-add_executable(runTests tests/main.cpp tests/test.cpp)
+add_executable(runTests 
+               tests/main.cpp 
+               tests/test.cpp 
+               tests/approximation_test.cpp)
+
 target_link_libraries(runTests
                      ${GTEST_LIBRARIES}
                      pthread
@@ -133,14 +137,9 @@ target_link_libraries(runTests
                      -lboost_iostreams
                      -lboost_system
                      -lboost_filesystem
-                     gnuplot_wrapper
+                     #gnuplot_wrapper
                      #"-L/home/mishnic/src/gnuplot_wrapper/build/libgnuplot_wrapper.a"
                      oscillationlib)
-
-target_include_directories(runTests PUBLIC "/home/mishnic/src/gnuplot_wrapper/src/gnuplot")
-target_include_directories(runTests PUBLIC "/home/mishnic/src/gnuplot_wrapper/src/gnuplot/data")
-target_include_directories(runTests PUBLIC "/home/mishnic/src/gnuplot_wrapper/src/gnuplot/picture")
-target_link_directories(runTests PUBLIC "/home/mishnic/src/gnuplot_wrapper")
 
 set(CPACK_PROJECT_NAME ${PROJECT_NAME})
 set(CPACK_PROJECT_VERSION ${PROJECT_VERSION})
