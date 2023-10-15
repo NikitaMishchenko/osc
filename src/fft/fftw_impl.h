@@ -15,8 +15,6 @@ namespace
                                  std::vector<double>::const_iterator signalEnd,
                                  fftw_complex *data)
     {
-        std::cout << "realVectorToFftwComplex()\n";
-
         int i = 0;
         for (auto it = signalBegin; it != signalEnd; ++it)
         {
@@ -130,7 +128,7 @@ namespace osc
 namespace fftw_example
 {
 
-    inline void generate_signal(fftw_complex *signal, double freq, uint8_t length)
+    inline void generate_signal(fftw_complex *signal, double freq, uint16_t length)
     {
         std::cout << "Signal generation\n";
 
@@ -148,7 +146,7 @@ namespace fftw_example
         fout.close();
     }
 
-    inline void func(uint8_t N)
+    inline void func(uint16_t N)
     {
         // const uint8_t N = 1024*16;
 
