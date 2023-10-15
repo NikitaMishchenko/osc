@@ -20,7 +20,7 @@
 #include "gnusl_wrapper/approximation/linnear.h"
 #include "analize_coefficients/dynamic_coefficients.h"
 
-#include "signal_generator/operations_queue.h"
+// #include "utils/signal_generator/operations_queue.h"
 
 // for testing
 #include "io_helpers/naive.h"

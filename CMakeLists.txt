@@ -123,10 +123,9 @@ target_link_libraries(${PROJECT_NAME}
 #target_include_directories(runTests PUBLIC "/home/mishnic/src/gnuplot_wrapper/src/gnuplot")
 
 
-
 add_executable(runTests 
                tests/main.cpp 
-               tests/test.cpp 
+               tests/integrated_test.cpp 
                tests/approximation_test.cpp
                tests/frequency_test.cpp
                tests/oscillation_basics_test.cpp)

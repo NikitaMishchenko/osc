@@ -11,6 +11,71 @@
 
 #include "gnusl_wrapper/approximation/basic.h"
 
+namespace
+{
+    bool correctRangesAndWarn(const size_t maxSize,
+                              size_t &fromIndex,
+                              size_t &finishIndex,
+                              size_t &windowWidth,
+                              size_t &stepSize)
+    {
+        std::cout << "correctRangesAngWarnentry()\n";
+
+        bool wasCorrected = false;
+
+        if (fromIndex > maxSize)
+        {
+            std::cerr << "\tfromIndex > max size, fromIndex to 0, "
+                      << fromIndex << " > " << maxSize << "\n";
+
+            fromIndex = 0;
+
+            std::cerr << "\tfromIndex has beeng set to: " << fromIndex << "\n";
+
+            wasCorrected = true;
+        }
+
+        if (finishIndex > maxSize)
+        {
+            std::cerr << "\tfinishIndex > max size, setting finishIndex to maxSize, "
+                      << finishIndex << " > " << maxSize << "\n";
+
+            finishIndex = maxSize;
+
+            std::cerr << "\tfinishIndex has beeng set to: " << finishIndex << "\n";
+
+            wasCorrected = true;
+        }
+
+        if (fromIndex + windowWidth > maxSize)
+        {
+            std::cerr << "fromIndex + windowWidth > max size, setting windowWidth to maximum possible, "
+                      << fromIndex + windowWidth << " > " << maxSize << "\n";
+
+            windowWidth = maxSize - fromIndex;
+
+            std::cerr << "\twindowWidth has beeng set to: " << windowWidth << "\n";
+
+            wasCorrected = true;
+        }
+
+        if (fromIndex + stepSize > maxSize)
+        {
+            std::cerr << "\tfromIndex + stepSize > max size, setting stepSize to maximum possible, "
+                      << fromIndex + stepSize << " > " << maxSize << "\n";
+
+            stepSize = maxSize - fromIndex;
+
+            std::cerr << "\tstepSize has beeng set to: " << stepSize << "\n";
+
+            wasCorrected = true;
+        }
+
+        return wasCorrected;
+    }
+
+} // namespace
+
 namespace approximation::linnear
 {
 
@@ -163,8 +228,8 @@ namespace approximation::linnear
                             &c0, &c1,
                             &cov00, &cov01, &cov11, &chisq);
 
-            //for (size_t i = 0; i < n; ++i)
-            //    std::cout << "n:" << n << " x: " << x[i] << " y: " << y[i] << " w: " << w[i] << "\n";
+            // for (size_t i = 0; i < n; ++i)
+            //     std::cout << "n:" << n << " x: " << x[i] << " y: " << y[i] << " w: " << w[i] << "\n";
 
             ApproxResult result;
 
@@ -219,8 +284,8 @@ namespace approximation::linnear
     };
 
     inline std::tuple<int, ApproxResult> approximate(const std::vector<double> &inputDataX,
-                                              const std::vector<double> &inputDataY,
-                                              const boost::optional<std::vector<double>> &err = boost::optional<std::vector<double>>())
+                                                     const std::vector<double> &inputDataY,
+                                                     const boost::optional<std::vector<double>> &err = boost::optional<std::vector<double>>())
     {
         // std::cout << "approximation::linnear::approximate performing, xSize: "
         //          << inputDataX.size() << ", ySize:" << inputDataY.size() << "\n";
@@ -233,77 +298,12 @@ namespace approximation::linnear
         return pA.act();
     }
 
-    namespace
-    {
-        bool correctRangesAndWarn(const size_t maxSize,
-                                  size_t &fromIndex,
-                                  size_t &finishIndex,
-                                  size_t &windowWidth,
-                                  size_t &stepSize)
-        {
-            std::cout << "correctRangesAngWarnentry()\n";
-
-            bool wasCorrected = false;
-
-            if (fromIndex > maxSize)
-            {
-                std::cerr << "\tfromIndex > max size, fromIndex to 0, "
-                          << fromIndex << " > " << maxSize << "\n";
-
-                fromIndex = 0;
-
-                std::cerr << "\tfromIndex has beeng set to: " << fromIndex << "\n";
-
-                wasCorrected = true;
-            }
-
-            if (finishIndex > maxSize)
-            {
-                std::cerr << "\tfinishIndex > max size, setting finishIndex to maxSize, "
-                          << finishIndex << " > " << maxSize << "\n";
-
-                finishIndex = maxSize;
-
-                std::cerr << "\tfinishIndex has beeng set to: " << finishIndex << "\n";
-
-                wasCorrected = true;
-            }
-
-            if (fromIndex + windowWidth > maxSize)
-            {
-                std::cerr << "fromIndex + windowWidth > max size, setting windowWidth to maximum possible, "
-                          << fromIndex + windowWidth << " > " << maxSize << "\n";
-
-                windowWidth = maxSize - fromIndex;
-
-                std::cerr << "\twindowWidth has beeng set to: " << windowWidth << "\n";
-
-                wasCorrected = true;
-            }
-
-            if (fromIndex + stepSize > maxSize)
-            {
-                std::cerr << "\tfromIndex + stepSize > max size, setting stepSize to maximum possible, "
-                          << fromIndex + stepSize << " > " << maxSize << "\n";
-
-                stepSize = maxSize - fromIndex;
-
-                std::cerr << "\tstepSize has beeng set to: " << stepSize << "\n";
-
-                wasCorrected = true;
-            }
-
-            return wasCorrected;
-        }
-        
-    } // namespace
-
     inline std::tuple<int, ApproxResultVector> windowApproximation(const size_t indexFromData,
-                                          const size_t indexToData,
-                                          const size_t windowSize,
-                                          const size_t stepSize,
-                                          const std::vector<double> &x,
-                                          const std::vector<double> &y)
+                                                                   const size_t indexToData,
+                                                                   const size_t windowSize,
+                                                                   const size_t stepSize,
+                                                                   const std::vector<double> &x,
+                                                                   const std::vector<double> &y)
     {
         int resultCode; // todo badCode
 
@@ -341,8 +341,6 @@ namespace approximation::linnear
 
                 // AngleHistory a(subX, subY);
                 // a.write("approxThis");
-
-
 
                 std::tie(resultCode, approxResult) = approximation::linnear::approximate(subX, subY);
 
