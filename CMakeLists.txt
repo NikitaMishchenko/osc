@@ -128,7 +128,8 @@ add_executable(runTests
                tests/integrated_test.cpp 
                tests/approximation_test.cpp
                tests/frequency_test.cpp
-               tests/oscillation_basics_test.cpp)
+               tests/oscillation_basics_test.cpp
+               tests/fftw_wrap_test.cpp)
 
 target_link_libraries(runTests
                      ${GTEST_LIBRARIES}
