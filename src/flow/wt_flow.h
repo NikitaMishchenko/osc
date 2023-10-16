@@ -79,6 +79,11 @@ namespace wt_flow
             return m_velocity;
         }
 
+        double getDensity() const
+        {
+            return m_rho;
+        }
+
         /**
         *   calculete @m_velocity from @m_T0, @m_mach
         */

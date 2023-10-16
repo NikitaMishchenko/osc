@@ -29,6 +29,8 @@ public:
     {
         calcAngleAmplitudeIndexes();
         calculateW();
+        calcMzNondimensionalization();
+        calcIzNondimentional();
     };
 
     WtOscillation(const Oscillation &oscillation,
@@ -40,32 +42,14 @@ public:
     {
         calcAngleAmplitudeIndexes();
         calculateW();
+        calcMzNondimensionalization();
+        calcIzNondimentional();
     };
 
     virtual ~WtOscillation(){};
 
-    // SPECIFIC METHODS
-    // todo move to helpers
-    /*void makeScaledDDAngle(const double &factor)
-    {
-        std::vector<double> scaledDDAngle;
-
-        if (m_mz.mz.size() > 0)
-        {
-            scaledDDAngle = ddangle;
-
-            if ((factor - 1.0) < 0.0000000001 &&
-                (1.0 - factor) < 0.0000000001)
-            {
-                return scaledDDAngle;
-            }
-
-            for (size_t i = 0; i < scaledDDAngle.size(); i++)
-                scaledDDAngle[i] *= factor;
-        }
-
-        return scaledDDAngle;
-    }*/
+    double getMzNondimensionalization() const;
+    double getIzNondimensional() const;
 
     std::vector<double> getTimeAmplitude() const;
     std::vector<double> getAngleAmplitude() const;
@@ -92,6 +76,18 @@ public:
 
 private:
     void calculateW();
+    void calcMzNondimensionalization()
+    {
+        m_mzNondimensionalization = m_model.getI()/m_flow.getDynamicPressure()/m_model.getS()/m_model.getL();
+    }
+    
+    void calcIzNondimentional()
+    {
+        if (m_flow.getDensity() > 0)
+            m_izNondimentional = 2*m_model.getI()/m_flow.getDensity()/m_model.getS()/pow(m_model.getL(), 3);
+        else
+            m_izNondimentional = 0;
+    }
 
     std::vector<Mz> m_mz;
     //std::vector<size_t> m_mzAmplitudeIndexes;
@@ -102,4 +98,7 @@ private:
     wt_flow::Flow m_flow;
 
     Model m_model;
+
+    double m_mzNondimensionalization;
+    double m_izNondimentional;
 };

@@ -115,6 +115,15 @@ int main(int argc, char** argv)
         fout << wtOscillation << "\n";
     }
 
+    descriptionStream << "Коэффициент обезразмеривания для получения mz = I/(qsl)a'' -> I/(qsl) = " 
+                      << wtOscillation.getMzNondimensionalization()
+                      << std::endl;
+    
+    descriptionStream << "Безразмерный момент инерции iz = 2I/(rho*s*l) = " 
+                      << wtOscillation.getIzNondimensional()
+                      << std::endl;
+
+
     ///
     //***********************************************************************************************
     ///

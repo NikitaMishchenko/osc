@@ -69,6 +69,8 @@ namespace wt_flow
         // mach = *mach* T0  = *T0* rho = *rho*
         fin >> buff_s >> buff_s >> m_mach >> buff_s >> buff_s >> m_reynolds >> buff_s >> buff_s >> m_T0 >> buff_s >> buff_s >> m_velocity >> buff_s >> buff_s >> m_dynamicPressure >> buff_s >> buff_s >> m_rho;
 
+        m_rho = m_dynamicPressure/m_velocity/m_velocity*2;
+
         fin.close();
 
         return true;
