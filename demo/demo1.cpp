@@ -80,7 +80,7 @@ int main(int argc, char** argv)
                       << "\"" << flowFileName << "\""
                       << std::endl;
 
-    wt_flow::Flow flow(flowFileName);
+    wt_flow::Flow flow(workingPath.string() + "/" + flowFileName);
 
     descriptionStream << "Параметры потока:\n" << flow.getInfoString() << std::endl;
 
