@@ -9,6 +9,8 @@
 #include "model/tr_rod_model_params.h"
 #include "flow/wt_flow.h"
 
+#include "analize_coefficients/dynamic_coefficients_section.h"
+
 
 int main(int argc, char** argv)
 {
@@ -88,9 +90,9 @@ int main(int argc, char** argv)
 
     WtOscillation wtOscillation(oscillation, flow, model);
 
-    std::string specificWtOscFile = "4463.wt_oscillation";
+    std::string specificWtOscFile = coreName +  ".wt_oscillation";
 
-    descriptionStream << "Сохранение данных колеабний в файл: "
+    descriptionStream << "Сохранение данных колебаний в файл: "
                       << "\"" << specificWtOscFile << "\""
                       << std::endl;
 
@@ -105,7 +107,30 @@ int main(int argc, char** argv)
     //***********************************************************************************************
     ///
 
+    double sectionAngle = 30; // 0 - 20
 
+    descriptionStream << "Рассчет методом сечений для угла " << sectionAngle << " градусов\n"; 
+
+    std::string specificSectionFile = coreName + "_section" + std::to_string(sectionAngle) + ".oscillation";
+
+    bool isOk = false;
+    Oscillation section;
+
+    std::tie(isOk, section) = makeSection(oscillation, sectionAngle);
+    
+    descriptionStream << "Сохранение данных секции в файл: "
+                      << "\"" << specificSectionFile << "\""
+                      << std::endl;
+    
+    {
+        std::ofstream fout(workingPath.string() + "/" + specificSectionFile);
+
+        fout << section << "\n";
+    }
+
+    descriptionStream << "Построить график a''(a'):\n"
+                      << "plot \"" << specificWtOscFile << "\" using 4:3 with linespoints, \"" << specificSectionFile << "\" using 4:3"
+                      << std::endl;
 
 
     ///

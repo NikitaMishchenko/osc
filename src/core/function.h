@@ -40,6 +40,16 @@ public:
     /// STL-like
     virtual size_t size() const { return m_domain.size(); }; // fixme both should have same size
 
+    virtual double getDomain(size_t i) const
+    {
+        return m_domain.at(i);
+    }
+
+    virtual double getCodomain(size_t i) const
+    {
+        return m_codomain.at(i);
+    }
+
     virtual void clear()
     {
         m_domain.clear();
