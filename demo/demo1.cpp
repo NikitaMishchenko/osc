@@ -11,6 +11,18 @@
 
 #include "analize_coefficients/dynamic_coefficients_section.h"
 
+/**
+ *  Файлы должны находиться в одном каталоге переменная root
+ *  имена файлов 
+ *  core - префикс для всех файлов (например, номер протокола)
+ *  .flow файл параметров потока,
+ *  .model файл параметров модели
+ *  .angle_history файл угол от времени
+ *  
+ *   Выходные файлы
+ *   .discription - описание проделанных процедур
+ * 
+ */ 
 
 int main(int argc, char** argv)
 {
