@@ -147,6 +147,22 @@ set(CPACK_PROJECT_NAME ${PROJECT_NAME})
 set(CPACK_PROJECT_VERSION ${PROJECT_VERSION})
 include(CPack)
 
+# demo
+
+add_executable(demo1 
+               demo/demo1.cpp)
+
+target_link_libraries(demo1
+                      basic  
+                      flow
+                      wtOscillationlib
+                      #gnuplot_wrapper "-L/home/mishnic/src/gnuplot_wrapper/build/libgnuplot_wrapper.so"
+                      libboost_program_options.a
+                      GSL::gsl
+                      GSL::gslcblas
+                      fftw3
+)
+
 #TESTS
 
 
