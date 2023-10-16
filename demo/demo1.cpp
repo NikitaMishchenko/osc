@@ -153,7 +153,9 @@ int main(int argc, char** argv)
                       << "plot \"" << specificWtOscFile << "\" using 4:3 with linespoints, \"" << specificSectionFile << "\" using 4:3"
                       << std::endl;
 
-
+    descriptionStream << "Построить график mz(a):\n"
+                      << "plot \"" << specificWtOscFile << "\" using 2:($4*" << wtOscillation.getMzNondimensionalization() << ") with lines"
+                      << std::endl;   
     ///
     //***********************************************************************************************
     ///
