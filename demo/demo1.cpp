@@ -14,22 +14,22 @@
 
 /**
  *  Файлы должны находиться в одном каталоге переменная root
- *  имена файлов 
+ *  имена файлов
  *  core - префикс для всех файлов (например, номер протокола)
  *  .flow файл параметров потока,
  *  .model файл параметров модели
  *  .angle_history файл угол от времени
- *  
+ *
  *   Выходные файлы
  *   .discription - описание проделанных процедур
- * 
- */ 
+ *
+ */
 
-void doJob(const std::string& coreName, const std::string& modelName)
-{   
-    boost::filesystem::path root = "/home/mishnic/data/phd/sphere_cone_M1.75/"  + coreName;
+void doJob(const std::string &coreName, const std::string &modelName)
+{
+    boost::filesystem::path root = "/home/mishnic/data/phd/sphere_cone_M1.75/" + coreName;
     std::stringstream descriptionStream;
-    
+
     boost::filesystem::path fileToProceed = root.string();
     boost::filesystem::path workingPath = root;
 
@@ -38,7 +38,7 @@ void doJob(const std::string& coreName, const std::string& modelName)
     ///
 
     descriptionStream << "Определяем корневое имя файла: "
-                      << "\"" << coreName<< "\""
+                      << "\"" << coreName << "\""
                       << std::endl;
 
     ///
@@ -47,22 +47,21 @@ void doJob(const std::string& coreName, const std::string& modelName)
 
     std::string specificInitialFile = coreName + ".angle_history";
     std::string descriptionFileName = coreName + ".discription";
-    
+
     descriptionStream << "Определяем имя файла истории колебаний: "
-                      << "\"" << specificInitialFile<< "\""
-                      << std::endl;
-    
-    descriptionStream << "Определяем имя файла описания процедуры обработки: "
-                      << "\"" << descriptionFileName<< "\""
+                      << "\"" << specificInitialFile << "\""
                       << std::endl;
 
-    
+    descriptionStream << "Определяем имя файла описания процедуры обработки: "
+                      << "\"" << descriptionFileName << "\""
+                      << std::endl;
+
     ///
     //***********************************************************************************************
     ///
 
     descriptionStream << "Предварительный рассчет параметров колебаний для файла: "
-                      << "\"" << specificInitialFile <<  "\""
+                      << "\"" << specificInitialFile << "\""
                       << std::endl;
 
     Oscillation oscillation(AngleHistory(fileToProceed.string() + "/" + specificInitialFile));
@@ -71,7 +70,7 @@ void doJob(const std::string& coreName, const std::string& modelName)
     //***********************************************************************************************
     ///
 
-    std::string modelFileName = modelName;//"shpereCone1.model";
+    std::string modelFileName = modelName; //"shpereCone1.model";
 
     descriptionStream << "Загрузка параметров модели из файла: "
                       << "\"" << modelFileName << "\""
@@ -80,7 +79,8 @@ void doJob(const std::string& coreName, const std::string& modelName)
     Model model;
     model.loadFile(root.string() + "/" + modelFileName);
 
-    descriptionStream << "Параметры модели:\n" << model.getInfoString() << std::endl;
+    descriptionStream << "Параметры модели:\n"
+                      << model.getInfoString() << std::endl;
 
     ///
     //***********************************************************************************************
@@ -94,7 +94,8 @@ void doJob(const std::string& coreName, const std::string& modelName)
 
     wt_flow::Flow flow(workingPath.string() + "/" + flowFileName);
 
-    descriptionStream << "Параметры потока:\n" << flow.getInfoString() << std::endl;
+    descriptionStream << "Параметры потока:\n"
+                      << flow.getInfoString() << std::endl;
 
     ///
     //***********************************************************************************************
@@ -102,64 +103,68 @@ void doJob(const std::string& coreName, const std::string& modelName)
 
     WtOscillation wtOscillation(oscillation, flow, model);
 
-    std::string specificWtOscFile = coreName +  ".wt_oscillation";
+    std::string specificWtOscFile = coreName + ".wt_oscillation";
 
     descriptionStream << "Сохранение данных колебаний в файл: "
                       << "\"" << specificWtOscFile << "\""
                       << std::endl;
 
-    
     {
         std::ofstream fout(workingPath.string() + "/" + specificWtOscFile);
 
         fout << wtOscillation << "\n";
     }
 
-    descriptionStream << "Частота колебаний w[Гц] = " 
+    descriptionStream << "Частота колебаний w[Гц] = "
                       << wtOscillation.getW()
                       << std::endl;
 
-
-    descriptionStream << "Коэффициент обезразмеривания для получения mz = I/(qsl)a'' -> I/(qsl) = " 
+    descriptionStream << "Коэффициент обезразмеривания для получения mz = I/(qsl)a'' -> I/(qsl) = "
                       << wtOscillation.getMzNondimensionalization()
                       << std::endl;
-    
-    descriptionStream << "Безразмерный момент инерции iz = 2I/(rho*s*l) = " 
+
+    descriptionStream << "Безразмерный момент инерции iz = 2I/(rho*s*l) = "
                       << wtOscillation.getIzNondimensional()
                       << std::endl;
 
-    descriptionStream << "Безразмерная частота колебаний w = w_avt*l/v = " 
+    descriptionStream << "Безразмерная частота колебаний w = w_avt*l/v = "
                       << wtOscillation.getWzNondimentional()
                       << std::endl;
-
 
     ///
     //***********************************************************************************************
     ///
-/*
-    double sectionAngle = 0; // 0 - 20
 
-    descriptionStream << "Рассчет методом сечений для угла " << sectionAngle << " градусов\n"; 
-
-    std::string specificSectionFile = coreName + "_section" + std::to_string(sectionAngle) + ".oscillation";
-
-    bool isOk = false;
-    Oscillation section;
-
-    std::tie(isOk, section) = makeSection(oscillation, sectionAngle);
-    
-    descriptionStream << "Сохранение данных секции в файл: "
-                      << "\"" << specificSectionFile << "\""
-                      << std::endl;
-    
+    bool sectionEnabled = false;
+    std::string sectionFilesGnuplotFile;
+    if (sectionEnabled)
     {
-        std::ofstream fout(workingPath.string() + "/" + specificSectionFile);
+        double sectionAngle = 0; // 0 - 20
 
-        fout << section << "\n";
+        descriptionStream << "Рассчет методом сечений для угла " << sectionAngle << " градусов\n";
+
+        std::string specificSectionFile = coreName + "_section" + std::to_string(sectionAngle) + ".oscillation";
+
+        bool isOk = false;
+        Oscillation section;
+
+        std::tie(isOk, section) = makeSection(oscillation, sectionAngle);
+
+        descriptionStream << "Сохранение данных секции в файл: "
+                          << "\"" << specificSectionFile << "\""
+                          << std::endl;
+
+        {
+            std::ofstream fout(workingPath.string() + "/" + specificSectionFile);
+
+            fout << section << "\n";
+        }
     }
-*/
     descriptionStream << "Построить график a''(a'):\n"
-                      << "plot \"" << specificWtOscFile << "\" using 4:3 with linespoints, \"" // << specificSectionFile << "\" using 4:3"
+                      << "plot \"" << specificWtOscFile << "\" using 4:3 with linespoints" // << specificSectionFile << "\" using 4:3"
+                      << (sectionFilesGnuplotFile.empty()
+                              ? ""
+                              : sectionFilesGnuplotFile)
                       << std::endl;
 
     descriptionStream << "Построить график mz(a):\n"
@@ -175,16 +180,14 @@ void doJob(const std::string& coreName, const std::string& modelName)
     descriptionStream << "Сохранение данных амплитуды в файл: "
                       << "\"" << specificAmplitudeFile << "\""
                       << std::endl;
-    amplitude::AngleAmplitude amplitude(std::make_shared<std::vector<double>>(wtOscillation.getTime()), 
-                                        std::make_shared<std::vector<double>>(wtOscillation.getAngle()), 
+    amplitude::AngleAmplitude amplitude(std::make_shared<std::vector<double>>(wtOscillation.getTime()),
+                                        std::make_shared<std::vector<double>>(wtOscillation.getAngle()),
                                         std::make_shared<std::vector<double>>(wtOscillation.getDangle()));
 
-    //AngleHistory amplitude(wtOscillation.getTimeAmplitude(), wtOscillation.getAngleAmplitude());
+    // AngleHistory amplitude(wtOscillation.getTimeAmplitude(), wtOscillation.getAngleAmplitude());
 
     {
         std::ofstream fout(workingPath.string() + "/" + specificAmplitudeFile);
-
-        
 
         fout << amplitude << "\n";
     }
@@ -196,32 +199,30 @@ void doJob(const std::string& coreName, const std::string& modelName)
     descriptionStream << "Рассчет амплитуды колебаний"
                       << std::endl;
 
-    amplitude::AngleAmplitudeAnalyser angleAmplitudeAnalyser(amplitude);  
-    
+    amplitude::AngleAmplitudeAnalyser angleAmplitudeAnalyser(amplitude);
+
     // todo
-    //descriptionStream << "Самая часто встречающаяся амплитуда: "
+    // descriptionStream << "Самая часто встречающаяся амплитуда: "
     //                  << angleAmplitudeAnalyser.getMostFrequentAmplitudeValue()
     //                  << std::endl;
 
-
     {
-    
+
         std::string specificAbsAmplitudeFile = coreName + "_abs.amplitude";
 
         descriptionStream << "Сохранение данных абсолютной амплитуды в файл: "
-                            << "\"" << specificAbsAmplitudeFile << "\""
-                            << std::endl;
+                          << "\"" << specificAbsAmplitudeFile << "\""
+                          << std::endl;
 
         std::ofstream fout(workingPath.string() + "/" + specificAbsAmplitudeFile);
-        
-        //std::vector<amplitude::AngleAmplitudeBase> sortedAmplitude = angleAmplitudeAnalyser.getSortedAmplitude();
+
+        // std::vector<amplitude::AngleAmplitudeBase> sortedAmplitude = angleAmplitudeAnalyser.getSortedAmplitude();
         amplitude.sortViaTime();
 
         fout << amplitude;
-       //for (auto sAmp : sortedAmplitude)
-        //    fout << sAmp.m_amplitudeTime << "\t" << sAmp.m_amplitudeAngle << "\n";
+        // for (auto sAmp : sortedAmplitude)
+        //     fout << sAmp.m_amplitudeTime << "\t" << sAmp.m_amplitudeAngle << "\n";
     }
-
 
     ///
     //***********************************************************************************************
@@ -229,7 +230,7 @@ void doJob(const std::string& coreName, const std::string& modelName)
 
     {
         std::cout << "Сохранение информации по обработке данных в файл: "
-                  << "\"" << workingPath.string() + "/" + descriptionFileName << "\"" 
+                  << "\"" << workingPath.string() + "/" + descriptionFileName << "\""
                   << std::endl;
 
         std::ofstream fout(workingPath.string() + "/" + descriptionFileName);
@@ -237,27 +238,24 @@ void doJob(const std::string& coreName, const std::string& modelName)
         fout << descriptionStream.str() << "\n";
     }
 
-
     // /home/mishnic/data/phd/data_proc/pic_ddangle_respect_to_angle_of_attack
-    
+
     ///
     //***********************************************************************************************
     ///
-
-    
 }
-
 
 struct DataToProc
 {
     DataToProc(int dI, std::string mN) : dataIndex(dI), modelName(mN)
-    {}
+    {
+    }
 
     int dataIndex;
     std::string modelName;
 };
 
-void rewriteData(const DataToProc& d)
+void rewriteData(const DataToProc &d)
 {
     std::ifstream fin("/home/mishnic/data/phd/data_proc/4461..4474/data_to_filter/" + std::to_string(d.dataIndex));
 
@@ -267,16 +265,15 @@ void rewriteData(const DataToProc& d)
 
     while (!fin.eof())
     {
-            fin >> buff;
-            fout << buff << " ";
-            fin >> buff;
-            fout << buff << std::endl;
-            fin >> buff >> buff;
+        fin >> buff;
+        fout << buff << " ";
+        fin >> buff;
+        fout << buff << std::endl;
+        fin >> buff >> buff;
     }
 }
 
-
-int main(int argc, char** argv)
+int main(int argc, char **argv)
 {
     // shpereCone1.model
     //{4463, 4470, 4474, 4465, 4468, 4471, 4472};
@@ -288,21 +285,20 @@ int main(int argc, char** argv)
     DataToProc(4468, "shpereCone2.model"),
     DataToProc(4471, "shpereCone2.model"),
     DataToProc(4472, "shpereCone2.model")}*/
-    std::vector<DataToProc> dataToProc = 
-                                        {
-                                        DataToProc(4463, "shpereCone1.model"),
-                                        DataToProc(4470, "shpereCone1.model"),
-                                        DataToProc(4474, "shpereCone1.model"),
-                                        DataToProc(4465, "shpereCone2.model"),
-                                        DataToProc(4468, "shpereCone2.model"),
-                                        DataToProc(4471, "shpereCone2.model"),
-                                        DataToProc(4472, "shpereCone2.model")
-                                        };
+    std::vector<DataToProc> dataToProc =
+        {
+            DataToProc(4463, "shpereCone1.model"),
+            DataToProc(4470, "shpereCone1.model"),
+            DataToProc(4474, "shpereCone1.model"),
+            DataToProc(4465, "shpereCone2.model"),
+            DataToProc(4468, "shpereCone2.model"),
+            DataToProc(4471, "shpereCone2.model"),
+            DataToProc(4472, "shpereCone2.model")};
     //{DataToProc(4465, "shpereCone2.model")};
-    
+
     std::string buff;
     for (auto d : dataToProc)
     {
         doJob(std::to_string(d.dataIndex), d.modelName);
-    }    
+    }
 }
