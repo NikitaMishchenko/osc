@@ -198,8 +198,8 @@ void WtOscillation::calculateW()
     if (m_AngleAmplitudeIndexes.empty())
         calcAngleAmplitudeIndexes();
 
-    const size_t timeIndex1 = m_AngleAmplitudeIndexes.at(1);
-    const size_t timeIndex2 = m_AngleAmplitudeIndexes.at(2);
+    const size_t timeIndex1 = m_AngleAmplitudeIndexes.at(m_AngleAmplitudeIndexes.size()/2);
+    const size_t timeIndex2 = m_AngleAmplitudeIndexes.at(m_AngleAmplitudeIndexes.size()/2 + 1);
 
     // 0.5 cos ampl indexies for top and bottom envelop
     m_w = 0.5 / (m_domain.at(timeIndex2) - m_domain.at(timeIndex1));

@@ -115,6 +115,11 @@ void doJob(const std::string& coreName, const std::string& modelName)
         fout << wtOscillation << "\n";
     }
 
+    descriptionStream << "Частота колебаний w[Гц] = " 
+                      << wtOscillation.getW()
+                      << std::endl;
+
+
     descriptionStream << "Коэффициент обезразмеривания для получения mz = I/(qsl)a'' -> I/(qsl) = " 
                       << wtOscillation.getMzNondimensionalization()
                       << std::endl;
@@ -124,7 +129,7 @@ void doJob(const std::string& coreName, const std::string& modelName)
                       << std::endl;
 
     descriptionStream << "Безразмерная частота колебаний w = w_avt*l/v = " 
-                      << wtOscillation.getW()*wtOscillation.getModel().getL()/wtOscillation.getFlow().getVelocity()
+                      << wtOscillation.getWzNondimentional()
                       << std::endl;
 
 
@@ -285,7 +290,7 @@ int main(int argc, char** argv)
     DataToProc(4472, "shpereCone2.model")}*/
     std::vector<DataToProc> dataToProc = 
                                         {
-                                        //DataToProc(4463, "shpereCone1.model"),
+                                        DataToProc(4463, "shpereCone1.model"),
                                         DataToProc(4470, "shpereCone1.model"),
                                         DataToProc(4474, "shpereCone1.model"),
                                         DataToProc(4465, "shpereCone2.model"),

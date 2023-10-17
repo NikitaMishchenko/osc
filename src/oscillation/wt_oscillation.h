@@ -31,6 +31,7 @@ public:
         calculateW();
         calcMzNondimensionalization();
         calcIzNondimentional();
+        calcWzNondimentional();
     };
 
     WtOscillation(const Oscillation &oscillation,
@@ -44,6 +45,7 @@ public:
         calculateW();
         calcMzNondimensionalization();
         calcIzNondimentional();
+        calcWzNondimentional();
     };
 
     virtual ~WtOscillation(){};
