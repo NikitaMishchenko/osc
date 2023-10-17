@@ -9,6 +9,7 @@
 #include "model/tr_rod_model_params.h"
 #include "flow/wt_flow.h"
 
+#include "analize_coefficients/specific/amplitude/utils.h"
 #include "analize_coefficients/dynamic_coefficients_section.h"
 
 /**
@@ -182,8 +183,61 @@ void doJob(std::string coreName)
     //***********************************************************************************************
     ///
 
+    descriptionStream << "Рассчет амплитуды колебаний"
+                      << std::endl;
 
-    
+    amplitude::AngleAmplitudeAnalyser angleAmplitudeAnalyser(amplitude::AngleAmplitude(std::make_shared<std::vector<double>>(wtOscillation.getTime()), 
+                                                                                       std::make_shared<std::vector<double>>(wtOscillation.getAngle()), 
+                                                                                       std::make_shared<std::vector<double>>(wtOscillation.getDangle())));
+       
+    std::vector<amplitude::AngleAmplitudeBase> sortedAmplitude = angleAmplitudeAnalyser.getSortedAmplitude();
+  
+
+    {
+        
+
+        /*AngleHistory amplitude(wtOscillation.getTimeAmplitude(), wtOscillation.getAngleAmplitude());
+
+        struct AbsAmplitude
+        {
+            AbsAmplitude(double _time, double _angle) : time(_time), angle(std::abs(_angle))
+            {}
+
+        bool operator < (const AbsAmplitude& rhs) const
+        {
+            return time < rhs.time;
+        }
+
+            double time;
+            double angle;
+        };
+
+        std::vector<AbsAmplitude> aHvector;
+
+        for (int i = 0; i < amplitude.size(); i++)
+        {
+            aHvector.push_back(AbsAmplitude(amplitude.getTime(i), amplitude.getAngle(i)));
+        }
+
+        std::sort(aHvector.begin(), aHvector.end());
+
+        std::ofstream fout(workingPath.string() + "/" + specificAbsAmplitudeFile);
+
+        for (auto aa : aHvector)
+            fout << aa.time << "\t" << aa.angle << "\n";
+        */
+        
+        std::string specificAbsAmplitudeFile = coreName + "_abs.amplitude";
+        std::ofstream fout(workingPath.string() + "/" + specificAbsAmplitudeFile);
+        
+        descriptionStream << "Сохранение данных абсолютной амплитуды в файл: "
+                            << "\"" << specificAbsAmplitudeFile << "\""
+                            << std::endl;
+
+       for (auto sAmp : sortedAmplitude)
+            fout << sAmp.m_amplitudeTime << "\t" << sAmp.m_amplitudeAngle << "\n";
+    }
+
 
     ///
     //***********************************************************************************************
