@@ -92,13 +92,6 @@ namespace amplitude
             return true;
         }
 
-        void getFinalAmplitude()
-        {
-            double tolerance; //
-
-            std::vector<double> buff;
-        }
-
     private:
         size_t getActualMax(const size_t index) const
         {

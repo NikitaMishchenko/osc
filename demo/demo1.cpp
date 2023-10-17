@@ -188,48 +188,21 @@ void doJob(std::string coreName)
 
     amplitude::AngleAmplitudeAnalyser angleAmplitudeAnalyser(amplitude::AngleAmplitude(std::make_shared<std::vector<double>>(wtOscillation.getTime()), 
                                                                                        std::make_shared<std::vector<double>>(wtOscillation.getAngle()), 
-                                                                                       std::make_shared<std::vector<double>>(wtOscillation.getDangle())));
-       
-    std::vector<amplitude::AngleAmplitudeBase> sortedAmplitude = angleAmplitudeAnalyser.getSortedAmplitude();
-  
+                                                                                       std::make_shared<std::vector<double>>(wtOscillation.getDangle())));  
+    
+    // todo
+    //descriptionStream << "Самая часто встречающаяся амплитуда: "
+    //                  << angleAmplitudeAnalyser.getMostFrequentAmplitudeValue()
+    //                  << std::endl;
+
 
     {
-        
-
-        /*AngleHistory amplitude(wtOscillation.getTimeAmplitude(), wtOscillation.getAngleAmplitude());
-
-        struct AbsAmplitude
-        {
-            AbsAmplitude(double _time, double _angle) : time(_time), angle(std::abs(_angle))
-            {}
-
-        bool operator < (const AbsAmplitude& rhs) const
-        {
-            return time < rhs.time;
-        }
-
-            double time;
-            double angle;
-        };
-
-        std::vector<AbsAmplitude> aHvector;
-
-        for (int i = 0; i < amplitude.size(); i++)
-        {
-            aHvector.push_back(AbsAmplitude(amplitude.getTime(i), amplitude.getAngle(i)));
-        }
-
-        std::sort(aHvector.begin(), aHvector.end());
-
-        std::ofstream fout(workingPath.string() + "/" + specificAbsAmplitudeFile);
-
-        for (auto aa : aHvector)
-            fout << aa.time << "\t" << aa.angle << "\n";
-        */
-        
+    
         std::string specificAbsAmplitudeFile = coreName + "_abs.amplitude";
         std::ofstream fout(workingPath.string() + "/" + specificAbsAmplitudeFile);
         
+        std::vector<amplitude::AngleAmplitudeBase> sortedAmplitude = angleAmplitudeAnalyser.getSortedAmplitude();
+
         descriptionStream << "Сохранение данных абсолютной амплитуды в файл: "
                             << "\"" << specificAbsAmplitudeFile << "\""
                             << std::endl;

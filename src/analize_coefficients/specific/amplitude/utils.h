@@ -20,7 +20,7 @@ namespace amplitude
 
         std::vector<AngleAmplitudeBase> getSortedAmplitude() const {return m_sortedAmplitude;}
 
-        void getMostFrequentAmplitudeValue(const int gapCount)
+        void getMostFrequentAmplitudeValue(const int gapCount = 1)
         {
 
             /*
