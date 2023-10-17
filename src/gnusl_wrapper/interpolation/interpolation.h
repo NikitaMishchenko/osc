@@ -3,7 +3,7 @@
 
 #include "core/function.h"
 
-class GnuslSplineWrapper
+class  GnuslSplineWrapper
 {
 public:
     GnuslSplineWrapper(const Function &input)

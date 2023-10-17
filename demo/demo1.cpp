@@ -135,33 +135,51 @@ void doJob(const std::string &coreName, const std::string &modelName)
     //***********************************************************************************************
     ///
 
-    bool sectionEnabled = false;
+    const double maxAngle = *std::max_element(wtOscillation.angleBegin(), wtOscillation.angleEnd());
+    const double minAngle = *std::min_element(wtOscillation.angleBegin(), wtOscillation.angleEnd());
+
+    descriptionStream << "Максимальный достигаемый угол: " << maxAngle
+                      << std::endl
+                      << "Минимально достигаемый угол: " << minAngle
+                      << std::endl;
+
+    bool sectionEnabled = true;
     std::string sectionFilesGnuplotFile;
+    
     if (sectionEnabled)
     {
-        double sectionAngle = 0; // 0 - 20
-
-        descriptionStream << "Рассчет методом сечений для угла " << sectionAngle << " градусов\n";
-
-        std::string specificSectionFile = coreName + "_section" + std::to_string(sectionAngle) + ".oscillation";
-
-        bool isOk = false;
-        Oscillation section;
-
-        std::tie(isOk, section) = makeSection(oscillation, sectionAngle);
-
-        descriptionStream << "Сохранение данных секции в файл: "
-                          << "\"" << specificSectionFile << "\""
+        const int sectionBorderValue = int(std::min(std::abs(maxAngle), std::abs(minAngle)) / 5) * 5;
+        
+        descriptionStream << "Сечения в промежутке [" << -sectionBorderValue << ", " << sectionBorderValue << "]"
                           << std::endl;
 
+        const double sectionAngleStep = 5;
+        for (int sectionAngle = -sectionBorderValue; sectionAngle <= sectionBorderValue; )
         {
-            std::ofstream fout(workingPath.string() + "/" + specificSectionFile);
+            descriptionStream << "Рассчет методом сечений для угла " << sectionAngle << " градусов\n";
+            std::cout << "sectionAngle = " << sectionAngle << "\n";
 
-            fout << section << "\n";
+            std::string specificSectionFile = coreName + "_section" + std::to_string(sectionAngle) + ".oscillation";
+
+            bool isOk = false;
+            Oscillation section;
+
+            std::tie(isOk, section) = makeSection(oscillation, sectionAngle);
+
+            descriptionStream << "Сохранение данных сечения в файл: "
+                              << "\"" << specificSectionFile << "\""
+                              << std::endl;
+
+            {
+                std::ofstream fout(workingPath.string() + "/" + specificSectionFile);
+
+                fout << section << "\n";
+            }
+
+            sectionFilesGnuplotFile += ", \"" + specificSectionFile + "\" using 4:3";
+
+            sectionAngle += sectionAngleStep;
         }
-
-        sectionFilesGnuplotFile += ", \"" + specificSectionFile + "\" using 4:3";
-
     }
     descriptionStream << "Построить график a''(a'):\n"
                       << "plot \"" << specificWtOscFile << "\" using 4:3 with linespoints"
@@ -296,7 +314,8 @@ int main(int argc, char **argv)
             DataToProc(4465, "shpereCone2.model"),
             DataToProc(4468, "shpereCone2.model"),
             DataToProc(4471, "shpereCone2.model"),
-            DataToProc(4472, "shpereCone2.model")};
+            DataToProc(4472, "shpereCone2.model")
+        };
     //{DataToProc(4465, "shpereCone2.model")};
 
     std::string buff;

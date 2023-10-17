@@ -19,20 +19,52 @@ makeSection(const Oscillation &oscillation, const double targetAngle, uint inter
     for (int i = minimalInterpolationPints; i < oscillation.size() - minimalInterpolationPints; i++)
     {
         if ((oscillation.getAngle(i) < targetAngle &&
-            targetAngle < oscillation.getAngle(i + 1)))
+             targetAngle < oscillation.getAngle(i + 1)))
         {
 
             ///
+            if (targetAngle == -90)
+            {
+                std::ofstream fout("/home/mishnic/data/phd/sphere_cone_M1.75/4463/sectionInput");
 
-            GnuslSplineWrapper splineDangle(Function(std::vector<double>(oscillation.angleBegin() + (i - interpolationPoints / 2),
-                                                                         oscillation.angleBegin() + (i + interpolationPoints / 2)),
-                                                     std::vector<double>(oscillation.dangleBegin() + (i - interpolationPoints / 2),
-                                                                         oscillation.dangleBegin() + (i + interpolationPoints / 2))));
+                for (int j = i - interpolationPoints / 2; j < i + interpolationPoints / 2; j++)
+                {
+                    fout << *(oscillation.angleBegin() + j) << " "
+                         << *(oscillation.dangleBegin() + j) << " "
+                         << *(oscillation.ddangleBegin() + j) << "\n";
+                }
+            }
+
+            Function toSplineDangle =
+                                    sortFunction(Function
+                                    (std::vector<double>(oscillation.angleBegin() + (i - interpolationPoints / 2),
+                                                        oscillation.angleBegin() + (i + interpolationPoints / 2)),
+                                    std::vector<double>(oscillation.dangleBegin() + (i - interpolationPoints / 2),
+                                                        oscillation.dangleBegin() + (i + interpolationPoints / 2))));
+
+            if (targetAngle == -90)
+            {
+                std::ofstream fout("/home/mishnic/data/phd/sphere_cone_M1.75/4463/sectionInput1");
+
+                for (int j = i - interpolationPoints / 2; j < i + interpolationPoints / 2; j++)
+                {
+                    fout << *(oscillation.angleBegin() + j) << " "
+                         << *(oscillation.dangleBegin() + j) << " "
+                         << *(oscillation.ddangleBegin() + j) << "\n";
+                }
+            }
+
+            GnuslSplineWrapper splineDangle(toSplineDangle);
+
             ///
-            GnuslSplineWrapper splineDdangle(Function(std::vector<double>(oscillation.angleBegin() + (i - interpolationPoints / 2),
-                                                                          oscillation.angleBegin() + (i + interpolationPoints / 2)),
-                                                      std::vector<double>(oscillation.ddangleBegin() + (i - interpolationPoints / 2),
-                                                                          oscillation.ddangleBegin() + (i + interpolationPoints / 2))));
+            Function toSplineDdangle =
+                                    sortFunction(Function
+                                    (std::vector<double>(oscillation.angleBegin() + (i - interpolationPoints / 2),
+                                                         oscillation.angleBegin() + (i + interpolationPoints / 2)),
+                                     std::vector<double>(oscillation.ddangleBegin() + (i - interpolationPoints / 2),
+                                                         oscillation.ddangleBegin() + (i + interpolationPoints / 2))));
+
+            GnuslSplineWrapper splineDdangle(toSplineDdangle);
 
             section.push_back((oscillation.getTime(i) + oscillation.getTime(i + 1)) / 2, // bad one
                               targetAngle,

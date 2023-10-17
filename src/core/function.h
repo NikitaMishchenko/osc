@@ -1,14 +1,55 @@
 #pragma once
 
 #include <cmath>
-
+#include <algorithm>
 #include <vector>
+
+namespace
+{
+    struct Values
+    {
+        Values(double _x, double _y) : x(_x), y(_y), relCmpTolerance(0.0001)
+        {
+        }
+
+        bool operator<(const Values &r) const
+        {
+            return x < r.x;
+        }
+
+        bool operator==(const Values &r) const
+        {
+            if (r.x != 0)
+                return std::abs(x/r.x - 1) < relCmpTolerance;
+            else
+                return x == r.x;
+        }
+
+        double x;
+        double y;
+        double relCmpTolerance;
+    };
+
+    class Soreter
+    {
+        Soreter(std::vector<double> xV, std::vector<double> yV)
+        {
+            for (int i = 0; i < xV.size(); i++)
+            {
+                values.push_back(Values(xV.at(i), yV.at(i)));
+            }
+        }
+
+        std::vector<Values> values;
+    };
+}
 
 class Function
 {
 public:
     Function() : m_domain(std::vector<double>()), m_codomain(std::vector<double>())
-    {}
+    {
+    }
 
     // todo check is sizes equal
     Function(const std::vector<double> &domain,
@@ -143,3 +184,37 @@ protected:
 
 private:
 };
+
+inline Function sortFunction(Function func)
+{
+    // Soreter sorter(func.getDomain(), func.getCodomain());
+    std::vector<Values> valuesVect;
+
+    for (int i = 0; i < func.size(); i++)
+    {
+        valuesVect.push_back(Values(func.getDomain(i), func.getCodomain(i)));
+    }
+    
+    const int initialSizeBeforeUnique = valuesVect.size();
+
+    sort(valuesVect.begin(), valuesVect.end());
+
+    auto last = std::unique(valuesVect.begin(), valuesVect.end());
+
+    valuesVect.erase(last, valuesVect.end());
+
+    const int sizeAfterDuplicateRmoval = valuesVect.size();
+
+    if (initialSizeBeforeUnique != sizeAfterDuplicateRmoval)
+        std::cout << "SIZE befor and after sortAndUnique changed " 
+                  << initialSizeBeforeUnique << " " << sizeAfterDuplicateRmoval << "\n";    
+
+    Function resultFnction;
+
+    for (const auto &v : valuesVect)
+    {
+        resultFnction.push_back(v.x, v.y);
+    }
+
+    return resultFnction;
+}
