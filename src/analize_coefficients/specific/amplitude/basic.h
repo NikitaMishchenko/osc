@@ -132,6 +132,27 @@ namespace amplitude
                       });
         }
 
+        AngleAmplitudeBase getMaxAmplitude()
+        {
+            auto it = std::max_element(m_angleAmplitudeBase.begin(), m_angleAmplitudeBase.end());
+
+            if (it != m_angleAmplitudeBase.end())
+                return *it;
+        
+            return AngleAmplitudeBase();
+        }
+
+        AngleAmplitudeBase getMinAmplitude()
+        {
+            auto it = std::min_element(m_angleAmplitudeBase.begin(), m_angleAmplitudeBase.end());
+
+            if (it != m_angleAmplitudeBase.end())
+                return *it;
+        
+            return AngleAmplitudeBase();
+        }
+
+
     private:
         size_t getActualMax(const size_t index, const size_t lookGap = 1) const
         {

@@ -213,6 +213,19 @@ void doJob(const std::string &coreName, const std::string &modelName)
         fout << amplitude << "\n";
     }
 
+    amplitude::AngleAmplitudeBase maxAmplitude;
+    maxAmplitude = amplitude.getMaxAmplitude();
+    amplitude::AngleAmplitudeBase minAmplitude;
+    minAmplitude = amplitude.getMinAmplitude();
+
+    descriptionStream << "Максимальная амплитуда колебаний: "
+                      << maxAmplitude.m_amplitudeAngle
+                      << std::endl
+                      << "Минимальная амплитуда колебаний: "
+                      << minAmplitude.m_amplitudeAngle
+                      << std::endl;
+    
+
     ///
     //***********************************************************************************************
     ///
