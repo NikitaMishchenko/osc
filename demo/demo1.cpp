@@ -159,9 +159,12 @@ void doJob(const std::string &coreName, const std::string &modelName)
 
             fout << section << "\n";
         }
+
+        sectionFilesGnuplotFile += ", \"" + specificSectionFile + "\" using 4:3";
+
     }
     descriptionStream << "Построить график a''(a'):\n"
-                      << "plot \"" << specificWtOscFile << "\" using 4:3 with linespoints" // << specificSectionFile << "\" using 4:3"
+                      << "plot \"" << specificWtOscFile << "\" using 4:3 with linespoints"
                       << (sectionFilesGnuplotFile.empty()
                               ? ""
                               : sectionFilesGnuplotFile)
