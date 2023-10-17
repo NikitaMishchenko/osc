@@ -26,7 +26,7 @@
 
 int main(int argc, char** argv)
 {
-    boost::filesystem::path root = "/home/mishnic/data/phd/sphere_cone_M1.75";
+    boost::filesystem::path root = "/home/mishnic/data/phd/sphere_cone_M1.75/4463";
     std::stringstream descriptionStream;
     boost::filesystem::path fileToProceed = root.string();
     boost::filesystem::path workingPath = root;
@@ -160,6 +160,24 @@ int main(int argc, char** argv)
     //***********************************************************************************************
     ///
 
+    std::string specificAmplitudeFile = coreName + ".amplitude";
+
+    descriptionStream << "Сохранение данных амплитуды в файл: "
+                      << "\"" << specificAmplitudeFile << "\""
+                      << std::endl;
+
+    {
+        std::ofstream fout(workingPath.string() + "/" + specificAmplitudeFile);
+
+        AngleHistory amplitude(wtOscillation.getTimeAmplitude(), wtOscillation.getAngleAmplitude());
+
+        fout << amplitude << "\n";
+    }
+
+    ///
+    //***********************************************************************************************
+    ///
+
     {
         std::cout << "Сохранение информации по обработке данных в файл: "
                   << "\"" << workingPath.string() + "/" + descriptionFileName << "\"" 
@@ -170,6 +188,9 @@ int main(int argc, char** argv)
         fout << descriptionStream.str() << "\n";
     }
 
+
+    // /home/mishnic/data/phd/data_proc/pic_ddangle_respect_to_angle_of_attack
+    
     ///
     //***********************************************************************************************
     ///
