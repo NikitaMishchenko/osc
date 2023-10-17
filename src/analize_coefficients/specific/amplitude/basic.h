@@ -11,6 +11,7 @@ namespace amplitude
 {
     enum Mode
     {
+        DEFAULT_AMPLITUDE,
         ABS_AMPLITUDE
         // todo other mode
     };
@@ -58,9 +59,10 @@ namespace amplitude
 
         AngleAmplitude(const std::shared_ptr<std::vector<double>> time,
                        const std::shared_ptr<std::vector<double>> angle,
-                       const std::shared_ptr<std::vector<double>> dangle) : m_time(time),
-                                                                            m_angle(angle),
-                                                                            m_dangle(dangle)
+                       const std::shared_ptr<std::vector<double>> dangle,
+                       int mode = ABS_AMPLITUDE) : m_time(time),
+                                                   m_angle(angle),
+                                                   m_dangle(dangle)
         {
             if (time->size() != angle->size() || angle->size() != dangle->size())
             {
@@ -70,7 +72,7 @@ namespace amplitude
                 throw(std::runtime_error(msg));
             }
 
-            doWork(ABS_AMPLITUDE); // fixme
+            doWork(mode);
         }
 
         bool doWork(const int mode)
