@@ -25,7 +25,7 @@
  * 
  */ 
 
-void doJob(std::string coreName)
+void doJob(const std::string& coreName, const std::string& modelName)
 {   
     boost::filesystem::path root = "/home/mishnic/data/phd/sphere_cone_M1.75/"  + coreName;
     std::stringstream descriptionStream;
@@ -71,7 +71,7 @@ void doJob(std::string coreName)
     //***********************************************************************************************
     ///
 
-    std::string modelFileName = "shpereCone1.model";
+    std::string modelFileName = modelName;//"shpereCone1.model";
 
     descriptionStream << "Загрузка параметров модели из файла: "
                       << "\"" << modelFileName << "\""
@@ -170,11 +170,16 @@ void doJob(std::string coreName)
     descriptionStream << "Сохранение данных амплитуды в файл: "
                       << "\"" << specificAmplitudeFile << "\""
                       << std::endl;
+    amplitude::AngleAmplitude amplitude(std::make_shared<std::vector<double>>(wtOscillation.getTime()), 
+                                        std::make_shared<std::vector<double>>(wtOscillation.getAngle()), 
+                                        std::make_shared<std::vector<double>>(wtOscillation.getDangle()));
+
+    //AngleHistory amplitude(wtOscillation.getTimeAmplitude(), wtOscillation.getAngleAmplitude());
 
     {
         std::ofstream fout(workingPath.string() + "/" + specificAmplitudeFile);
 
-        AngleHistory amplitude(wtOscillation.getTimeAmplitude(), wtOscillation.getAngleAmplitude());
+        
 
         fout << amplitude << "\n";
     }
@@ -186,9 +191,7 @@ void doJob(std::string coreName)
     descriptionStream << "Рассчет амплитуды колебаний"
                       << std::endl;
 
-    amplitude::AngleAmplitudeAnalyser angleAmplitudeAnalyser(amplitude::AngleAmplitude(std::make_shared<std::vector<double>>(wtOscillation.getTime()), 
-                                                                                       std::make_shared<std::vector<double>>(wtOscillation.getAngle()), 
-                                                                                       std::make_shared<std::vector<double>>(wtOscillation.getDangle())));  
+    amplitude::AngleAmplitudeAnalyser angleAmplitudeAnalyser(amplitude);  
     
     // todo
     //descriptionStream << "Самая часто встречающаяся амплитуда: "
@@ -199,16 +202,19 @@ void doJob(std::string coreName)
     {
     
         std::string specificAbsAmplitudeFile = coreName + "_abs.amplitude";
-        std::ofstream fout(workingPath.string() + "/" + specificAbsAmplitudeFile);
-        
-        std::vector<amplitude::AngleAmplitudeBase> sortedAmplitude = angleAmplitudeAnalyser.getSortedAmplitude();
 
         descriptionStream << "Сохранение данных абсолютной амплитуды в файл: "
                             << "\"" << specificAbsAmplitudeFile << "\""
                             << std::endl;
 
-       for (auto sAmp : sortedAmplitude)
-            fout << sAmp.m_amplitudeTime << "\t" << sAmp.m_amplitudeAngle << "\n";
+        std::ofstream fout(workingPath.string() + "/" + specificAbsAmplitudeFile);
+        
+        //std::vector<amplitude::AngleAmplitudeBase> sortedAmplitude = angleAmplitudeAnalyser.getSortedAmplitude();
+        amplitude.sortViaTime();
+
+        fout << amplitude;
+       //for (auto sAmp : sortedAmplitude)
+        //    fout << sAmp.m_amplitudeTime << "\t" << sAmp.m_amplitudeAngle << "\n";
     }
 
 
@@ -236,11 +242,62 @@ void doJob(std::string coreName)
     
 }
 
+
+struct DataToProc
+{
+    DataToProc(int dI, std::string mN) : dataIndex(dI), modelName(mN)
+    {}
+
+    int dataIndex;
+    std::string modelName;
+};
+
+void rewriteData(const DataToProc& d)
+{
+    std::ifstream fin("/home/mishnic/data/phd/data_proc/4461..4474/data_to_filter/" + std::to_string(d.dataIndex));
+
+    std::ofstream fout("/home/mishnic/data/phd/sphere_cone_M1.75/" + std::to_string(d.dataIndex) + "/" + std::to_string(d.dataIndex) + ".angle_history");
+
+    std::string buff;
+
+    while (!fin.eof())
+    {
+            fin >> buff;
+            fout << buff << " ";
+            fin >> buff;
+            fout << buff << std::endl;
+            fin >> buff >> buff;
+    }
+}
+
+
 int main(int argc, char** argv)
 {
-    std::vector<int> dataIndex = {4463, 4470, 4474, 4465, 4468, 4471, 4472};
+    // shpereCone1.model
+    //{4463, 4470, 4474, 4465, 4468, 4471, 4472};
+
+    /* {DataToProc(4463, "shpereCone1.model"),
+    DataToProc(4470, "shpereCone1.model"),
+    DataToProc(4474, "shpereCone1.model"),
+    DataToProc(4465, "shpereCone2.model"),
+    DataToProc(4468, "shpereCone2.model"),
+    DataToProc(4471, "shpereCone2.model"),
+    DataToProc(4472, "shpereCone2.model")}*/
+    std::vector<DataToProc> dataToProc = 
+                                        {
+                                        //DataToProc(4463, "shpereCone1.model"),
+                                        DataToProc(4470, "shpereCone1.model"),
+                                        DataToProc(4474, "shpereCone1.model"),
+                                        DataToProc(4465, "shpereCone2.model"),
+                                        DataToProc(4468, "shpereCone2.model"),
+                                        DataToProc(4471, "shpereCone2.model"),
+                                        DataToProc(4472, "shpereCone2.model")
+                                        };
+    //{DataToProc(4465, "shpereCone2.model")};
     
-    for (auto index : dataIndex)
-        doJob(std::to_string(index));
-    
+    std::string buff;
+    for (auto d : dataToProc)
+    {
+        doJob(std::to_string(d.dataIndex), d.modelName);
+    }    
 }
