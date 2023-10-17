@@ -15,16 +15,6 @@
 
 // SPECIFIC METHODS
 
-double WtOscillation::getMzNondimensionalization() const
-{
-    return m_mzNondimensionalization;
-}
-
-double WtOscillation::getIzNondimensional() const
-{
-    return m_izNondimentional;
-}
-
 std::vector<double> WtOscillation::getTimeAmplitude() const
 {
     std::vector<double> result;

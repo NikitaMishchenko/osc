@@ -21,7 +21,7 @@ struct Mz
 class WtOscillation : public Oscillation
 {
 public:
-    WtOscillation(){}
+    WtOscillation() {}
 
     WtOscillation(const AngleHistory &angleHistory) : Oscillation(angleHistory),
                                                       m_flow(wt_flow::Flow()),
@@ -48,17 +48,18 @@ public:
 
     virtual ~WtOscillation(){};
 
-    double getMzNondimensionalization() const;
-    double getIzNondimensional() const;
+    double getMzNondimensionalization() const { return m_mzNondimensionalization; }
+    double getIzNondimensional() const { return m_izNondimentional; }
+    double getWzNondimentional() const { return m_wzNondimentional; }
 
     std::vector<double> getTimeAmplitude() const;
     std::vector<double> getAngleAmplitude() const;
     double getTimeAmplitude(const size_t index) const;
     double getAngleAmplitude(const size_t index) const;
     Model getModel() const;
-    wt_flow::Flow getFlow() const {return m_flow;}
-    double getW() const {return m_w;};
-    std::vector<Mz> getMz(){return m_mz;}
+    wt_flow::Flow getFlow() const { return m_flow; }
+    double getW() const { return m_w; };
+    std::vector<Mz> getMz() { return m_mz; }
 
     // IO
     bool saveMzData(const std::string &fileName) const;
@@ -78,19 +79,24 @@ private:
     void calculateW();
     void calcMzNondimensionalization()
     {
-        m_mzNondimensionalization = m_model.getI()/m_flow.getDynamicPressure()/m_model.getS()/m_model.getL();
+        m_mzNondimensionalization = m_model.getI() / m_flow.getDynamicPressure() / m_model.getS() / m_model.getL();
     }
-    
+
     void calcIzNondimentional()
     {
         if (m_flow.getDensity() > 0)
-            m_izNondimentional = 2*m_model.getI()/m_flow.getDensity()/m_model.getS()/pow(m_model.getL(), 3);
+            m_izNondimentional = 2 * m_model.getI() / m_flow.getDensity() / m_model.getS() / pow(m_model.getL(), 3);
         else
             m_izNondimentional = 0;
     }
 
+    void calcWzNondimentional()
+    {
+        m_wzNondimentional = m_w * m_model.getL() / m_flow.getVelocity();
+    }
+
     std::vector<Mz> m_mz;
-    //std::vector<size_t> m_mzAmplitudeIndexes;
+    // std::vector<size_t> m_mzAmplitudeIndexes;
     std::vector<size_t> m_AngleAmplitudeIndexes;
 
     double m_w; // frequency of oscillation main mode
@@ -101,4 +107,5 @@ private:
 
     double m_mzNondimensionalization;
     double m_izNondimentional;
+    double m_wzNondimentional;
 };

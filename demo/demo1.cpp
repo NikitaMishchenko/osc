@@ -24,18 +24,17 @@
  * 
  */ 
 
-int main(int argc, char** argv)
-{
-    boost::filesystem::path root = "/home/mishnic/data/phd/sphere_cone_M1.75/4463";
+void doJob(std::string coreName)
+{   
+    boost::filesystem::path root = "/home/mishnic/data/phd/sphere_cone_M1.75/"  + coreName;
     std::stringstream descriptionStream;
+    
     boost::filesystem::path fileToProceed = root.string();
     boost::filesystem::path workingPath = root;
 
     ///
     //***********************************************************************************************
     ///
-
-    std::string coreName = "4463";
 
     descriptionStream << "Определяем корневое имя файла: "
                       << "\"" << coreName<< "\""
@@ -123,12 +122,16 @@ int main(int argc, char** argv)
                       << wtOscillation.getIzNondimensional()
                       << std::endl;
 
+    descriptionStream << "Безразмерная частота колебаний w = w_avt*l/v = " 
+                      << wtOscillation.getW()*wtOscillation.getModel().getL()/wtOscillation.getFlow().getVelocity()
+                      << std::endl;
+
 
     ///
     //***********************************************************************************************
     ///
-
-    double sectionAngle = 30; // 0 - 20
+/*
+    double sectionAngle = 0; // 0 - 20
 
     descriptionStream << "Рассчет методом сечений для угла " << sectionAngle << " градусов\n"; 
 
@@ -148,14 +151,15 @@ int main(int argc, char** argv)
 
         fout << section << "\n";
     }
-
+*/
     descriptionStream << "Построить график a''(a'):\n"
-                      << "plot \"" << specificWtOscFile << "\" using 4:3 with linespoints, \"" << specificSectionFile << "\" using 4:3"
+                      << "plot \"" << specificWtOscFile << "\" using 4:3 with linespoints, \"" // << specificSectionFile << "\" using 4:3"
                       << std::endl;
 
     descriptionStream << "Построить график mz(a):\n"
                       << "plot \"" << specificWtOscFile << "\" using 2:($4*" << wtOscillation.getMzNondimensionalization() << ") with lines"
-                      << std::endl;   
+                      << std::endl;
+
     ///
     //***********************************************************************************************
     ///
@@ -178,6 +182,13 @@ int main(int argc, char** argv)
     //***********************************************************************************************
     ///
 
+
+    
+
+    ///
+    //***********************************************************************************************
+    ///
+
     {
         std::cout << "Сохранение информации по обработке данных в файл: "
                   << "\"" << workingPath.string() + "/" + descriptionFileName << "\"" 
@@ -195,5 +206,14 @@ int main(int argc, char** argv)
     //***********************************************************************************************
     ///
 
+    
+}
+
+int main(int argc, char** argv)
+{
+    std::vector<int> dataIndex = {4463, 4470, 4474, 4465, 4468, 4471, 4472};
+    
+    for (auto index : dataIndex)
+        doJob(std::to_string(index));
     
 }
