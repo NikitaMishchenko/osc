@@ -1,68 +1,75 @@
 #include <tuple>
+#include <exception>
 
 #include "oscillation/wt_oscillation.h"
 #include "gnusl_wrapper/interpolation/interpolation.h"
 
+enum SectionType
+{
+    ASCENDING,
+    DESCENDING
+};
+
 std::tuple<bool, Oscillation>
-makeSection(const Oscillation &oscillation, const double targetAngle, uint interpolationPoints = 10)
+makeSection(const Oscillation &oscillation, const double targetAngle, const int sectionType, uint interpolationPoints = 10)
 {
     Oscillation section;
 
     if (oscillation.size() == 0)
         return std::make_tuple(false, oscillation);
 
-    const uint minimalInterpolationPints = 3;
+    const uint minimalInterpolationPoints = 3;
 
-    if (interpolationPoints < minimalInterpolationPints)
-        interpolationPoints = minimalInterpolationPints;
+    if (interpolationPoints < minimalInterpolationPoints)
+        interpolationPoints = minimalInterpolationPoints;
 
-    for (int i = minimalInterpolationPints; i < oscillation.size() - minimalInterpolationPints; i++)
+    for (int i = minimalInterpolationPoints; i < oscillation.size() - minimalInterpolationPoints; i++)
     {
-        if ((oscillation.getAngle(i) < targetAngle &&
-             targetAngle < oscillation.getAngle(i + 1)))
+
+        std::function<bool(const Oscillation &, const int index, const double targetAngle)> comparator;
+
+        if (ASCENDING == sectionType)
+        {
+            comparator = [](const Oscillation &oscillation, const int index, const double targetAngle)
+            {
+                return (oscillation.getAngle(index) > targetAngle &&
+                        targetAngle > oscillation.getAngle(index + 1));
+            };
+        } 
+        else if (DESCENDING == sectionType)
+        {
+            comparator = [](const Oscillation &oscillation, const int index, const double targetAngle)
+            {
+                return (oscillation.getAngle(index) < targetAngle &&
+                        targetAngle < oscillation.getAngle(index + 1));
+            };
+        }
+        else
+        {
+            throw std::runtime_error("comparator for section not selected");
+        }
+
+        if (comparator(oscillation, i, targetAngle))
+        //(oscillation.getAngle(i) > targetAngle &&
+        // targetAngle > oscillation.getAngle(i + 1)))
+        //(oscillation.getAngle(i) > targetAngle &&
+        // targetAngle < oscillation.getAngle(i + 1))
         {
 
-            ///
-            if (targetAngle == -90)
-            {
-                std::ofstream fout("/home/mishnic/data/phd/sphere_cone_M1.75/4463/sectionInput");
-
-                for (int j = i - interpolationPoints / 2; j < i + interpolationPoints / 2; j++)
-                {
-                    fout << *(oscillation.angleBegin() + j) << " "
-                         << *(oscillation.dangleBegin() + j) << " "
-                         << *(oscillation.ddangleBegin() + j) << "\n";
-                }
-            }
-
             Function toSplineDangle =
-                                    sortFunction(Function
-                                    (std::vector<double>(oscillation.angleBegin() + (i - interpolationPoints / 2),
-                                                        oscillation.angleBegin() + (i + interpolationPoints / 2)),
-                                    std::vector<double>(oscillation.dangleBegin() + (i - interpolationPoints / 2),
-                                                        oscillation.dangleBegin() + (i + interpolationPoints / 2))));
-
-            if (targetAngle == -90)
-            {
-                std::ofstream fout("/home/mishnic/data/phd/sphere_cone_M1.75/4463/sectionInput1");
-
-                for (int j = i - interpolationPoints / 2; j < i + interpolationPoints / 2; j++)
-                {
-                    fout << *(oscillation.angleBegin() + j) << " "
-                         << *(oscillation.dangleBegin() + j) << " "
-                         << *(oscillation.ddangleBegin() + j) << "\n";
-                }
-            }
+                sortFunction(Function(std::vector<double>(oscillation.angleBegin() + (i - interpolationPoints / 2),
+                                                          oscillation.angleBegin() + (i + interpolationPoints / 2)),
+                                      std::vector<double>(oscillation.dangleBegin() + (i - interpolationPoints / 2),
+                                                          oscillation.dangleBegin() + (i + interpolationPoints / 2))));
 
             GnuslSplineWrapper splineDangle(toSplineDangle);
 
             ///
             Function toSplineDdangle =
-                                    sortFunction(Function
-                                    (std::vector<double>(oscillation.angleBegin() + (i - interpolationPoints / 2),
-                                                         oscillation.angleBegin() + (i + interpolationPoints / 2)),
-                                     std::vector<double>(oscillation.ddangleBegin() + (i - interpolationPoints / 2),
-                                                         oscillation.ddangleBegin() + (i + interpolationPoints / 2))));
+                sortFunction(Function(std::vector<double>(oscillation.angleBegin() + (i - interpolationPoints / 2),
+                                                          oscillation.angleBegin() + (i + interpolationPoints / 2)),
+                                      std::vector<double>(oscillation.ddangleBegin() + (i - interpolationPoints / 2),
+                                                          oscillation.ddangleBegin() + (i + interpolationPoints / 2))));
 
             GnuslSplineWrapper splineDdangle(toSplineDdangle);
 

@@ -145,40 +145,62 @@ void doJob(const std::string &coreName, const std::string &modelName)
 
     bool sectionEnabled = true;
     std::string sectionFilesGnuplotFile;
-    
+
     if (sectionEnabled)
     {
         const int sectionBorderValue = int(std::min(std::abs(maxAngle), std::abs(minAngle)) / 5) * 5;
-        
+
         descriptionStream << "Сечения в промежутке [" << -sectionBorderValue << ", " << sectionBorderValue << "]"
                           << std::endl;
 
         const double sectionAngleStep = 5;
-        for (int sectionAngle = -sectionBorderValue; sectionAngle <= sectionBorderValue; )
+        int countOfIteration = 0;
+        for (int sectionAngle = -sectionBorderValue; sectionAngle <= sectionBorderValue;)
         {
             descriptionStream << "Рассчет методом сечений для угла " << sectionAngle << " градусов\n";
             std::cout << "sectionAngle = " << sectionAngle << "\n";
 
-            std::string specificSectionFile = coreName + "_section" + std::to_string(sectionAngle) + ".oscillation";
+            std::string graphDecoration = ("using 4:3 pt " + std::to_string(countOfIteration) + " lc " + std::to_string(countOfIteration));
 
             bool isOk = false;
             Oscillation section;
 
-            std::tie(isOk, section) = makeSection(oscillation, sectionAngle);
-
-            descriptionStream << "Сохранение данных сечения в файл: "
-                              << "\"" << specificSectionFile << "\""
-                              << std::endl;
+            std::tie(isOk, section) = makeSection(oscillation, sectionAngle, ASCENDING);
 
             {
-                std::ofstream fout(workingPath.string() + "/" + specificSectionFile);
+                std::string specificSectionFile = coreName + "_section" + std::to_string(sectionAngle) + "_asc.oscillation";
+                sectionFilesGnuplotFile += ", \"" + specificSectionFile + "\" " + graphDecoration;
 
-                fout << section << "\n";
+                descriptionStream << "Сохранение данных сечения в файл: "
+                                  << "\"" << specificSectionFile << "\""
+                                  << std::endl;
+
+                {
+                    std::ofstream fout(workingPath.string() + "/" + specificSectionFile);
+
+                    fout << section << "\n";
+                }
             }
 
-            sectionFilesGnuplotFile += ", \"" + specificSectionFile + "\" using 4:3";
+            std::tie(isOk, section) = makeSection(oscillation, sectionAngle, DESCENDING);
+
+            {
+                std::string specificSectionFile = coreName + "_section" + std::to_string(sectionAngle) + "_desc.oscillation";
+                sectionFilesGnuplotFile += ", \"" + specificSectionFile + "\" " + graphDecoration;
+
+                descriptionStream << "Сохранение данных сечения в файл: "
+                                  << "\"" << specificSectionFile << "\""
+                                  << std::endl;
+
+                {
+                    std::ofstream fout(workingPath.string() + "/" + specificSectionFile);
+
+                    fout << section << "\n";
+                }
+            }
 
             sectionAngle += sectionAngleStep;
+            countOfIteration++;
         }
     }
     descriptionStream << "Построить график a''(a'):\n"
@@ -224,7 +246,6 @@ void doJob(const std::string &coreName, const std::string &modelName)
                       << "Минимальная амплитуда колебаний: "
                       << minAmplitude.m_amplitudeAngle
                       << std::endl;
-    
 
     ///
     //***********************************************************************************************
@@ -327,8 +348,7 @@ int main(int argc, char **argv)
             DataToProc(4465, "shpereCone2.model"),
             DataToProc(4468, "shpereCone2.model"),
             DataToProc(4471, "shpereCone2.model"),
-            DataToProc(4472, "shpereCone2.model")
-        };
+            DataToProc(4472, "shpereCone2.model")};
     //{DataToProc(4465, "shpereCone2.model")};
 
     std::string buff;
