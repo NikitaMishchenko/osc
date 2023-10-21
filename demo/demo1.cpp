@@ -12,6 +12,9 @@
 #include "analize_coefficients/specific/amplitude/utils.h"
 #include "analize_coefficients/dynamic_coefficients_section.h"
 
+#include "processor_input.h"
+#include "processor_output.h"
+
 /**
  *  Файлы должны находиться в одном каталоге переменная root
  *  имена файлов
@@ -25,114 +28,80 @@
  *
  */
 
+class DescriptionWriter
+{
+public:
+    DescriptionWriter(boost::filesystem::path path, std::string fileName = "") : m_descriptionName(fileName)
+    {
+        if (!m_descriptionName.empty())
+            m_descriptionName += ".description";
+        else
+            m_descriptionName = "description";
+
+        m_descriptionFile = path / m_descriptionName;
+    }
+
+    ~DescriptionWriter()
+    {
+        std::ofstream fout(m_descriptionFile.string());
+
+        fout << m_descriptionStream.str();
+    }
+
+private:
+    std::string m_descriptionName;
+    boost::filesystem::path m_descriptionFile;
+
+    std::stringstream m_descriptionStream;
+    std::ofstream fout;
+};
+
+
 void doJob(const std::string &coreName, const std::string &modelName)
 {
     boost::filesystem::path basePath = "/home/mishnic/data/data_proc/sphere_cone_M1.75/";
-    boost::filesystem::path root = basePath / coreName;
-    std::stringstream descriptionStream;
-
-    boost::filesystem::path fileToProceed = root;
-    boost::filesystem::path workingPath = root;
 
     ///
     //***********************************************************************************************
     ///
+    std::stringstream descriptionStream;
 
     descriptionStream << "Определяем корневое имя файла: "
                       << "\"" << coreName << "\""
                       << std::endl;
 
-    ///
-    //***********************************************************************************************
-    ///
+    ProcessorInput processorInput(basePath, coreName, modelName);
 
-    std::string specificInitialFile = coreName + ".angle_history";
-    std::string descriptionFileName = coreName + ".discription";
-
-    descriptionStream << "Определяем имя файла истории колебаний: "
-                      << "\"" << specificInitialFile << "\""
-                      << std::endl;
-
-    descriptionStream << "Определяем имя файла описания процедуры обработки: "
-                      << "\"" << descriptionFileName << "\""
-                      << std::endl;
-
-    ///
-    //***********************************************************************************************
-    ///
-
-    descriptionStream << "Предварительный рассчет параметров колебаний для файла: "
-                      << "\"" << specificInitialFile << "\""
-                      << std::endl;
-
-    Oscillation oscillation(
-        AngleHistory(
-            boost::filesystem::path(fileToProceed / specificInitialFile).string()));
-
-    ///
-    //***********************************************************************************************
-    ///
-
-    std::string modelFileName = modelName; //"shpereCone1.model";
-
-    descriptionStream << "Загрузка параметров модели из файла: "
-                      << "\"" << modelFileName << "\""
-                      << std::endl;
-
+    bool dataLoadedOk = false;
+    std::string descriptionLoadData;
+    Oscillation oscillation;
+    wt_flow::Flow flow;
     Model model;
-    model.loadFile(boost::filesystem::path(root / modelFileName).string());
 
-    descriptionStream << "Параметры модели:\n"
-                      << model.getInfoString() << std::endl;
+    std::tie(dataLoadedOk, descriptionLoadData, oscillation, flow, model) = processorInput.loadInputData();
+    {
+        if (!dataLoadedOk)
+        {
+            std::cerr << "failed to load input data!";
+            throw;
+        }
 
-    ///
-    //***********************************************************************************************
-    ///
+        descriptionStream << descriptionLoadData << std::endl;
+    }
 
-    std::string flowFileName = coreName + ".flow";
-
-    descriptionStream << "Загрузка параметров потока из файла: "
-                      << "\"" << flowFileName << "\""
-                      << std::endl;
-
-    wt_flow::Flow flow(boost::filesystem::path(workingPath / flowFileName).string());
-
-    descriptionStream << "Параметры потока:\n"
-                      << flow.getInfoString() << std::endl;
-
-    ///
-    //***********************************************************************************************
-    ///
+    boost::filesystem::path outputDataPath = basePath.string() + coreName;
 
     WtOscillation wtOscillation(oscillation, flow, model);
 
+    ProcessorOutput processorOutput(basePath, coreName);
+
+    bool dataWrittenOk = false;
+    std::string descriptionWriteData;
+
+    std::tie(dataWrittenOk, descriptionWriteData) = processorOutput.write(wtOscillation);
+    descriptionStream << descriptionWriteData;
+
     std::string specificWtOscFile = coreName + ".wt_oscillation";
-
-    descriptionStream << "Сохранение данных колебаний в файл: "
-                      << "\"" << specificWtOscFile << "\""
-                      << std::endl;
-
-    {
-        std::ofstream fout(boost::filesystem::path(workingPath / specificWtOscFile).string());
-
-        fout << wtOscillation << "\n";
-    }
-
-    descriptionStream << "Частота колебаний w[Гц] = "
-                      << wtOscillation.getW()
-                      << std::endl;
-
-    descriptionStream << "Коэффициент обезразмеривания для получения mz = I/(qsl)a'' -> I/(qsl) = "
-                      << wtOscillation.getMzNondimensionalization()
-                      << std::endl;
-
-    descriptionStream << "Безразмерный момент инерции iz = 2I/(rho*s*l) = "
-                      << wtOscillation.getIzNondimensional()
-                      << std::endl;
-
-    descriptionStream << "Безразмерная частота колебаний w = w_avt*l/v = "
-                      << wtOscillation.getWzNondimentional()
-                      << std::endl;
 
     ///
     //***********************************************************************************************
@@ -179,7 +148,7 @@ void doJob(const std::string &coreName, const std::string &modelName)
                                   << std::endl;
 
                 {
-                    std::ofstream fout(boost::filesystem::path(workingPath / specificSectionFile).string());
+                    std::ofstream fout(boost::filesystem::path(outputDataPath / specificSectionFile).string());
 
                     fout << section << "\n";
                 }
@@ -196,7 +165,7 @@ void doJob(const std::string &coreName, const std::string &modelName)
                                   << std::endl;
 
                 {
-                    std::ofstream fout(boost::filesystem::path(workingPath / specificSectionFile).string());
+                    std::ofstream fout(boost::filesystem::path(outputDataPath / specificSectionFile).string());
 
                     fout << section << "\n";
                 }
@@ -233,7 +202,7 @@ void doJob(const std::string &coreName, const std::string &modelName)
     // AngleHistory amplitude(wtOscillation.getTimeAmplitude(), wtOscillation.getAngleAmplitude());
 
     {
-        std::ofstream fout(boost::filesystem::path(workingPath / specificAmplitudeFile).string());
+        std::ofstream fout(boost::filesystem::path(outputDataPath / specificAmplitudeFile).string());
 
         fout << amplitude << "\n";
     }
@@ -272,7 +241,7 @@ void doJob(const std::string &coreName, const std::string &modelName)
                           << "\"" << specificAbsAmplitudeFile << "\""
                           << std::endl;
 
-        std::ofstream fout(boost::filesystem::path(workingPath/specificAbsAmplitudeFile).string());
+        std::ofstream fout(boost::filesystem::path(outputDataPath / specificAbsAmplitudeFile).string());
 
         // std::vector<amplitude::AngleAmplitudeBase> sortedAmplitude = angleAmplitudeAnalyser.getSortedAmplitude();
         amplitude.sortViaTime();
@@ -287,11 +256,13 @@ void doJob(const std::string &coreName, const std::string &modelName)
     ///
 
     {
+        std::string descriptionFileName = coreName + ".description";
+
         std::cout << "Сохранение информации по обработке данных в файл: "
-                  << "\"" << workingPath.string() +  "/"+ descriptionFileName << "\""
+                  << "\"" << outputDataPath.string() + "/" + descriptionFileName << "\""
                   << std::endl;
 
-        std::ofstream fout(workingPath.string() + "/" + descriptionFileName);
+        std::ofstream fout(outputDataPath.string() + "/" + descriptionFileName);
 
         fout << descriptionStream.str() << "\n";
     }
@@ -333,16 +304,6 @@ void rewriteData(const DataToProc &d)
 
 int main(int argc, char **argv)
 {
-    // shpereCone1.model
-    //{4463, 4470, 4474, 4465, 4468, 4471, 4472};
-
-    /* {DataToProc(4463, "shpereCone1.model"),
-    DataToProc(4470, "shpereCone1.model"),
-    DataToProc(4474, "shpereCone1.model"),
-    DataToProc(4465, "shpereCone2.model"),
-    DataToProc(4468, "shpereCone2.model"),
-    DataToProc(4471, "shpereCone2.model"),
-    DataToProc(4472, "shpereCone2.model")}*/
     std::vector<DataToProc> dataToProc =
         {
             DataToProc(4463, "shpereCone1.model"),

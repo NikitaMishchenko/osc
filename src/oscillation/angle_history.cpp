@@ -51,6 +51,9 @@ bool AngleHistory::loadRaw(const std::string &file_name)
 
         std::cout << "file " << file_name << " loaded! Closing\n";
         fin.close();
+
+        calculateTimeStep();
+
         return true;
     }
     else
@@ -59,6 +62,7 @@ bool AngleHistory::loadRaw(const std::string &file_name)
     }
 
     fin.close();
+
     return false;
 }
 
