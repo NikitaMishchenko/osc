@@ -159,6 +159,8 @@ target_link_libraries(demo1
                       wtOscillationlib
                       #gnuplot_wrapper "-L/home/mishnic/src/gnuplot_wrapper/build/libgnuplot_wrapper.so"
                       libboost_program_options.a
+                      -lboost_filesystem
+                      -lboost_system
                       GSL::gsl
                       GSL::gslcblas
                       fftw3

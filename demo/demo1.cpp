@@ -27,10 +27,11 @@
 
 void doJob(const std::string &coreName, const std::string &modelName)
 {
-    boost::filesystem::path root = "/home/mishnic/data/phd/sphere_cone_M1.75/" + coreName;
+    boost::filesystem::path basePath = "/home/mishnic/data/data_proc/sphere_cone_M1.75/";
+    boost::filesystem::path root = basePath / coreName;
     std::stringstream descriptionStream;
 
-    boost::filesystem::path fileToProceed = root.string();
+    boost::filesystem::path fileToProceed = root;
     boost::filesystem::path workingPath = root;
 
     ///
@@ -64,7 +65,9 @@ void doJob(const std::string &coreName, const std::string &modelName)
                       << "\"" << specificInitialFile << "\""
                       << std::endl;
 
-    Oscillation oscillation(AngleHistory(fileToProceed.string() + "/" + specificInitialFile));
+    Oscillation oscillation(
+        AngleHistory(
+            boost::filesystem::path(fileToProceed / specificInitialFile).string()));
 
     ///
     //***********************************************************************************************
@@ -77,7 +80,7 @@ void doJob(const std::string &coreName, const std::string &modelName)
                       << std::endl;
 
     Model model;
-    model.loadFile(root.string() + "/" + modelFileName);
+    model.loadFile(boost::filesystem::path(root / modelFileName).string());
 
     descriptionStream << "Параметры модели:\n"
                       << model.getInfoString() << std::endl;
@@ -92,7 +95,7 @@ void doJob(const std::string &coreName, const std::string &modelName)
                       << "\"" << flowFileName << "\""
                       << std::endl;
 
-    wt_flow::Flow flow(workingPath.string() + "/" + flowFileName);
+    wt_flow::Flow flow(boost::filesystem::path(workingPath / flowFileName).string());
 
     descriptionStream << "Параметры потока:\n"
                       << flow.getInfoString() << std::endl;
@@ -110,7 +113,7 @@ void doJob(const std::string &coreName, const std::string &modelName)
                       << std::endl;
 
     {
-        std::ofstream fout(workingPath.string() + "/" + specificWtOscFile);
+        std::ofstream fout(boost::filesystem::path(workingPath / specificWtOscFile).string());
 
         fout << wtOscillation << "\n";
     }
@@ -176,7 +179,7 @@ void doJob(const std::string &coreName, const std::string &modelName)
                                   << std::endl;
 
                 {
-                    std::ofstream fout(workingPath.string() + "/" + specificSectionFile);
+                    std::ofstream fout(boost::filesystem::path(workingPath / specificSectionFile).string());
 
                     fout << section << "\n";
                 }
@@ -193,7 +196,7 @@ void doJob(const std::string &coreName, const std::string &modelName)
                                   << std::endl;
 
                 {
-                    std::ofstream fout(workingPath.string() + "/" + specificSectionFile);
+                    std::ofstream fout(boost::filesystem::path(workingPath / specificSectionFile).string());
 
                     fout << section << "\n";
                 }
@@ -230,7 +233,7 @@ void doJob(const std::string &coreName, const std::string &modelName)
     // AngleHistory amplitude(wtOscillation.getTimeAmplitude(), wtOscillation.getAngleAmplitude());
 
     {
-        std::ofstream fout(workingPath.string() + "/" + specificAmplitudeFile);
+        std::ofstream fout(boost::filesystem::path(workingPath / specificAmplitudeFile).string());
 
         fout << amplitude << "\n";
     }
@@ -269,7 +272,7 @@ void doJob(const std::string &coreName, const std::string &modelName)
                           << "\"" << specificAbsAmplitudeFile << "\""
                           << std::endl;
 
-        std::ofstream fout(workingPath.string() + "/" + specificAbsAmplitudeFile);
+        std::ofstream fout(boost::filesystem::path(workingPath/specificAbsAmplitudeFile).string());
 
         // std::vector<amplitude::AngleAmplitudeBase> sortedAmplitude = angleAmplitudeAnalyser.getSortedAmplitude();
         amplitude.sortViaTime();
@@ -285,7 +288,7 @@ void doJob(const std::string &coreName, const std::string &modelName)
 
     {
         std::cout << "Сохранение информации по обработке данных в файл: "
-                  << "\"" << workingPath.string() + "/" + descriptionFileName << "\""
+                  << "\"" << workingPath.string() +  "/"+ descriptionFileName << "\""
                   << std::endl;
 
         std::ofstream fout(workingPath.string() + "/" + descriptionFileName);
