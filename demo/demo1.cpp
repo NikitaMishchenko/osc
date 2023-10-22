@@ -91,62 +91,46 @@ void doJob(const std::string &coreName, const std::string &modelName)
     boost::filesystem::path outputDataPath = basePath.string() + coreName;
 
     WtOscillation wtOscillation(oscillation, flow, model);
+{
+    ///
+    bool isOk = false;
+    std::vector<Section> sectionVector;
+    const int sectionAngleStep = 5;
+    //double maxAngle, minAngle;
+    Sections sections(oscillation, sectionAngleStep);
+    sections.calculate();
+    //std::tie(isOk, minAngle, maxAngle, sectionVector) = sections.getData();
+    ///
 
     ProcessorOutput processorOutput(basePath, coreName);
 
     bool dataWrittenOk = false;
     std::string descriptionWriteData;
 
-    std::tie(dataWrittenOk, descriptionWriteData) = processorOutput.write(wtOscillation);
+    std::tie(dataWrittenOk, descriptionWriteData) = processorOutput.write(wtOscillation, sections);
     descriptionStream << descriptionWriteData;
-
+}
     std::string specificWtOscFile = coreName + ".wt_oscillation";
 
     ///
     //***********************************************************************************************
     ///
+    /*bool isOk = false;
+    std::vector<Section> sectionVector;
+    const int sectionAngleStep = 5;
+    double maxAngle, minAngle;
 
-    const double maxAngle = *std::max_element(wtOscillation.angleBegin(), wtOscillation.angleEnd());
-    const double minAngle = *std::min_element(wtOscillation.angleBegin(), wtOscillation.angleEnd());
+    Sections sections(oscillation, sectionAngleStep);
+    sections.calculate();
+    std::tie(isOk, minAngle, maxAngle, sectionVector) = sections.getData();
 
     descriptionStream << "Максимальный достигаемый угол: " << maxAngle
                       << std::endl
                       << "Минимально достигаемый угол: " << minAngle
                       << std::endl;
 
-    bool sectionEnabled = true;
-
-    std::vector<Section> sectionVector;
-
-    if (sectionEnabled)
-    {
-        const int sectionBorderValue = int(std::min(std::abs(maxAngle), std::abs(minAngle)) / 5) * 5;
-
-        descriptionStream << "Сечения в промежутке [" << -sectionBorderValue << ", " << sectionBorderValue << "]"
-                          << std::endl;
-
-        const double sectionAngleStep = 5;
-        for (int sectionAngle = -sectionBorderValue; sectionAngle <= sectionBorderValue;)
-        {
-            descriptionStream << "Рассчет методом сечений для угла " << sectionAngle << " градусов\n";
-            std::cout << "sectionAngle = " << sectionAngle << "\n";
-
-            bool isOk = false;
-
-            {
-                Section sectionAsc;
-                sectionAsc.calculateSection(oscillation, sectionAngle, Section::ASCENDING);
-                sectionVector.push_back(sectionAsc);
-            }
-            {
-                Section sectionDesc;
-                sectionDesc.calculateSection(oscillation, sectionAngle, Section::DESCENDING);
-                sectionVector.push_back(sectionDesc);
-            }
-
-            sectionAngle += sectionAngleStep;
-        }
-    }
+    descriptionStream << "Построем сечения по углам с шагом " << sectionAngleStep
+                      << std::endl;
 
     std::string sectionFilesGnuplotFile;
     int sectionNo = 0;
@@ -179,7 +163,7 @@ void doJob(const std::string &coreName, const std::string &modelName)
 
     descriptionStream << "Построить график mz(a):\n"
                       << "plot \"" << specificWtOscFile << "\" using 2:($4*" << wtOscillation.getMzNondimensionalization() << ") with lines"
-                      << std::endl;
+                      << std::endl;*/
 
     ///
     //***********************************************************************************************
@@ -308,7 +292,6 @@ int main(int argc, char **argv)
             DataToProc(4468, "shpereCone2.model"),
             DataToProc(4471, "shpereCone2.model"),
             DataToProc(4472, "shpereCone2.model")};
-    //{DataToProc(4465, "shpereCone2.model")};
 
     std::string buff;
     for (auto d : dataToProc)

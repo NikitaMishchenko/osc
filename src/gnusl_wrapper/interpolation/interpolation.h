@@ -1,9 +1,11 @@
+#pragma once
+
 #include <gsl/gsl_errno.h>
 #include <gsl/gsl_spline.h>
 
 #include "core/function.h"
 
-class  GnuslSplineWrapper
+class GnuslSplineWrapper
 {
 public:
     GnuslSplineWrapper(const Function &input)
