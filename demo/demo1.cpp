@@ -10,7 +10,7 @@
 #include "flow/wt_flow.h"
 
 #include "analize_coefficients/specific/amplitude/utils.h"
-#include "analize_coefficients/dynamic_coefficients_section.h"
+#include "analize_coefficients/specific/section/section.h"
 
 #include "processor_input.h"
 #include "processor_output.h"
@@ -55,7 +55,6 @@ private:
     std::stringstream m_descriptionStream;
     std::ofstream fout;
 };
-
 
 void doJob(const std::string &coreName, const std::string &modelName)
 {
@@ -116,7 +115,8 @@ void doJob(const std::string &coreName, const std::string &modelName)
                       << std::endl;
 
     bool sectionEnabled = true;
-    std::string sectionFilesGnuplotFile;
+
+    std::vector<Section> sectionVector;
 
     if (sectionEnabled)
     {
@@ -126,55 +126,50 @@ void doJob(const std::string &coreName, const std::string &modelName)
                           << std::endl;
 
         const double sectionAngleStep = 5;
-        int countOfIteration = 0;
         for (int sectionAngle = -sectionBorderValue; sectionAngle <= sectionBorderValue;)
         {
             descriptionStream << "Рассчет методом сечений для угла " << sectionAngle << " градусов\n";
             std::cout << "sectionAngle = " << sectionAngle << "\n";
 
-            std::string graphDecoration = ("using 4:3 pt " + std::to_string(countOfIteration) + " lc " + std::to_string(countOfIteration));
-
             bool isOk = false;
-            Oscillation section;
-
-            std::tie(isOk, section) = makeSection(oscillation, sectionAngle, ASCENDING);
 
             {
-                std::string specificSectionFile = coreName + "_section" + std::to_string(sectionAngle) + "_asc.oscillation";
-                sectionFilesGnuplotFile += ", \"" + specificSectionFile + "\" " + graphDecoration;
-
-                descriptionStream << "Сохранение данных сечения в файл: "
-                                  << "\"" << specificSectionFile << "\""
-                                  << std::endl;
-
-                {
-                    std::ofstream fout(boost::filesystem::path(outputDataPath / specificSectionFile).string());
-
-                    fout << section << "\n";
-                }
+                Section sectionAsc;
+                sectionAsc.calculateSection(oscillation, sectionAngle, Section::ASCENDING);
+                sectionVector.push_back(sectionAsc);
             }
-
-            std::tie(isOk, section) = makeSection(oscillation, sectionAngle, DESCENDING);
-
             {
-                std::string specificSectionFile = coreName + "_section" + std::to_string(sectionAngle) + "_desc.oscillation";
-                sectionFilesGnuplotFile += ", \"" + specificSectionFile + "\" " + graphDecoration;
-
-                descriptionStream << "Сохранение данных сечения в файл: "
-                                  << "\"" << specificSectionFile << "\""
-                                  << std::endl;
-
-                {
-                    std::ofstream fout(boost::filesystem::path(outputDataPath / specificSectionFile).string());
-
-                    fout << section << "\n";
-                }
+                Section sectionDesc;
+                sectionDesc.calculateSection(oscillation, sectionAngle, Section::DESCENDING);
+                sectionVector.push_back(sectionDesc);
             }
 
             sectionAngle += sectionAngleStep;
-            countOfIteration++;
         }
     }
+
+    std::string sectionFilesGnuplotFile;
+    int sectionNo = 0;
+    for (const auto &section : sectionVector)
+    {
+        std::string specificSectionFile = coreName + "_section" + std::to_string(section.getTargetAngle()) + "_" + std::string(Section::ASCENDING == section.getSectionType() ? "asc" : "desc") + ".oscillation";
+
+        std::string graphDecoration = ("using 4:3 pt " + std::to_string(sectionNo) + " lc " + std::to_string(sectionNo));
+        sectionFilesGnuplotFile += ", \"" + specificSectionFile + "\" " + graphDecoration;
+
+        descriptionStream << "Сохранение данных сечения в файл: "
+                          << "\"" << specificSectionFile << "\""
+                          << std::endl;
+
+        {
+            std::ofstream fout(boost::filesystem::path(outputDataPath / specificSectionFile).string());
+
+            fout << section << "\n";
+        }
+
+        sectionNo++;
+    }
+
     descriptionStream << "Построить график a''(a'):\n"
                       << "plot \"" << specificWtOscFile << "\" using 4:3 with linespoints"
                       << (sectionFilesGnuplotFile.empty()

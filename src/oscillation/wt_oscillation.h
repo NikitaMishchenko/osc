@@ -27,11 +27,7 @@ public:
                                                       m_flow(wt_flow::Flow()),
                                                       m_model(Model())
     {
-        calcAngleAmplitudeIndexes();
-        calculateW();
-        calcMzNondimensionalization();
-        calcIzNondimentional();
-        calcWzNondimentional();
+        initialCalculation();
     };
 
     WtOscillation(const Oscillation &oscillation,
@@ -41,14 +37,21 @@ public:
           m_flow(flow),
           m_model(model)
     {
-        calcAngleAmplitudeIndexes();
-        calculateW();
-        calcMzNondimensionalization();
-        calcIzNondimentional();
-        calcWzNondimentional();
+        initialCalculation();
     };
 
     virtual ~WtOscillation(){};
+
+    void initFromData(const Oscillation &oscillation,
+                      const wt_flow::Flow &flow,
+                      const Model &model)
+    {
+        *this = oscillation;
+        m_flow = flow;
+        m_model = model;
+
+        initialCalculation();
+    }
 
     double getMzNondimensionalization() const { return m_mzNondimensionalization; }
     double getIzNondimensional() const { return m_izNondimentional; }
@@ -78,6 +81,15 @@ public:
     virtual void info() const override;
 
 private:
+    void initialCalculation()
+    {
+        calcAngleAmplitudeIndexes();
+        calculateW();
+        calcMzNondimensionalization();
+        calcIzNondimentional();
+        calcWzNondimentional();
+    }
+
     void calculateW();
     void calcMzNondimensionalization()
     {
