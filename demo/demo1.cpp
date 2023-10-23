@@ -28,10 +28,10 @@
  *
  */
 
-class DescriptionWriter
+class DescriptionStream : public std::stringstream
 {
 public:
-    DescriptionWriter(boost::filesystem::path path, std::string fileName = "") : m_descriptionName(fileName)
+    DescriptionStream(boost::filesystem::path path, std::string fileName = "") : m_descriptionName(fileName)
     {
         if (!m_descriptionName.empty())
             m_descriptionName += ".description";
@@ -41,18 +41,17 @@ public:
         m_descriptionFile = path / m_descriptionName;
     }
 
-    ~DescriptionWriter()
+    virtual ~DescriptionStream()
     {
         std::ofstream fout(m_descriptionFile.string());
 
-        fout << m_descriptionStream.str();
+        fout << this->str();
     }
 
 private:
     std::string m_descriptionName;
     boost::filesystem::path m_descriptionFile;
 
-    std::stringstream m_descriptionStream;
     std::ofstream fout;
 };
 
@@ -68,16 +67,17 @@ struct DataToProc
     boost::filesystem::path m_basePath;
 };
 
-void doJob(const DataToProc &dataToProc) // const std::string &coreName, const std::string &modelName)
+void doJob(const DataToProc &dataToProc)
 {
     const std::string coreName = std::to_string(dataToProc.dataIndex);
     const std::string modelName = dataToProc.modelName;
-    boost::filesystem::path basePath = dataToProc.m_basePath; // "/home/mishnic/data/data_proc/sphere_cone_M1.75/";
+    boost::filesystem::path basePath = dataToProc.m_basePath;
+
+    DescriptionStream descriptionStream(dataToProc.m_basePath/coreName, coreName);
 
     ///
     //***********************************************************************************************
     ///
-    std::stringstream descriptionStream;
 
     descriptionStream << "Определяем корневое имя файла: "
                       << "\"" << coreName << "\""
@@ -179,22 +179,6 @@ void doJob(const DataToProc &dataToProc) // const std::string &coreName, const s
         fout << amplitude;
         // for (auto sAmp : sortedAmplitude)
         //     fout << sAmp.m_amplitudeTime << "\t" << sAmp.m_amplitudeAngle << "\n";
-    }
-
-    ///
-    //***********************************************************************************************
-    ///
-
-    {
-        std::string descriptionFileName = coreName + ".description";
-
-        std::cout << "Сохранение информации по обработке данных в файл: "
-                  << "\"" << outputDataPath.string() + "/" + descriptionFileName << "\""
-                  << std::endl;
-
-        std::ofstream fout(outputDataPath.string() + "/" + descriptionFileName);
-
-        fout << descriptionStream.str() << "\n";
     }
 
     // /home/mishnic/data/phd/data_proc/pic_ddangle_respect_to_angle_of_attack
