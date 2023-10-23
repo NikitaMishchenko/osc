@@ -122,13 +122,11 @@ public:
     }
 
 protected:
+    boost::filesystem::path m_wtOscillationFile;
 private:
     std::string m_coreName;
     std::string m_wtOscillationName;
     std::string m_amplitudeName;
 
-    boost::filesystem::path m_wtOscillationFile;
-
     boost::filesystem::path m_outputPath;
-    //std::stringstream& m_descriptionStream;
 };

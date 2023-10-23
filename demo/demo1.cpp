@@ -56,9 +56,23 @@ private:
     std::ofstream fout;
 };
 
-void doJob(const std::string &coreName, const std::string &modelName)
+struct DataToProc
 {
-    boost::filesystem::path basePath = "/home/mishnic/data/data_proc/sphere_cone_M1.75/";
+    DataToProc(int dI, const std::string &mN, const boost::filesystem::path &basePath)
+        : dataIndex(dI), modelName(mN), m_basePath(basePath)
+    {
+    }
+
+    int dataIndex;
+    std::string modelName;
+    boost::filesystem::path m_basePath;
+};
+
+void doJob(const DataToProc &dataToProc) // const std::string &coreName, const std::string &modelName)
+{
+    const std::string coreName = std::to_string(dataToProc.dataIndex);
+    const std::string modelName = dataToProc.modelName;
+    boost::filesystem::path basePath = dataToProc.m_basePath; // "/home/mishnic/data/data_proc/sphere_cone_M1.75/";
 
     ///
     //***********************************************************************************************
@@ -184,21 +198,7 @@ void doJob(const std::string &coreName, const std::string &modelName)
     }
 
     // /home/mishnic/data/phd/data_proc/pic_ddangle_respect_to_angle_of_attack
-
-    ///
-    //***********************************************************************************************
-    ///
 }
-
-struct DataToProc
-{
-    DataToProc(int dI, std::string mN) : dataIndex(dI), modelName(mN)
-    {
-    }
-
-    int dataIndex;
-    std::string modelName;
-};
 
 void rewriteData(const DataToProc &d)
 {
@@ -220,19 +220,20 @@ void rewriteData(const DataToProc &d)
 
 int main(int argc, char **argv)
 {
+    boost::filesystem::path basePath = "/home/mishnic/data/data_proc/sphere_cone_M1.75/";
+
     std::vector<DataToProc> dataToProc =
         {
-            DataToProc(4463, "shpereCone1.model"),
-            DataToProc(4470, "shpereCone1.model"),
-            DataToProc(4474, "shpereCone1.model"),
-            DataToProc(4465, "shpereCone2.model"),
-            DataToProc(4468, "shpereCone2.model"),
-            DataToProc(4471, "shpereCone2.model"),
-            DataToProc(4472, "shpereCone2.model")};
+            DataToProc(4463, "shpereCone1.model", basePath),
+            DataToProc(4470, "shpereCone1.model", basePath),
+            DataToProc(4474, "shpereCone1.model", basePath),
+            DataToProc(4465, "shpereCone2.model", basePath),
+            DataToProc(4468, "shpereCone2.model", basePath),
+            DataToProc(4471, "shpereCone2.model", basePath),
+            DataToProc(4472, "shpereCone2.model", basePath)};
 
-    std::string buff;
     for (auto d : dataToProc)
     {
-        doJob(std::to_string(d.dataIndex), d.modelName);
+        doJob(d);
     }
 }
