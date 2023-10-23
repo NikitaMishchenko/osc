@@ -49,7 +49,7 @@ public:
     {
 
         m_descriptionStream << "Определяем имя файла истории колебаний: "
-                            << "\"" << m_angleHistoryFile << "\""
+                            << m_angleHistoryFile
                             << std::endl;
 
         AngleHistory angleHistory;
@@ -63,7 +63,7 @@ public:
         Oscillation oscillation(angleHistory);
 
         m_descriptionStream << "Загрузка параметров модели из файла: "
-                            << "\"" << m_modelFile.string() << "\""
+                            << m_modelFile
                             << std::endl;
 
         Model model;

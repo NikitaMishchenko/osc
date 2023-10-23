@@ -93,14 +93,10 @@ void doJob(const std::string &coreName, const std::string &modelName)
     WtOscillation wtOscillation(oscillation, flow, model);
 {
     ///
-    bool isOk = false;
     std::vector<Section> sectionVector;
     const int sectionAngleStep = 5;
-    //double maxAngle, minAngle;
     Sections sections(oscillation, sectionAngleStep);
     sections.calculate();
-    //std::tie(isOk, minAngle, maxAngle, sectionVector) = sections.getData();
-    ///
 
     ProcessorOutput processorOutput(basePath, coreName);
 
@@ -110,60 +106,6 @@ void doJob(const std::string &coreName, const std::string &modelName)
     std::tie(dataWrittenOk, descriptionWriteData) = processorOutput.write(wtOscillation, sections);
     descriptionStream << descriptionWriteData;
 }
-    std::string specificWtOscFile = coreName + ".wt_oscillation";
-
-    ///
-    //***********************************************************************************************
-    ///
-    /*bool isOk = false;
-    std::vector<Section> sectionVector;
-    const int sectionAngleStep = 5;
-    double maxAngle, minAngle;
-
-    Sections sections(oscillation, sectionAngleStep);
-    sections.calculate();
-    std::tie(isOk, minAngle, maxAngle, sectionVector) = sections.getData();
-
-    descriptionStream << "Максимальный достигаемый угол: " << maxAngle
-                      << std::endl
-                      << "Минимально достигаемый угол: " << minAngle
-                      << std::endl;
-
-    descriptionStream << "Построем сечения по углам с шагом " << sectionAngleStep
-                      << std::endl;
-
-    std::string sectionFilesGnuplotFile;
-    int sectionNo = 0;
-    for (const auto &section : sectionVector)
-    {
-        std::string specificSectionFile = coreName + "_section" + std::to_string(section.getTargetAngle()) + "_" + std::string(Section::ASCENDING == section.getSectionType() ? "asc" : "desc") + ".oscillation";
-
-        std::string graphDecoration = ("using 4:3 pt " + std::to_string(sectionNo) + " lc " + std::to_string(sectionNo));
-        sectionFilesGnuplotFile += ", \"" + specificSectionFile + "\" " + graphDecoration;
-
-        descriptionStream << "Сохранение данных сечения в файл: "
-                          << "\"" << specificSectionFile << "\""
-                          << std::endl;
-
-        {
-            std::ofstream fout(boost::filesystem::path(outputDataPath / specificSectionFile).string());
-
-            fout << section << "\n";
-        }
-
-        sectionNo++;
-    }
-
-    descriptionStream << "Построить график a''(a'):\n"
-                      << "plot \"" << specificWtOscFile << "\" using 4:3 with linespoints"
-                      << (sectionFilesGnuplotFile.empty()
-                              ? ""
-                              : sectionFilesGnuplotFile)
-                      << std::endl;
-
-    descriptionStream << "Построить график mz(a):\n"
-                      << "plot \"" << specificWtOscFile << "\" using 2:($4*" << wtOscillation.getMzNondimensionalization() << ") with lines"
-                      << std::endl;*/
 
     ///
     //***********************************************************************************************

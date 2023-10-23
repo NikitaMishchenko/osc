@@ -20,12 +20,14 @@ public:
                                                    m_outputPath(outputPath)
     {
         // working in folder of specific core data
+        m_descriptionStream << "Начинаем записывать данные. Исходный путь: " << m_outputPath << std::endl;
         m_outputPath /= coreName;
+        m_descriptionStream << "Рабочая дирректория для записи данных: " << m_outputPath << std::endl;
 
         m_wtOscillationName = coreName + ".wt_oscillation";
         m_amplitudeName = coreName + "_amplitude.angle_history";
 
-        m_wtOscillationFile = outputPath / m_wtOscillationName;
+        m_wtOscillationFile = m_outputPath / m_wtOscillationName;
     }
 
     std::tuple<bool, std::string> write(const WtOscillation &wtOscillation,
@@ -33,10 +35,10 @@ public:
     {
 
         m_descriptionStream << "Сохранение данных колебаний в файл: "
-                            << "\"" << m_wtOscillationFile << "\""
+                            << m_wtOscillationFile
                             << std::endl;
 
-        {
+        {   
             std::ofstream fout(m_wtOscillationFile.string());
 
             fout << wtOscillation << "\n";
@@ -72,38 +74,40 @@ public:
         m_descriptionStream << "Построем сечения по углам с шагом " << sectionAngleStep
                             << std::endl;
 
-        std::string sectionFilesGnuplotFile;
-        int sectionNo = 0;
-        for (const auto &section : sectionVector)
         {
-            std::string specificSectionFile = m_coreName + "_section" + std::to_string(section.getTargetAngle()) + "_" + std::string(Section::ASCENDING == section.getSectionType() ? "asc" : "desc") + ".oscillation";
-
-            std::string graphDecoration = ("using 4:3 pt " + std::to_string(sectionNo) + " lc " + std::to_string(sectionNo));
-            sectionFilesGnuplotFile += ", \"" + specificSectionFile + "\" " + graphDecoration;
-
-            m_descriptionStream << "Сохранение данных сечения в файл: "
-                              << "\"" << specificSectionFile << "\""
-                              << std::endl;
-
+            std::string sectionFilesGnuplotFile;
+            int sectionNo = 0;
+            for (const auto &section : sectionVector)
             {
-                std::ofstream fout(boost::filesystem::path(m_outputPath / specificSectionFile).string());
+                std::string specificSectionFile = m_coreName + "_section" + std::to_string(section.getTargetAngle()) + "_" + std::string(Section::ASCENDING == section.getSectionType() ? "asc" : "desc") + ".oscillation";
 
-                fout << section << "\n";
+                std::string graphDecoration = ("using 4:3 pt " + std::to_string(sectionNo) + " lc " + std::to_string(sectionNo));
+                sectionFilesGnuplotFile += ", \"" + specificSectionFile + "\" " + graphDecoration;
+
+                m_descriptionStream << "Сохранение данных сечения в файл: "
+                                    << "\"" << specificSectionFile << "\""
+                                    << std::endl;
+
+                {
+                    std::ofstream fout(boost::filesystem::path(m_outputPath / specificSectionFile).string());
+
+                    fout << section << "\n";
+                }
+
+                sectionNo++;
             }
 
-            sectionNo++;
+            m_descriptionStream << "Построить график a''(a'):\n"
+                                << "plot " << m_wtOscillationFile << " using 4:3 with linespoints"
+                                << (sectionFilesGnuplotFile.empty()
+                                        ? ""
+                                        : sectionFilesGnuplotFile)
+                                << std::endl;
+
+            m_descriptionStream << "Построить график mz(a):\n"
+                                << "plot \"" << m_wtOscillationFile << "\" using 2:($4*" << wtOscillation.getMzNondimensionalization() << ") with lines"
+                                << std::endl;
         }
-
-        m_descriptionStream << "Построить график a''(a'):\n"
-                          << "plot \"" << m_wtOscillationFile << "\" using 4:3 with linespoints"
-                          << (sectionFilesGnuplotFile.empty()
-                                  ? ""
-                                  : sectionFilesGnuplotFile)
-                          << std::endl;
-
-        m_descriptionStream << "Построить график mz(a):\n"
-                          << "plot \"" << m_wtOscillationFile << "\" using 2:($4*" << wtOscillation.getMzNondimensionalization() << ") with lines"
-                          << std::endl;
 
         return std::make_tuple(true, m_descriptionStream.str());
     }
