@@ -12,11 +12,15 @@
 #include "flow/wt_flow.h"
 #include "analize_coefficients/specific/section/section.h"
 
-class ProcessorOutput
+#include "processor_io.h"
+
+class ProcessorOutput : public ProcessorIo
 {
 public:
-    ProcessorOutput(const boost::filesystem::path &outputPath,
-                    const std::string &coreName) : m_coreName(coreName),
+    ProcessorOutput(std::stringstream& descriptionStream,
+                    const boost::filesystem::path &outputPath,
+                    const std::string &coreName) : ProcessorIo(descriptionStream),
+                                                   m_coreName(coreName),
                                                    m_outputPath(outputPath)
     {
         // working in folder of specific core data
@@ -30,7 +34,12 @@ public:
         m_wtOscillationFile = m_outputPath / m_wtOscillationName;
     }
 
-    std::tuple<bool, std::string> write(const WtOscillation &wtOscillation,
+    virtual ~ProcessorOutput()
+    {
+        m_descriptionStream << "Запись данных закончена!" << std::endl;
+    }
+
+    bool write(const WtOscillation &wtOscillation,
                                         const Sections &sections)
     {
 
@@ -109,7 +118,7 @@ public:
                                 << std::endl;
         }
 
-        return std::make_tuple(true, m_descriptionStream.str());
+        return true;
     }
 
 protected:
@@ -121,5 +130,5 @@ private:
     boost::filesystem::path m_wtOscillationFile;
 
     boost::filesystem::path m_outputPath;
-    mutable std::stringstream m_descriptionStream;
+    //std::stringstream& m_descriptionStream;
 };

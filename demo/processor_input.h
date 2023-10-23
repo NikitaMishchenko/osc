@@ -11,13 +11,17 @@
 #include "model/tr_rod_model_params.h"
 #include "flow/wt_flow.h"
 
-class ProcessorInput
+#include "processor_io.h"
+
+class ProcessorInput : public ProcessorIo
 {
 public:
-    ProcessorInput(const boost::filesystem::path &inputPath,
+    ProcessorInput(std::stringstream& descriptionStream,
+                   const boost::filesystem::path &inputPath,
                    const std::string &coreName,
                    const std::string &modelName)
-        : m_coreName(coreName),
+        : ProcessorIo(descriptionStream),
+          m_coreName(coreName),
           m_modelName(modelName), 
           m_inputPath(inputPath)
     {
@@ -37,14 +41,14 @@ public:
         // m_descriptionFile = m_inputPath / m_descriptionName;
     }
 
-    ~ProcessorInput()
+    virtual ~ProcessorInput()
     {
-        std::ofstream fout(m_descriptionFile.string());
+        //std::ofstream fout(m_descriptionFile.string());
 
-        fout << m_descriptionStream.str() << "\n";
+        m_descriptionStream << "Загрузка данных закончена!" << std::endl;
     }
 
-    std::tuple<bool, std::string, Oscillation, wt_flow::Flow, Model>
+    std::tuple<bool, Oscillation, wt_flow::Flow, Model>
     loadInputData() const
     {
 
@@ -92,7 +96,7 @@ public:
         m_descriptionStream << "Параметры потока:\n"
                             << flow.getInfoString() << std::endl;
 
-        return std::make_tuple(true, m_descriptionStream.str(), oscillation, flow, model); // todo std::move
+        return std::make_tuple(true, oscillation, flow, model); // todo std::move
     }
 
     boost::filesystem::path getInputPath() const
@@ -117,7 +121,4 @@ private:
 
 
     boost::filesystem::path m_inputPath;
-
-    // std::string m_descriptionName;
-    mutable std::stringstream m_descriptionStream;
 };

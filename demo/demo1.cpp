@@ -69,47 +69,42 @@ void doJob(const std::string &coreName, const std::string &modelName)
                       << "\"" << coreName << "\""
                       << std::endl;
 
-    ProcessorInput processorInput(basePath, coreName, modelName);
-
-    bool dataLoadedOk = false;
-    std::string descriptionLoadData;
     Oscillation oscillation;
     wt_flow::Flow flow;
     Model model;
-
-    std::tie(dataLoadedOk, descriptionLoadData, oscillation, flow, model) = processorInput.loadInputData();
     {
+        ProcessorInput processorInput(descriptionStream, basePath, coreName, modelName);
+
+        bool dataLoadedOk = false;
+
+        std::tie(dataLoadedOk, oscillation, flow, model) = processorInput.loadInputData();
+
         if (!dataLoadedOk)
         {
             std::cerr << "failed to load input data!";
             throw;
         }
-
-        descriptionStream << descriptionLoadData << std::endl;
     }
 
-    boost::filesystem::path outputDataPath = basePath.string() + coreName;
-
     WtOscillation wtOscillation(oscillation, flow, model);
-{
-    ///
-    std::vector<Section> sectionVector;
-    const int sectionAngleStep = 5;
-    Sections sections(oscillation, sectionAngleStep);
-    sections.calculate();
+    {
+        ///
+        std::vector<Section> sectionVector;
+        const int sectionAngleStep = 5;
+        Sections sections(oscillation, sectionAngleStep);
+        sections.calculate();
 
-    ProcessorOutput processorOutput(basePath, coreName);
+        ProcessorOutput processorOutput(descriptionStream, basePath, coreName);
 
-    bool dataWrittenOk = false;
-    std::string descriptionWriteData;
+        bool dataWrittenOk = false;
 
-    std::tie(dataWrittenOk, descriptionWriteData) = processorOutput.write(wtOscillation, sections);
-    descriptionStream << descriptionWriteData;
-}
+        dataWrittenOk = processorOutput.write(wtOscillation, sections);
+    }
 
     ///
     //***********************************************************************************************
     ///
+    boost::filesystem::path outputDataPath = basePath.string() + coreName;
 
     std::string specificAmplitudeFile = coreName + ".amplitude";
 
