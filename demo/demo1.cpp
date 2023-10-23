@@ -105,6 +105,7 @@ void doJob(const DataToProc &dataToProc)
         ///
         std::vector<Section> sectionVector;
         const int sectionAngleStep = 5;
+        descriptionStream << "Рассчет методом сечений для угла " << sectionAngleStep << " градусов\n";
         Sections sections(oscillation, sectionAngleStep);
         sections.calculate();
 
