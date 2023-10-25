@@ -65,7 +65,6 @@ public:
     Model getModel() const;
     wt_flow::Flow getFlow() const { return m_flow; }
     double getW() const { return m_w; };
-    std::vector<Mz> getMz() { return m_mz; }
 
     // IO
     // todo refactor: move to private
@@ -116,8 +115,6 @@ private:
         m_wzNondimentional = m_w * m_model.getL() / m_flow.getVelocity();
     }
 
-    std::vector<Mz> m_mz;
-    // std::vector<size_t> m_AngleAmplitudeIndexes;
     amplitude::AngleAmplitudeVector m_angleAmplitudeVector;
 
     double m_w; // frequency of oscillation main mode

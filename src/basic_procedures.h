@@ -174,7 +174,6 @@ namespace basic_procedures
 
         WtOscillation wtTest(oscillation, flow, model);
 
-        wtTest.getMz(); // fixme now it returns mz
         // wtTest.saveMzData(fileName + "_mz");
         // todo check
 

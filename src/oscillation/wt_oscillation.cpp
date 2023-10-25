@@ -135,7 +135,6 @@ Model WtOscillation::getModel() const
 void WtOscillation::info() const
 {
     std::cout << "WtOscillation oject\n"
-              << "\tm_mz size: " << m_mz.size() << "\n"
               << "\tm_angleAmplitudeVector size: " << m_angleAmplitudeVector.size() << "\n"
               << "\tm_w = " << m_w << "\n";
 
