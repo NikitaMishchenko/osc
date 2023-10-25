@@ -8,12 +8,12 @@
 namespace amplitude
 {
 
-    class AngleAmplitudeAnalyser : public AngleAmplitude
+    class AngleAmplitudeAnalyser : public AngleAmplitudeVector
     {
     public:
 
-        AngleAmplitudeAnalyser(const AngleAmplitude& angleAmplitude)
-            : AngleAmplitude(angleAmplitude),
+        AngleAmplitudeAnalyser(const AngleAmplitudeVector& angleAmplitude)
+            : AngleAmplitudeVector(angleAmplitude),
             m_sortedAmplitude(m_angleAmplitudeBase)
         {
         }

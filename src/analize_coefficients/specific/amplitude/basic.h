@@ -53,16 +53,15 @@ namespace amplitude
     /**
      * Get amplitude of oscilating signal
      **/
-    class AngleAmplitude
+    class AngleAmplitudeVector
     {
     public:
-
-        AngleAmplitude(const std::shared_ptr<std::vector<double>> time,
-                       const std::shared_ptr<std::vector<double>> angle,
-                       const std::shared_ptr<std::vector<double>> dangle,
-                       int mode = ABS_AMPLITUDE) : m_time(time),
-                                                   m_angle(angle),
-                                                   m_dangle(dangle)
+        AngleAmplitudeVector(const std::shared_ptr<std::vector<double>> time,
+                             const std::shared_ptr<std::vector<double>> angle,
+                             const std::shared_ptr<std::vector<double>> dangle,
+                             int mode = ABS_AMPLITUDE) : m_time(time),
+                                                         m_angle(angle),
+                                                         m_dangle(dangle)
         {
             if (time->size() != angle->size() || angle->size() != dangle->size())
             {
@@ -81,9 +80,9 @@ namespace amplitude
                 return false;
 
             std::vector<double> tmpDangle = *m_dangle;
-            //tmpDangle = actLinnearGaussFilter(50, 1, tmpDangle);
+            // tmpDangle = actLinnearGaussFilter(50, 1, tmpDangle);
 
-            std::ofstream fout("/home/mishnic/data/phd/sphere_cone_M1.75/ah_am");
+            // std::ofstream fout("/home/mishnic/data/phd/sphere_cone_M1.75/ah_am");
 
             for (size_t i = 1; i < tmpDangle.size(); i++)
             {
@@ -93,15 +92,14 @@ namespace amplitude
                 if (tmpDangle.at(i - 1) >= 0 && tmpDangle.at(i) < 0)
                     m_AngleAmplitudeIndexes.emplace_back(i);
 
-                fout << m_time->at(i) << " " << m_angle->at(i) << " " << m_dangle->at(i) << "\n";
+                // fout << m_time->at(i) << " " << m_angle->at(i) << " " << m_dangle->at(i) << "\n";
             }
-
 
             m_angleAmplitudeBase.reserve(m_AngleAmplitudeIndexes.size());
 
-            for (const auto& index : m_AngleAmplitudeIndexes)
+            for (const auto &index : m_AngleAmplitudeIndexes)
             {
-                //int amplitudeIndex = m_AngleAmplitudeIndexes.at(index);
+                // int amplitudeIndex = m_AngleAmplitudeIndexes.at(index);
                 m_angleAmplitudeBase.emplace_back(
                     AngleAmplitudeBase(m_time->at(index),
                                        (ABS_AMPLITUDE == mode) ? std::abs(m_angle->at(index)) : m_angle->at(index),
@@ -129,9 +127,7 @@ namespace amplitude
         void sortViaTime()
         {
             std::sort(m_angleAmplitudeBase.begin(), m_angleAmplitudeBase.end(), [](AngleAmplitudeBase a, AngleAmplitudeBase b)
-                      {
-                          return a.m_amplitudeTime < b.m_amplitudeTime;
-                      });
+                      { return a.m_amplitudeTime < b.m_amplitudeTime; });
         }
 
         AngleAmplitudeBase getMaxAmplitude()
@@ -140,7 +136,7 @@ namespace amplitude
 
             if (it != m_angleAmplitudeBase.end())
                 return *it;
-        
+
             return AngleAmplitudeBase();
         }
 
@@ -150,10 +146,9 @@ namespace amplitude
 
             if (it != m_angleAmplitudeBase.end())
                 return *it;
-        
+
             return AngleAmplitudeBase();
         }
-
 
     private:
         size_t getActualMax(const size_t index, const size_t lookGap = 1) const
@@ -191,13 +186,13 @@ namespace amplitude
                      << m_angleAmplitudeBase.at(i).m_amplitudeIndexesFromInitialAngle << "\n";
         }
 
-        friend std::ostream &operator<<(std::ostream &out, const AngleAmplitude &input)
+        friend std::ostream &operator<<(std::ostream &out, const AngleAmplitudeVector &input)
         {
-            for (const auto& ampl : input.m_angleAmplitudeBase)
+            for (const auto &ampl : input.m_angleAmplitudeBase)
                 out << ampl.m_amplitudeTime << " "
                     << ampl.m_amplitudeAngle << " "
                     << ampl.m_amplitudeIndexesFromInitialAngle << "\n";
-            
+
             return out;
         }
 

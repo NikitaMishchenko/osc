@@ -73,7 +73,7 @@ void doJob(const DataToProc &dataToProc)
     const std::string modelName = dataToProc.modelName;
     boost::filesystem::path basePath = dataToProc.m_basePath;
 
-    DescriptionStream descriptionStream(dataToProc.m_basePath/coreName, coreName);
+    DescriptionStream descriptionStream(dataToProc.m_basePath / coreName, coreName);
 
     ///
     //***********************************************************************************************
@@ -126,9 +126,9 @@ void doJob(const DataToProc &dataToProc)
     descriptionStream << "Сохранение данных амплитуды в файл: "
                       << "\"" << specificAmplitudeFile << "\""
                       << std::endl;
-    amplitude::AngleAmplitude amplitude(std::make_shared<std::vector<double>>(wtOscillation.getTime()),
-                                        std::make_shared<std::vector<double>>(wtOscillation.getAngle()),
-                                        std::make_shared<std::vector<double>>(wtOscillation.getDangle()));
+    amplitude::AngleAmplitudeVector amplitude(std::make_shared<std::vector<double>>(wtOscillation.getTime()),
+                                              std::make_shared<std::vector<double>>(wtOscillation.getAngle()),
+                                              std::make_shared<std::vector<double>>(wtOscillation.getDangle()));
 
     // AngleHistory amplitude(wtOscillation.getTimeAmplitude(), wtOscillation.getAngleAmplitude());
 

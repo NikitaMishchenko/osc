@@ -460,7 +460,7 @@ private:
     std::vector<PitchMomentumBasic> m_pitchDynamicMomentum;
     std::vector<PitchMomentumBasic> m_pitchMomentumBasicVector;
 
-    amplitude::AngleAmplitude m_angleAmplitude;
+    amplitude::AngleAmplitudeVector m_angleAmplitude;
 
     std::stringstream m_proceduresHistory;
     std::stringstream m_plotApprox;
