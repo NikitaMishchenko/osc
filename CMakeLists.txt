@@ -166,6 +166,22 @@ target_link_libraries(demo1
                       fftw3
 )
 
+add_executable(demo2 
+               demo/demo2.cpp)
+
+target_link_libraries(demo2
+                      basic  
+                      flow
+                      wtOscillationlib
+                      #gnuplot_wrapper "-L/home/mishnic/src/gnuplot_wrapper/build/libgnuplot_wrapper.so"
+                      libboost_program_options.a
+                      -lboost_filesystem
+                      -lboost_system
+                      GSL::gsl
+                      GSL::gslcblas
+                      fftw3
+)
+
 #TESTS
 
 
