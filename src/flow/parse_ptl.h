@@ -6,5 +6,5 @@
 
 namespace wt_flow
 {
-    bool parsePTLfile(const std::string& fileName, Flow& flowData, const int maxTestCountsScinceAnglePolling = 999);
+    bool parsePTLfile(const std::string& fileName, Flow& flowData, const int maxTestCountsScinceAnglePolling = 999, const int skipCounts = 0);
 }

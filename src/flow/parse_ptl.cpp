@@ -91,7 +91,7 @@ namespace wt_flow
     /**
      *   Parse .ptl file (T-313 wt protocol)
      */
-    bool parsePTLfile(const std::string &fileName, Flow &flowData, const int maxTestCountsScinceAnglePolling)
+    bool parsePTLfile(const std::string &fileName, Flow &flowData, const int maxTestCountsScinceAnglePolling, const int skipCounts)
     {
         std::cout << "parsePTLfile:: started\n";
         std::ifstream fin(fileName);
@@ -211,18 +211,23 @@ namespace wt_flow
             if (buff_t1 > timeAnglePolling.front() &&
                 buff_t1 < timeAnglePolling.back())
             {
-                /// CAUTION!!!
-                q.push_back(buff_q * GRAVITATIONAL_ACCELERATION);
-                Re.push_back(buff_Re);
-                t.push_back(buff_t1);
+                if (testCounts >= skipCounts)
+                {
 
-                fout << t.back() << "\t"
-                     << q.back() << "\t"
-                     << Re.back() << "\t"
-                     << M_r.at(testCounts) << "\t"
-                     << Tx.at(testCounts) << "\n";
+                    /// CAUTION!!!
+                    q.push_back(buff_q * GRAVITATIONAL_ACCELERATION);
+                    Re.push_back(buff_Re);
+                    t.push_back(buff_t1);
+
+                    fout << t.back() << "\t"
+                         << q.back() << "\t"
+                         << Re.back() << "\t"
+                         << M_r.at(testCounts) << "\t"
+                         << Tx.at(testCounts) << "\n";
+                }
 
                 testCounts++;
+
                 if (testCounts > maxTestCountsScinceAnglePolling)
                 {
                     break;
@@ -235,11 +240,11 @@ namespace wt_flow
         fout.close();
 
         /// fit result flow
-        flowData.setDynamicPressure(std::accumulate(q.begin(), q.begin() + testCounts, 0.0) / testCounts);
-        flowData.setReynolds(std::accumulate(Re.begin(), Re.begin() + testCounts, 0.0) / testCounts);
+        flowData.setDynamicPressure(std::accumulate(q.begin(), q.end(), 0.0) / q.size());
+        flowData.setReynolds(std::accumulate(Re.begin(), Re.end(), 0.0) / Re.size());
 
-        flowData.setT0(std::accumulate(Tx.begin(), Tx.begin() + testCounts, 0.0) / testCounts);
-        flowData.setMach(std::accumulate(M_r.begin(), M_r.begin() + testCounts, 0.0) / testCounts);
+        flowData.setT0(std::accumulate(Tx.begin(), Tx.end(), 0.0) / Tx.size());
+        flowData.setMach(std::accumulate(M_r.begin(), M_r.end(), 0.0) / M_r.size());
 
         // todo reduce????
         // flowData.setDynamicPressure(std::reduce(q.begin(), q.begin()+testCounts) / testCounts);
