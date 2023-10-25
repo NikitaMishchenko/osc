@@ -19,9 +19,9 @@ std::vector<double> WtOscillation::getTimeAmplitude() const
 {
     std::vector<double> result;
 
-    result.reserve(m_AngleAmplitudeIndexes.size());
+    result.reserve(m_angleAmplitudeVector.size());
 
-    for (size_t index = 0; index < m_AngleAmplitudeIndexes.size(); ++index)
+    for (size_t index = 0; index < m_angleAmplitudeVector.size(); ++index)
         result.emplace_back(getTimeAmplitude(index));
 
     return result;
@@ -31,9 +31,9 @@ std::vector<double> WtOscillation::getAngleAmplitude() const
 {
     std::vector<double> result;
 
-    result.reserve(m_AngleAmplitudeIndexes.size());
+    result.reserve(m_angleAmplitudeVector.size());
 
-    for (size_t index = 0; index < m_AngleAmplitudeIndexes.size(); ++index)
+    for (size_t index = 0; index < m_angleAmplitudeVector.size(); ++index)
         result.emplace_back(getAngleAmplitude(index));
 
     return result;
@@ -41,12 +41,12 @@ std::vector<double> WtOscillation::getAngleAmplitude() const
 
 double WtOscillation::getTimeAmplitude(const size_t index) const
 {
-    return m_domain.at(m_AngleAmplitudeIndexes.at(index));
+    return m_domain.at(m_angleAmplitudeVector.at(index));
 }
 
 double WtOscillation::getAngleAmplitude(const size_t index) const
 {
-    return m_codomain.at(m_AngleAmplitudeIndexes.at(index));
+    return m_codomain.at(m_angleAmplitudeVector.at(index));
 }
 
 Model WtOscillation::getModel() const
@@ -55,54 +55,6 @@ Model WtOscillation::getModel() const
 }
 
 // IO
-bool WtOscillation::saveMzData(const std::string &fileName) const
-{
-    if (m_mz.empty())
-    {
-        return false;
-    }
-
-    std::ofstream fout(fileName);
-
-    this->info();
-
-    if (!fout.is_open())
-    {
-        std::cerr << "saveMzData failed to create file " << fileName << "\n";
-        return false;
-    }
-
-    for (size_t i = 0; i < m_mz.size(); i++)
-    {
-        fout << m_mz.at(i).time << "\t" << m_mz.at(i).mz << "\n";
-        // std::cout << getTime(i) << "\t" << m_mz.at(i).mz << "\n";
-    }
-
-    fout.close();
-
-    return true;
-}
-
-bool WtOscillation::saveMzAmplitudeData(const std::string &fileName)
-{
-    std::ofstream fout(fileName);
-
-    this->info();
-
-    if (!fout.is_open())
-    {
-        std::cerr << "saveMzAmplitudeData failed to create file " << fileName << "\n";
-        return false;
-    }
-
-    for (auto index : m_AngleAmplitudeIndexes)
-    {
-        fout << getTime(index) << "\t" << m_mz.at(index).mz << "\n";
-    }
-    fout.close();
-
-    return true;
-}
 
 // todo refactor: move to private
 // first -time, second mz
@@ -132,10 +84,8 @@ bool WtOscillation::saveMzAmplitudeData(const std::string &fileName)
     return true;
 }*/
 
-bool WtOscillation::calcAngleAmplitudeIndexes()
+/*bool WtOscillation::calcAngleAmplitudeIndexes()
 {
-    std::cout << "getMzAmplitudeIndexes entry()\n";
-
     if (AngleHistory::empty())
     {
         std::cerr << "WARNING AngleHistory is empty aborting\n";
@@ -143,18 +93,6 @@ bool WtOscillation::calcAngleAmplitudeIndexes()
     }
 
     std::vector<double> tmpDangle = getDangle();
-
-    /*std::ofstream fout1("ddangle_row");
-
-    helpers::saveToFile(fout1, tmpDangle);
-
-    fout1.close(); 
-
-    std::ofstream fout2("ddangle_filt");
-
-    helpers::saveToFile(fout2, tmpDangle);
-
-    fout2.close();*/
 
     tmpDangle = actLinnearGaussFilter(50,
                                       1,
@@ -191,28 +129,14 @@ bool WtOscillation::calcAngleAmplitudeIndexes()
         return false;
 
     return true;
-}
-
-void WtOscillation::calculateW()
-{
-    if (m_AngleAmplitudeIndexes.empty())
-        calcAngleAmplitudeIndexes();
-
-    const size_t timeIndex1 = m_AngleAmplitudeIndexes.at(m_AngleAmplitudeIndexes.size()/2);
-    const size_t timeIndex2 = m_AngleAmplitudeIndexes.at(m_AngleAmplitudeIndexes.size()/2 + 1);
-
-    // 0.5 cos ampl indexies for top and bottom envelop
-    m_w = 0.5 / (m_domain.at(timeIndex2) - m_domain.at(timeIndex1));
-
-    std::cout << "w = " << m_w << "\n";
-}
+}*/
 
 // othre
 void WtOscillation::info() const
 {
     std::cout << "WtOscillation oject\n"
               << "\tm_mz size: " << m_mz.size() << "\n"
-              << "\tm_AngleAmplitudeIndexes size: " << m_AngleAmplitudeIndexes.size() << "\n"
+              << "\tm_angleAmplitudeVector size: " << m_angleAmplitudeVector.size() << "\n"
               << "\tm_w = " << m_w << "\n";
 
     Oscillation::info();

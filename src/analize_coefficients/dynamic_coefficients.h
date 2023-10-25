@@ -122,7 +122,7 @@ namespace dynamic_coefficients
 
         void prepareAmplitude(bool isWtOsc = false)
         {
-            m_wtOscillation.calcAngleAmplitudeIndexes();
+            // m_wtOscillation.calcAngleAmplitudeIndexes();
             calcAmplitudeData();
 
             if (false) // (isWtOsc)

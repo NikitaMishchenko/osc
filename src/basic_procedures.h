@@ -175,11 +175,11 @@ namespace basic_procedures
         WtOscillation wtTest(oscillation, flow, model);
 
         wtTest.getMz(); // fixme now it returns mz
-        wtTest.saveMzData(fileName + "_mz");
+        // wtTest.saveMzData(fileName + "_mz");
         // todo check
 
-        wtTest.calcAngleAmplitudeIndexes();
-        wtTest.saveMzAmplitudeData(fileName + "_mz_amplitude");
+        // wtTest.calcAngleAmplitudeIndexes();
+        // wtTest.saveMzAmplitudeData(fileName + "_mz_amplitude");
 
         return SUCCESS;
     };
@@ -430,7 +430,7 @@ namespace basic_procedures
             // wtTest.saveMzData(fileNameMz);
             //  todo check
 
-            wtTest->calcAngleAmplitudeIndexes();
+            // wtTest->calcAngleAmplitudeIndexes();
             // wtTest.getMz();
             // wtTest.saveMzAmplitudeData(fileName + "_mz_amplitude");
 
@@ -485,7 +485,7 @@ namespace basic_procedures
                 fout1 << pickedDynamic1.at(i) << "\t" << pickedDynamic2.at(i) << "\n";
             }
 
-            wtTest->saveMzData("mzdata");
+            // wtTest->saveMzData("mzdata");
 
             std::vector<double> amplitude1;
             std::vector<double> amplitude2;

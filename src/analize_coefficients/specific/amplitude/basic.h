@@ -56,6 +56,9 @@ namespace amplitude
     class AngleAmplitudeVector
     {
     public:
+        AngleAmplitudeVector()
+        {}
+
         AngleAmplitudeVector(const std::shared_ptr<std::vector<double>> time,
                              const std::shared_ptr<std::vector<double>> angle,
                              const std::shared_ptr<std::vector<double>> dangle,
@@ -63,19 +66,31 @@ namespace amplitude
                                                          m_angle(angle),
                                                          m_dangle(dangle)
         {
-            if (time->size() != angle->size() || angle->size() != dangle->size())
-            {
-                std::string msg = "AngleAmplitude: size of time, angle, dangle not equal!";
-                msg += time->size();
-                msg += angle->size();
-                throw(std::runtime_error(msg));
-            }
-
             doWork(mode);
+        }
+
+        bool initialize(const std::shared_ptr<std::vector<double>> time,
+                        const std::shared_ptr<std::vector<double>> angle,
+                        const std::shared_ptr<std::vector<double>> dangle,
+                        int mode = ABS_AMPLITUDE)
+        {
+            m_time = time;
+            m_angle = angle;
+            m_dangle = dangle;
+
+            return doWork(mode);
         }
 
         bool doWork(const int mode)
         {
+            if (m_time->size() != m_angle->size() || m_angle->size() != m_dangle->size())
+            {
+                std::string msg = "AngleAmplitude: size of time, angle, dangle not equal!";
+                msg += m_time->size();
+                msg += m_angle->size();
+                throw(std::runtime_error(msg));
+            }
+            
             if (m_angle->size() < 1)
                 return false;
 
@@ -149,6 +164,9 @@ namespace amplitude
 
             return AngleAmplitudeBase();
         }
+
+        size_t size() const {return m_AngleAmplitudeIndexes.size();}
+        double at(size_t index) const {return m_AngleAmplitudeIndexes.at(index);}
 
     private:
         size_t getActualMax(const size_t index, const size_t lookGap = 1) const

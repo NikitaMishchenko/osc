@@ -11,6 +11,7 @@
 #include "flow/wt_flow.h"
 #include "gnusl_wrapper/filters/gauissian.h"
 #include "core/vector_helpers.h"
+#include "analize_coefficients/specific/amplitude/basic.h"
 
 struct Mz
 {
@@ -67,15 +68,9 @@ public:
     std::vector<Mz> getMz() { return m_mz; }
 
     // IO
-    bool saveMzData(const std::string &fileName) const;
-
-    bool saveMzAmplitudeData(const std::string &fileName);
-
     // todo refactor: move to private
     // first -time, second mz
-    bool getMzAmplitudeIndexes();
 
-    bool calcAngleAmplitudeIndexes();
 
     // othre
     virtual void info() const override;
@@ -83,14 +78,26 @@ public:
 private:
     void initialCalculation()
     {
-        calcAngleAmplitudeIndexes();
+        m_angleAmplitudeVector.initialize(std::make_shared<std::vector<double>>(this->getTime()),
+                                          std::make_shared<std::vector<double>>(this->getAngle()),
+                                          std::make_shared<std::vector<double>>(this->getDangle()));
         calculateW();
         calcMzNondimensionalization();
         calcIzNondimentional();
         calcWzNondimentional();
     }
 
-    void calculateW();
+    void calculateW()
+    {
+        const size_t timeIndex1 = m_angleAmplitudeVector.at(m_angleAmplitudeVector.size()/2);
+        const size_t timeIndex2 = m_angleAmplitudeVector.at(m_angleAmplitudeVector.size()/2 + 1);
+
+        // 0.5 cos ampl indexies for top and bottom envelop
+        m_w = 0.5 / (m_domain.at(timeIndex2) - m_domain.at(timeIndex1));
+
+        std::cout << "w = " << m_w << "\n";
+    }
+
     void calcMzNondimensionalization()
     {
         m_mzNondimensionalization = m_model.getI() / m_flow.getDynamicPressure() / m_model.getS() / m_model.getL();
@@ -110,8 +117,8 @@ private:
     }
 
     std::vector<Mz> m_mz;
-    // std::vector<size_t> m_mzAmplitudeIndexes;
-    std::vector<size_t> m_AngleAmplitudeIndexes;
+    // std::vector<size_t> m_AngleAmplitudeIndexes;
+    amplitude::AngleAmplitudeVector m_angleAmplitudeVector;
 
     double m_w; // frequency of oscillation main mode
 

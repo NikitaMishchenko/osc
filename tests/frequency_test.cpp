@@ -32,7 +32,7 @@ TEST(Test, Freq)
 
     WtOscillation wt(angleHistory);
 
-    wt.calcAngleAmplitudeIndexes();
+    // wt.calcAngleAmplitudeIndexes();
 
     double wCalculated = wt.getW();
 
