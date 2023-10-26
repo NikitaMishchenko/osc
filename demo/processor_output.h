@@ -17,7 +17,7 @@
 class ProcessorOutput : public ProcessorIo
 {
 public:
-    ProcessorOutput(std::stringstream& descriptionStream,
+    ProcessorOutput(std::stringstream &descriptionStream,
                     const boost::filesystem::path &outputPath,
                     const std::string &coreName) : ProcessorIo(descriptionStream),
                                                    m_coreName(coreName),
@@ -40,14 +40,22 @@ public:
     }
 
     bool write(const WtOscillation &wtOscillation,
-                                        const Sections &sections)
+               const Sections &sections)
     {
+        reportWtOscillation(wtOscillation);
+        reportSections(wtOscillation, sections);
 
+        return true;
+    }
+
+protected:
+    void reportWtOscillation(const WtOscillation &wtOscillation) const
+    {
         m_descriptionStream << "Сохранение данных колебаний в файл: "
                             << m_wtOscillationFile
                             << std::endl;
 
-        {   
+        {
             std::ofstream fout(m_wtOscillationFile.string());
 
             fout << wtOscillation << "\n";
@@ -69,6 +77,14 @@ public:
                             << wtOscillation.getWzNondimentional()
                             << std::endl;
 
+        m_descriptionStream << "Построить график mz(a):\n"
+                            << "plot \"" << m_wtOscillationFile << "\" using 2:($4*" << wtOscillation.getMzNondimensionalization() << ") with lines"
+                            << std::endl;
+    }
+
+    void reportSections(const WtOscillation &wtOscillation,
+                        const Sections &sections) const
+    {
         bool isOk = false;
         std::vector<Section> sectionVector;
         const int sectionAngleStep = 5;
@@ -112,17 +128,11 @@ public:
                                         ? ""
                                         : sectionFilesGnuplotFile)
                                 << std::endl;
-
-            m_descriptionStream << "Построить график mz(a):\n"
-                                << "plot \"" << m_wtOscillationFile << "\" using 2:($4*" << wtOscillation.getMzNondimensionalization() << ") with lines"
-                                << std::endl;
         }
-
-        return true;
     }
 
-protected:
     boost::filesystem::path m_wtOscillationFile;
+
 private:
     std::string m_coreName;
     std::string m_wtOscillationName;
