@@ -78,7 +78,12 @@ namespace amplitude
             m_angle = angle;
             m_dangle = dangle;
 
-            return doWork(mode);
+            bool isOk = doWork(mode);
+
+            if (!isOk)
+                return isOk;
+                
+            return isOk;
         }
 
         bool doWork(const int mode)
@@ -145,7 +150,7 @@ namespace amplitude
                       { return a.m_amplitudeTime < b.m_amplitudeTime; });
         }
 
-        AngleAmplitudeBase getMaxAmplitude()
+        AngleAmplitudeBase getMaxAmplitude() const
         {
             auto it = std::max_element(m_angleAmplitudeBase.begin(), m_angleAmplitudeBase.end());
 
@@ -155,7 +160,7 @@ namespace amplitude
             return AngleAmplitudeBase();
         }
 
-        AngleAmplitudeBase getMinAmplitude()
+        AngleAmplitudeBase getMinAmplitude() const
         {
             auto it = std::min_element(m_angleAmplitudeBase.begin(), m_angleAmplitudeBase.end());
 
@@ -169,7 +174,7 @@ namespace amplitude
         double at(size_t index) const {return m_AngleAmplitudeIndexes.at(index);}
 
     private:
-        size_t getActualMax(const size_t index, const size_t lookGap = 1) const
+        size_t getActualMax (const size_t index, const size_t lookGap = 1) const
         {
             if (index > lookGap)
             {
@@ -194,7 +199,7 @@ namespace amplitude
             return index;
         }
 
-        void saveData(const std::string &fileName)
+        void saveData(const std::string &fileName) const
         {
             std::ofstream fout(fileName);
 
