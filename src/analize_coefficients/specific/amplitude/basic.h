@@ -142,6 +142,10 @@ namespace amplitude
                     m_AngleAmplitudeIndexes.emplace_back(i);
             }
 
+            // get area arround amplitude index
+            const int areaSize = 3;
+            // approximate via ax^2+b*x+c -> x_extrenum = -b/(2a) y_extrenum= a(x_extrenum)^2+b(x_extrenum)+c
+
             m_angleAmplitudeBase.reserve(m_AngleAmplitudeIndexes.size());
 
             for (const auto &index : m_AngleAmplitudeIndexes)
@@ -165,7 +169,7 @@ namespace amplitude
                  amplitudeData++)
             {
                 // m_freqFromPeriod m_frequency
-                amplitudeData->m_frequency = 1.0 / ((amplitudeData + 2)->m_amplitudeTime - amplitudeData->m_amplitudeTime);
+                // amplitudeData->m_frequency = 1.0 / ((amplitudeData + 2)->m_amplitudeTime - amplitudeData->m_amplitudeTime);
             }
 
             return true;

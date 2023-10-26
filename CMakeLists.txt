@@ -127,6 +127,7 @@ add_executable(runTests
                tests/main.cpp 
                tests/integrated_test.cpp 
                tests/approximation_test.cpp
+               tests/approximation_qadratic_test.cpp
                tests/frequency_test.cpp
                tests/oscillation_basics_test.cpp
                tests/fftw_wrap_test.cpp
