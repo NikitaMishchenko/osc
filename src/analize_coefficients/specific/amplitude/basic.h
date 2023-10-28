@@ -6,6 +6,7 @@
 #include <algorithm>
 
 #include "gnusl_wrapper/filters/gauissian.h"
+#include "gnusl_wrapper/approximation/quadratic_approximation.h"
 
 namespace amplitude
 {
@@ -15,6 +16,46 @@ namespace amplitude
         ABS_AMPLITUDE
         // todo other mode
     };
+
+    // errCode, extrenumTime, extenumAngle
+    inline std::tuple<int, double, double>
+    getExtrenumViaQadricApproximationAtIndex(std::shared_ptr<std::vector<double>> x,
+                                             std::shared_ptr<std::vector<double>> y,
+                                             const int index,
+                                             int areaSize)
+    {
+        int errCode;
+        std::vector<double> coefficients; // c, b, a
+
+        int indexFrom = index - areaSize / 2;
+        int indexTo = index + areaSize / 2;
+
+        while (indexFrom < 0)
+        {
+            indexFrom++;
+        }
+
+        while (indexTo > x->size())
+        {
+            indexTo--;
+        }
+
+        std::tie(errCode, coefficients) =
+            approximation::approxiamteQadratic(std::vector<double>(x->begin() + indexFrom, x->begin() + indexTo),
+                                               std::vector<double>(y->begin() + indexFrom, y->begin() + indexTo));
+
+        const double a = coefficients.at(2);
+        const double b = coefficients.at(1);
+        const double c = coefficients.at(0);
+
+        const double xExtrenum = -b / 2.0 / a;
+        const double yExtrenum = a * xExtrenum * xExtrenum + b * xExtrenum + c;
+
+        const double xCorrection = std::abs(x->at(index) - xExtrenum);
+        const double yCorrection = std::abs(y->at(index) - yExtrenum);
+
+        return std::make_tuple(errCode, xExtrenum, yExtrenum);
+    }
 
     struct AngleAmplitudeBase // todo rename AngleAmplitudeEssential
     {
@@ -55,6 +96,7 @@ namespace amplitude
             return m_amplitudeAngle > r.m_amplitudeAngle;
         }
 
+        // time, angle, dangle, frequency, amplitude index
         friend std::ostream &operator<<(std::ostream &out, const AngleAmplitudeBase &input)
         {
             out << input.m_amplitudeTime << " "
@@ -88,9 +130,7 @@ namespace amplitude
         AngleAmplitudeVector(const std::shared_ptr<std::vector<double>> time,
                              const std::shared_ptr<std::vector<double>> angle,
                              const std::shared_ptr<std::vector<double>> dangle,
-                             int mode = ABS_AMPLITUDE)// : m_time(time),
-                                                         //m_angle(angle),
-                                                         //m_dangle(dangle)
+                             int mode = ABS_AMPLITUDE)
         {
             initialize(time, angle, dangle);
         }
@@ -131,7 +171,7 @@ namespace amplitude
                 return false;
 
             std::vector<double> tmpDangle = *m_dangle;
-            //tmpDangle = actLinnearGaussFilter(50, 1, tmpDangle);
+            // tmpDangle = actLinnearGaussFilter(50, 1, tmpDangle);
 
             for (size_t i = 1; i < tmpDangle.size(); i++)
             {
@@ -143,19 +183,30 @@ namespace amplitude
             }
 
             // get area arround amplitude index
-            const int areaSize = 3;
+            const int areaSize = 4;
             // approximate via ax^2+b*x+c -> x_extrenum = -b/(2a) y_extrenum= a(x_extrenum)^2+b(x_extrenum)+c
 
             m_angleAmplitudeBase.reserve(m_AngleAmplitudeIndexes.size());
 
             for (const auto &index : m_AngleAmplitudeIndexes)
             {
+
+                double calculatedTimeExtrenum;
+                double calculatedAngleExtrenum;
+                int errCode;
+
+                std::tie(errCode, calculatedTimeExtrenum, calculatedAngleExtrenum) =
+                    getExtrenumViaQadricApproximationAtIndex(m_time,
+                                                             m_angle,
+                                                             index,
+                                                             areaSize);
+
                 // int amplitudeIndex = m_AngleAmplitudeIndexes.at(index);
                 m_angleAmplitudeBase.emplace_back(
-                    AngleAmplitudeBase(m_time->at(index),
-                                       (ABS_AMPLITUDE == mode) ? std::abs(m_angle->at(index)) : m_angle->at(index),
+                    AngleAmplitudeBase(calculatedTimeExtrenum,
+                                       (ABS_AMPLITUDE == mode) ? std::abs(calculatedAngleExtrenum) : calculatedAngleExtrenum,
                                        m_dangle->at(index),
-                                       0,
+                                       0, // will be calculated latter calculateFrequency()
                                        index));
             }
 
@@ -169,7 +220,7 @@ namespace amplitude
                  amplitudeData++)
             {
                 // m_freqFromPeriod m_frequency
-                // amplitudeData->m_frequency = 1.0 / ((amplitudeData + 2)->m_amplitudeTime - amplitudeData->m_amplitudeTime);
+                amplitudeData->m_frequency = 1.0 / ((amplitudeData + 2)->m_amplitudeTime - amplitudeData->m_amplitudeTime);
             }
 
             return true;
@@ -254,4 +305,5 @@ namespace amplitude
         std::shared_ptr<std::vector<double>> m_dangle;
         std::vector<int> m_AngleAmplitudeIndexes;
     };
+
 } // namespace amplitude

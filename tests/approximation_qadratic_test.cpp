@@ -21,7 +21,7 @@ TEST(TestApproximationQuadratic, Approximation1)
     int errCode;
     std::vector<double> coefficients;
 
-    std::tie(errCode, coefficients) = approxiamteQadratic(x, y);
+    std::tie(errCode, coefficients) = approximation::approxiamteQadratic(x, y);
 
     std::cout << "finished\n";
 

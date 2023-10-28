@@ -22,7 +22,6 @@ namespace amplitude
 
         void getMostFrequentAmplitudeValue(const int gapCount = 1)
         {
-
             /*
                 get amplitude
                 sort via value y
