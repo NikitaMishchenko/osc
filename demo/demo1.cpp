@@ -4,6 +4,8 @@
 
 #include <boost/filesystem/path.hpp>
 #include <boost/filesystem.hpp>
+#include <boost/property_tree/ptree.hpp>
+#include <boost/property_tree/json_parser.hpp>
 
 #include "oscillation/wt_oscillation.h"
 #include "model/tr_rod_model_params.h"
@@ -27,6 +29,71 @@
  *   .discription - описание проделанных процедур
  *
  */
+
+struct DataToProc
+{
+    DataToProc(const std::string &coreName,
+               const std::string &modelName,
+               const boost::filesystem::path &basePath)
+        : m_coreName(coreName),
+          m_modelName(modelName),
+          m_basePath(basePath)
+    {
+    }
+
+    std::string toString() const
+    {
+        std::stringstream ss;
+        ss << "DataToProc:\n"
+           << "coreName = " << m_coreName << "\n"
+           << "modelName = " << m_modelName << "\n"
+           << "basePath = " << m_basePath << "\n";
+
+        return ss.str();
+    }
+
+    std::string m_coreName;
+    std::string m_modelName;
+    boost::filesystem::path m_basePath;
+};
+
+class ConfigProcessor
+{
+public:
+    ConfigProcessor()
+    {
+    }
+
+    void load(const std::string &pathToConfig = "")
+    {
+        const std::string filename = pathToConfig + "config";
+        boost::property_tree::ptree tree;
+        boost::property_tree::read_json(filename, tree);
+
+        m_root = tree.get<std::string>("description.pathToData");
+
+        std::cout << "Root of data to proceed: " << m_root << "\n";
+
+        std::vector<std::string> fruits;
+        for (const auto& data : tree.get_child("description.dataToProceed"))
+        {
+            m_dataToProc.push_back(DataToProc(data.second.get<std::string>("coreName"),
+                                              data.second.get<std::string>("modelName"),
+                                              m_root));
+        }
+    }
+
+    ~ConfigProcessor() {}
+
+    std::vector<DataToProc> getDataToProc() const
+    {
+        return m_dataToProc;
+    }
+
+private:
+    boost::filesystem::path m_root;
+    std::vector<DataToProc> m_dataToProc;
+};
 
 class DescriptionStream : public std::stringstream
 {
@@ -55,22 +122,10 @@ private:
     std::ofstream fout;
 };
 
-struct DataToProc
-{
-    DataToProc(int dI, const std::string &mN, const boost::filesystem::path &basePath)
-        : dataIndex(dI), modelName(mN), m_basePath(basePath)
-    {
-    }
-
-    int dataIndex;
-    std::string modelName;
-    boost::filesystem::path m_basePath;
-};
-
 void doJob(const DataToProc &dataToProc)
 {
-    const std::string coreName = std::to_string(dataToProc.dataIndex);
-    const std::string modelName = dataToProc.modelName;
+    const std::string coreName = dataToProc.m_coreName;
+    const std::string modelName = dataToProc.m_modelName;
     boost::filesystem::path basePath = dataToProc.m_basePath;
 
     DescriptionStream descriptionStream(dataToProc.m_basePath / coreName, coreName);
@@ -187,9 +242,9 @@ void doJob(const DataToProc &dataToProc)
 
 void rewriteData(const DataToProc &d)
 {
-    std::ifstream fin("/home/mishnic/data/phd/data_proc/4461..4474/data_to_filter/" + std::to_string(d.dataIndex));
+    std::ifstream fin("/home/mishnic/data/phd/data_proc/4461..4474/data_to_filter/" + d.m_coreName);
 
-    std::ofstream fout("/home/mishnic/data/phd/sphere_cone_M1.75/" + std::to_string(d.dataIndex) + "/" + std::to_string(d.dataIndex) + ".angle_history");
+    std::ofstream fout("/home/mishnic/data/phd/sphere_cone_M1.75/" + d.m_coreName + "/" + d.m_coreName + ".angle_history");
 
     std::string buff;
 
@@ -205,20 +260,15 @@ void rewriteData(const DataToProc &d)
 
 int main(int argc, char **argv)
 {
-    boost::filesystem::path basePath = "/home/mishnic/data/data_proc/sphere_cone_M1.75/";
+    ConfigProcessor configProcessor;
 
-    std::vector<DataToProc> dataToProc =
-        {
-            DataToProc(4463, "shpereCone1.model", basePath),
-            DataToProc(4470, "shpereCone1.model", basePath),
-            DataToProc(4474, "shpereCone1.model", basePath),
-            DataToProc(4465, "shpereCone2.model", basePath),
-            DataToProc(4468, "shpereCone2.model", basePath),
-            DataToProc(4471, "shpereCone2.model", basePath),
-            DataToProc(4472, "shpereCone2.model", basePath)};
+    configProcessor.load("/home/mishnic/data/data_proc/sphere_cone_M1.75/");
 
-    for (auto d : dataToProc)
+    std::vector<DataToProc> dataToProc = configProcessor.getDataToProc();
+
+    for (const auto& d : dataToProc)
     {
+        std::cout << d.toString() << "\n";
         doJob(d);
     }
 }
