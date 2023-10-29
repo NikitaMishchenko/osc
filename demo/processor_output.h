@@ -66,7 +66,7 @@ protected:
             fout << wtOscillation << "\n";
         }
 
-        m_descriptionStream << "Частота колебаний w[Гц] = "
+        m_descriptionStream << "Средняя частота колебаний w[Гц] = "
                             << wtOscillation.getW()
                             << std::endl;
 
@@ -125,6 +125,8 @@ protected:
 
             fout << amplitudeVector;
         }
+
+        // ANALYSIS OF AMPLITUDE
 
         // todo make formal precise creteria
         const bool isAmplitudeDecreasing = maxAmplitude.m_amplitudeTime < minAmplitude.m_amplitudeTime;
