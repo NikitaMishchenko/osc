@@ -131,7 +131,8 @@ add_executable(runTests
                tests/frequency_test.cpp
                tests/oscillation_basics_test.cpp
                tests/fftw_wrap_test.cpp
-               tests/interpolation_test.cpp)
+               tests/interpolation_test.cpp
+               tests/numeric_derevative_test.cpp)
 
 target_link_libraries(runTests
                      ${GTEST_LIBRARIES}

@@ -34,8 +34,8 @@ namespace
 
     double derevativeOrd2N2(const std::vector<double> &func, const double &h, const size_t index)
     {
-        if (index > 0 && index < func.size() - 2)
-            return (func.at(index + 2) - 2.0 * func.at(index + 1) + func.at(index)) / h / h;
+        if (index > 1 && index < func.size() - 1)
+            return (func.at(index + 1) - 2.0 * func.at(index) + func.at(index-1)) / h / h;
 
         return 0;
     }
