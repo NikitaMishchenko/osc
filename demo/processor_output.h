@@ -3,6 +3,7 @@
 #include <iostream>
 #include <sstream>
 #include <fstream>
+#include <numeric>
 
 #include <boost/filesystem/path.hpp>
 #include <boost/filesystem.hpp>
@@ -91,19 +92,19 @@ protected:
         m_descriptionStream << "Сохранение данных амплитуд в файл: "
                             << m_angleHistroyAmplitudeFile
                             << std::endl;
-        
-        amplitude::AngleAmplitudeVector amplitude = wtOscillation.getAngleAmplitudeVector();
-        
+
+        amplitude::AngleAmplitudeVector amplitudeVector = wtOscillation.getAngleAmplitudeVector();
+
         {
             std::ofstream fout(m_angleHistroyAmplitudeFile.string());
 
-            fout << amplitude << "\n";
+            fout << amplitudeVector << "\n";
         }
 
         amplitude::AngleAmplitudeBase maxAmplitude;
-        maxAmplitude = amplitude.getMaxAmplitude();
+        maxAmplitude = amplitudeVector.getMaxAmplitude();
         amplitude::AngleAmplitudeBase minAmplitude;
-        minAmplitude = amplitude.getMinAmplitude();
+        minAmplitude = amplitudeVector.getMinAmplitude();
 
         m_descriptionStream << "Максимальная амплитуда колебаний: "
                             << maxAmplitude.m_amplitudeAngle
@@ -112,15 +113,59 @@ protected:
                             << minAmplitude.m_amplitudeAngle
                             << std::endl;
 
-        amplitude.sortViaTime();
+        amplitudeVector.sortViaTime();
 
         m_descriptionStream << "Сохранение данных абсолютной амплитуды в файл: "
                             << m_angleHistroyAbsAmplitudeFile
                             << std::endl;
         {
-            std::ofstream fout(m_angleHistroyAbsAmplitudeFile.string());            
+            std::ofstream fout(m_angleHistroyAbsAmplitudeFile.string());
 
-            fout << amplitude;
+            fout << amplitudeVector;
+        }
+
+        // todo make formal precise creteria
+        const bool isAmplitudeDecreasing = maxAmplitude.m_amplitudeTime < minAmplitude.m_amplitudeTime;
+        const double extrenumAmplitude = (isAmplitudeDecreasing ? minAmplitude.m_amplitudeAngle : maxAmplitude.m_amplitudeAngle);
+        m_descriptionStream << "Характер динамики амплитуды: "
+                            << (isAmplitudeDecreasing ? "падение " : "рост ")
+                            << "амплитуды до " << extrenumAmplitude
+                            << std::endl;
+
+        // todo most frequent amplitude
+
+        const double limitAmplitudeRatio = 0.1; // hardcode
+
+        m_descriptionStream << "Определение предельной амплитуды с допуском (avgAmpl[1-(ampl/extrnumAmpl) < ratio]): "
+                            << limitAmplitudeRatio
+                            << std::endl;
+
+        {
+            std::vector<double> angleAmplitudeToAvg;
+
+            for (const auto &amplitude : amplitudeVector.m_angleAmplitudeBase)
+            {
+                if (std::abs(1.0 - (std::abs(amplitude.m_amplitudeAngle / extrenumAmplitude))) < limitAmplitudeRatio)
+                {
+                    angleAmplitudeToAvg.push_back(amplitude.m_amplitudeAngle);
+                }
+            }
+
+            const double limitAmplitude = std::accumulate(angleAmplitudeToAvg.begin(),
+                                                        angleAmplitudeToAvg.end(),
+                                                        0.0) /
+                                        angleAmplitudeToAvg.size();
+
+            m_descriptionStream << "Предельная средняя амплитуда автоколебаний: "
+                                << limitAmplitude
+                                << std::endl;
+
+            m_descriptionStream << "Построить график амплитуды и предельной амплитуды:\n"
+                                << "plot " 
+                                << m_wtOscillationFile << " using 1:2 with lines, "
+                                << m_angleHistroyAbsAmplitudeFile << " using 1:2, "
+                                << limitAmplitude << " lw 3 lc rgb \"red\""
+                                << std::endl;
         }
     }
 

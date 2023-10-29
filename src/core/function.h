@@ -205,9 +205,9 @@ inline Function sortFunction(Function func)
 
     const int sizeAfterDuplicateRmoval = valuesVect.size();
 
-    if (initialSizeBeforeUnique != sizeAfterDuplicateRmoval)
-        std::cout << "SIZE befor and after sortAndUnique changed " 
-                  << initialSizeBeforeUnique << " " << sizeAfterDuplicateRmoval << "\n";    
+    //if (initialSizeBeforeUnique != sizeAfterDuplicateRmoval)
+    //    std::cout << "SIZE befor and after sortAndUnique changed " 
+    //              << initialSizeBeforeUnique << " " << sizeAfterDuplicateRmoval << "\n";    
 
     Function resultFnction;
 
