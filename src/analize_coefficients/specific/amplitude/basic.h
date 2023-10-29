@@ -118,6 +118,7 @@ namespace amplitude
     private:
     };
 
+    // bot and top angle amplitude of oscillation
     inline void calculateFrequency(std::vector<AngleAmplitudeBase>& amplitudeVector)
     {
         for (std::vector<AngleAmplitudeBase>::iterator amplitudeData = amplitudeVector.begin();

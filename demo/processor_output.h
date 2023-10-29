@@ -56,7 +56,7 @@ public:
 protected:
     void reportWtOscillation(const WtOscillation &wtOscillation) const
     {
-        m_descriptionStream << "Сохранение данных колебаний в файл: "
+        m_descriptionStream << "Сохранение данных колебаний в файл (время, первая, вторая, третья производые по времени): "
                             << m_wtOscillationFile
                             << std::endl;
 
@@ -91,7 +91,8 @@ protected:
     {
         m_descriptionStream << "#######################################################\n";
 
-        m_descriptionStream << "Сохранение данных амплитуд в файл: "
+        m_descriptionStream << "Сохранение данных амплитуд в файл"
+                               "(время, первая, вторая производые по времени, частота, индекс отсчета в исходных данных): "
                             << m_angleHistroyAmplitudeFile
                             << std::endl;
 
@@ -117,7 +118,8 @@ protected:
 
         amplitudeVector.sortViaTime();
 
-        m_descriptionStream << "Сохранение данных абсолютной амплитуды в файл: "
+        m_descriptionStream << "Сохранение данных абсолютной амплитуды в файл"
+                               "(время, первая, вторая производые по времени, частота, индекс отсчета в исходных данных): "
                             << m_angleHistroyAbsAmplitudeFile
                             << std::endl;
         {
@@ -194,7 +196,7 @@ protected:
     {
         bool isOk = false;
         std::vector<Section> sectionVector;
-        const int sectionAngleStep = 5;
+        const int sectionAngleStep = 5; // hardcode
         double maxAngle, minAngle;
         std::tie(isOk, minAngle, maxAngle, sectionVector) = sections.getData();
 
@@ -216,7 +218,7 @@ protected:
                 std::string graphDecoration = ("using 4:3 pt " + std::to_string(sectionNo) + " lc " + std::to_string(sectionNo));
                 sectionFilesGnuplotFile += ", \"" + specificSectionFile + "\" " + graphDecoration;
 
-                m_descriptionStream << "Сохранение данных сечения в файл: "
+                m_descriptionStream << "Сохранение данных сечения в файл (время, первая, вторая, третья производые по времени): "
                                     << "\"" << specificSectionFile << "\""
                                     << std::endl;
 
