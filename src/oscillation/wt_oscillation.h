@@ -127,24 +127,6 @@ private:
         std::cout << "w = " << m_w << "\n";
     }
 
-    /*void calcMzNondimensionalization()
-    {
-        m_mzNondimensionalization = m_model.getI() / m_flow.getDynamicPressure() / m_model.getS() / m_model.getL();
-    }
-
-    void calcIzNondimentional()
-    {
-        if (m_flow.getDensity() > 0)
-            m_izNondimentional = 2 * m_model.getI() / m_flow.getDensity() / m_model.getS() / pow(m_model.getL(), 3);
-        else
-            m_izNondimentional = 0;
-    }
-
-    void calcWzNondimentional()
-    {
-        m_wzNondimentional = m_w * m_model.getL() / m_flow.getVelocity();
-    }*/
-
     amplitude::AngleAmplitudeVector m_angleAmplitudeVector;
 
     double m_w; // frequency of oscillation main mode

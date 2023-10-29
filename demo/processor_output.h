@@ -170,17 +170,21 @@ protected:
                                 << angleAmplitudeAvg.m_amplitudeAngle
                                 << std::endl;
 
-            m_descriptionStream << "Предельная средняя частота автоколебаний: "
+            m_descriptionStream << "Средняя частота автоколебаний: "
                                 << angleAmplitudeAvg.m_frequency
                                 << std::endl;     
-            
-            std::cout << "avg frq = " <<  angleAmplitudeAvg.m_frequency << std::endl;
+
+            m_descriptionStream << "Безразмерная частота колебаний для участка автоколебаний [Гц]: "
+                                << calcWzNondimentional(angleAmplitudeAvg.m_frequency,
+                                                        wtOscillation.getFlow(),
+                                                        wtOscillation.getModel())
+                                << std::endl;
 
             m_descriptionStream << "Построить график амплитуды и предельной амплитуды:\n"
                                 << "plot "
                                 << m_wtOscillationFile << " using 1:2 with lines, "
                                 << m_angleHistroyAbsAmplitudeFile << " using 1:2, "
-                                << angleAmplitudeAvg << " lw 3 lc rgb \"red\""
+                                << angleAmplitudeAvg.m_amplitudeAngle << " lw 3 lc rgb \"red\""
                                 << std::endl;
         }
     }
