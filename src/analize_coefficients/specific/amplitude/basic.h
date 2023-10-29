@@ -4,6 +4,7 @@
 #include <vector>
 #include <fstream>
 #include <algorithm>
+#include <numeric>
 
 #include "gnusl_wrapper/filters/gauissian.h"
 #include "gnusl_wrapper/approximation/quadratic_approximation.h"
@@ -117,6 +118,17 @@ namespace amplitude
     private:
     };
 
+    inline void calculateFrequency(std::vector<AngleAmplitudeBase>& amplitudeVector)
+    {
+        for (std::vector<AngleAmplitudeBase>::iterator amplitudeData = amplitudeVector.begin();
+             amplitudeData != amplitudeVector.end() - 2;
+             amplitudeData++)
+        {
+            // m_freqFromPeriod m_frequency
+            amplitudeData->m_frequency = 1.0 / ((amplitudeData + 2)->m_amplitudeTime - amplitudeData->m_amplitudeTime);
+        }
+    }
+
     /**
      * Get amplitude of oscilating signal
      **/
@@ -149,7 +161,7 @@ namespace amplitude
             if (!isOk)
                 return isOk;
 
-            isOk = calculateFrequency();
+            calculateFrequency(m_angleAmplitudeBase);
 
             if (!isOk)
                 return isOk;
@@ -157,6 +169,36 @@ namespace amplitude
             return isOk;
         }
 
+        void sortViaTime()
+        {
+            std::sort(m_angleAmplitudeBase.begin(), m_angleAmplitudeBase.end(), [](AngleAmplitudeBase a, AngleAmplitudeBase b)
+                      { return a.m_amplitudeTime < b.m_amplitudeTime; });
+        }
+
+        AngleAmplitudeBase getMaxAmplitude() const
+        {
+            auto it = std::max_element(m_angleAmplitudeBase.begin(), m_angleAmplitudeBase.end());
+
+            if (it != m_angleAmplitudeBase.end())
+                return *it;
+
+            return AngleAmplitudeBase();
+        }
+
+        AngleAmplitudeBase getMinAmplitude() const
+        {
+            auto it = std::min_element(m_angleAmplitudeBase.begin(), m_angleAmplitudeBase.end());
+
+            if (it != m_angleAmplitudeBase.end())
+                return *it;
+
+            return AngleAmplitudeBase();
+        }
+
+        size_t size() const { return m_AngleAmplitudeIndexes.size(); }
+        double at(size_t index) const { return m_AngleAmplitudeIndexes.at(index); }
+
+    private:
         bool doWork(const int mode)
         {
             if (m_time->size() != m_angle->size() || m_angle->size() != m_dangle->size())
@@ -213,49 +255,6 @@ namespace amplitude
             return true;
         }
 
-        bool calculateFrequency()
-        {
-            for (std::vector<AngleAmplitudeBase>::iterator amplitudeData = m_angleAmplitudeBase.begin();
-                 amplitudeData != m_angleAmplitudeBase.end() - 2;
-                 amplitudeData++)
-            {
-                // m_freqFromPeriod m_frequency
-                amplitudeData->m_frequency = 1.0 / ((amplitudeData + 2)->m_amplitudeTime - amplitudeData->m_amplitudeTime);
-            }
-
-            return true;
-        }
-
-        void sortViaTime()
-        {
-            std::sort(m_angleAmplitudeBase.begin(), m_angleAmplitudeBase.end(), [](AngleAmplitudeBase a, AngleAmplitudeBase b)
-                      { return a.m_amplitudeTime < b.m_amplitudeTime; });
-        }
-
-        AngleAmplitudeBase getMaxAmplitude() const
-        {
-            auto it = std::max_element(m_angleAmplitudeBase.begin(), m_angleAmplitudeBase.end());
-
-            if (it != m_angleAmplitudeBase.end())
-                return *it;
-
-            return AngleAmplitudeBase();
-        }
-
-        AngleAmplitudeBase getMinAmplitude() const
-        {
-            auto it = std::min_element(m_angleAmplitudeBase.begin(), m_angleAmplitudeBase.end());
-
-            if (it != m_angleAmplitudeBase.end())
-                return *it;
-
-            return AngleAmplitudeBase();
-        }
-
-        size_t size() const { return m_AngleAmplitudeIndexes.size(); }
-        double at(size_t index) const { return m_AngleAmplitudeIndexes.at(index); }
-
-    private:
         size_t getActualMax(const size_t index, const size_t lookGap = 1) const
         {
             if (index > lookGap)
@@ -305,5 +304,37 @@ namespace amplitude
         std::shared_ptr<std::vector<double>> m_dangle;
         std::vector<int> m_AngleAmplitudeIndexes;
     };
+
+    inline AngleAmplitudeBase getAvg(std::vector<AngleAmplitudeBase> angleAmplitudeVector)
+    {
+        std::vector<double> time;
+        std::vector<double> angle;
+        std::vector<double> dangle;
+        std::vector<double> frequency;
+        std::vector<int> index;
+
+        time.reserve(angleAmplitudeVector.size());
+        angle.reserve(angleAmplitudeVector.size());
+        dangle.reserve(angleAmplitudeVector.size());
+        frequency.reserve(angleAmplitudeVector.size());
+        index.reserve(angleAmplitudeVector.size());
+
+        for (const auto &val : angleAmplitudeVector)
+        {
+            time.emplace_back(val.m_amplitudeTime);
+            angle.emplace_back(val.m_amplitudeAngle);
+            dangle.emplace_back(val.m_amplitudeDangle);
+            frequency.emplace_back(val.m_frequency);
+            index.emplace_back(val.m_amplitudeIndexesFromInitialAngle);
+        }
+
+        AngleAmplitudeBase angleAmplitude(std::accumulate(time.begin(), time.end(), 0.0) / angleAmplitudeVector.size(),
+                                          std::accumulate(angle.begin(), angle.end(), 0.0) / angleAmplitudeVector.size(),
+                                          std::accumulate(dangle.begin(), dangle.end(), 0.0) / angleAmplitudeVector.size(),
+                                          std::accumulate(frequency.begin(), frequency.end(), 0.0) / angleAmplitudeVector.size(),
+                                          std::accumulate(index.begin(), index.end(), 0) / angleAmplitudeVector.size());
+
+        return angleAmplitude;
+    }
 
 } // namespace amplitude

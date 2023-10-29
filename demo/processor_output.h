@@ -89,6 +89,8 @@ protected:
 
     void repoortAmplitude(const WtOscillation &wtOscillation) const
     {
+        m_descriptionStream << "#######################################################\n";
+
         m_descriptionStream << "Сохранение данных амплитуд в файл: "
                             << m_angleHistroyAmplitudeFile
                             << std::endl;
@@ -141,30 +143,41 @@ protected:
                             << std::endl;
 
         {
-            std::vector<double> angleAmplitudeToAvg;
+            std::vector<amplitude::AngleAmplitudeBase> angleAmplitudeToAvg;
+            angleAmplitudeToAvg.reserve(amplitudeVector.m_angleAmplitudeBase.size());
 
             for (const auto &amplitude : amplitudeVector.m_angleAmplitudeBase)
             {
                 if (std::abs(1.0 - (std::abs(amplitude.m_amplitudeAngle / extrenumAmplitude))) < limitAmplitudeRatio)
                 {
-                    angleAmplitudeToAvg.push_back(amplitude.m_amplitudeAngle);
+                    angleAmplitudeToAvg.push_back(amplitude);
                 }
             }
+            angleAmplitudeToAvg.shrink_to_fit();
 
-            const double limitAmplitude = std::accumulate(angleAmplitudeToAvg.begin(),
-                                                        angleAmplitudeToAvg.end(),
-                                                        0.0) /
-                                        angleAmplitudeToAvg.size();
+            m_descriptionStream << "Первое значение амплитуды удовлетворяющее критерию (время, угол): "
+                                << angleAmplitudeToAvg.front().m_amplitudeTime << ", "
+                                << angleAmplitudeToAvg.front().m_amplitudeAngle << "\n"
+                                << "Последнее значение амплитуды удовлетворяющее критерию (время, угол): "
+                                << angleAmplitudeToAvg.back().m_amplitudeTime << ", "
+                                << angleAmplitudeToAvg.back().m_amplitudeAngle << "\n";
+
+            amplitude::AngleAmplitudeBase angleAmplitudeAvg = amplitude::getAvg(angleAmplitudeToAvg);
 
             m_descriptionStream << "Предельная средняя амплитуда автоколебаний: "
-                                << limitAmplitude
+                                << angleAmplitudeAvg.m_amplitudeAngle
                                 << std::endl;
 
+            m_descriptionStream << "Предельная средняя частота автоколебаний: "
+                                << angleAmplitudeAvg.m_frequency
+                                << std::endl;
+                                
+
             m_descriptionStream << "Построить график амплитуды и предельной амплитуды:\n"
-                                << "plot " 
+                                << "plot "
                                 << m_wtOscillationFile << " using 1:2 with lines, "
                                 << m_angleHistroyAbsAmplitudeFile << " using 1:2, "
-                                << limitAmplitude << " lw 3 lc rgb \"red\""
+                                << angleAmplitudeAvg << " lw 3 lc rgb \"red\""
                                 << std::endl;
         }
     }
