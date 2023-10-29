@@ -30,8 +30,11 @@ public:
 
         m_wtOscillationName = coreName + ".wt_oscillation";
         m_amplitudeName = coreName + "_amplitude.angle_history";
+        m_absAmplitudeName = coreName + "_abs_amplitude.angle_history";
 
         m_wtOscillationFile = m_outputPath / m_wtOscillationName;
+        m_angleHistroyAmplitudeFile = m_outputPath / m_amplitudeName;
+        m_angleHistroyAbsAmplitudeFile = m_outputPath / m_absAmplitudeName;
     }
 
     virtual ~ProcessorOutput()
@@ -43,6 +46,7 @@ public:
                const Sections &sections)
     {
         reportWtOscillation(wtOscillation);
+        repoortAmplitude(wtOscillation);
         reportSections(wtOscillation, sections);
 
         return true;
@@ -78,8 +82,46 @@ protected:
                             << std::endl;
 
         m_descriptionStream << "Построить график mz(a):\n"
-                            << "plot \"" << m_wtOscillationFile << "\" using 2:($4*" << wtOscillation.getMzNondimensionalization() << ") with lines"
+                            << "plot " << m_wtOscillationFile << " using 2:($4*" << wtOscillation.getMzNondimensionalization() << ") with lines"
                             << std::endl;
+    }
+
+    void repoortAmplitude(const WtOscillation &wtOscillation) const
+    {
+        m_descriptionStream << "Сохранение данных амплитуд в файл: "
+                            << m_angleHistroyAmplitudeFile
+                            << std::endl;
+        
+        amplitude::AngleAmplitudeVector amplitude = wtOscillation.getAngleAmplitudeVector();
+        
+        {
+            std::ofstream fout(m_angleHistroyAmplitudeFile.string());
+
+            fout << amplitude << "\n";
+        }
+
+        amplitude::AngleAmplitudeBase maxAmplitude;
+        maxAmplitude = amplitude.getMaxAmplitude();
+        amplitude::AngleAmplitudeBase minAmplitude;
+        minAmplitude = amplitude.getMinAmplitude();
+
+        m_descriptionStream << "Максимальная амплитуда колебаний: "
+                            << maxAmplitude.m_amplitudeAngle
+                            << std::endl
+                            << "Минимальная амплитуда колебаний: "
+                            << minAmplitude.m_amplitudeAngle
+                            << std::endl;
+
+        amplitude.sortViaTime();
+
+        m_descriptionStream << "Сохранение данных абсолютной амплитуды в файл: "
+                            << m_angleHistroyAbsAmplitudeFile
+                            << std::endl;
+        {
+            std::ofstream fout(m_angleHistroyAbsAmplitudeFile.string());            
+
+            fout << amplitude;
+        }
     }
 
     void reportSections(const WtOscillation &wtOscillation,
@@ -132,11 +174,14 @@ protected:
     }
 
     boost::filesystem::path m_wtOscillationFile;
+    boost::filesystem::path m_angleHistroyAmplitudeFile;
+    boost::filesystem::path m_angleHistroyAbsAmplitudeFile;
 
 private:
     std::string m_coreName;
     std::string m_wtOscillationName;
     std::string m_amplitudeName;
+    std::string m_absAmplitudeName;
 
     boost::filesystem::path m_outputPath;
 };

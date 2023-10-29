@@ -66,6 +66,11 @@ public:
     wt_flow::Flow getFlow() const { return m_flow; }
     double getW() const { return m_w; };
 
+    amplitude::AngleAmplitudeVector getAngleAmplitudeVector() const
+    {
+        return m_angleAmplitudeVector;
+    }
+
     // IO
     // todo refactor: move to private
     // first -time, second mz
