@@ -47,7 +47,7 @@ public:
                const Sections &sections)
     {
         reportWtOscillation(wtOscillation);
-        repoortAmplitude(wtOscillation);
+        reportAmplitude(wtOscillation);
         reportSections(wtOscillation, sections);
 
         return true;
@@ -87,7 +87,7 @@ protected:
                             << std::endl;
     }
 
-    void repoortAmplitude(const WtOscillation &wtOscillation) const
+    void reportAmplitude(const WtOscillation &wtOscillation) const
     {
         m_descriptionStream << "#######################################################\n";
 
@@ -170,8 +170,9 @@ protected:
 
             m_descriptionStream << "Предельная средняя частота автоколебаний: "
                                 << angleAmplitudeAvg.m_frequency
-                                << std::endl;
-                                
+                                << std::endl;     
+            
+            std::cout << "avg frq = " <<  angleAmplitudeAvg.m_frequency << std::endl;
 
             m_descriptionStream << "Построить график амплитуды и предельной амплитуды:\n"
                                 << "plot "

@@ -76,8 +76,8 @@ namespace amplitude
         AngleAmplitudeBase(double time, double angle, double dangle, double frequency, int index)
             : m_amplitudeTime(time),
               m_amplitudeAngle(angle),
-              m_amplitudeDangle(0),
-              m_frequency(0),
+              m_amplitudeDangle(dangle),
+              m_frequency(frequency),
               m_amplitudeIndexesFromInitialAngle(index)
         {
         }
