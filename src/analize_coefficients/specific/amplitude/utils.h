@@ -14,7 +14,7 @@ namespace amplitude
 
         AngleAmplitudeAnalyser(const AngleAmplitudeVector& angleAmplitude)
             : AngleAmplitudeVector(angleAmplitude),
-            m_sortedAmplitude(m_angleAmplitudeBase)
+            m_sortedAmplitude(m_angleAmplitudeData)
         {
         }
 
@@ -37,8 +37,8 @@ namespace amplitude
                           return a.m_amplitudeAngle < b.m_amplitudeAngle;
                       });
 
-            const double maxValue = m_angleAmplitudeBase.back().m_amplitudeAngle;
-            const double minValue = m_angleAmplitudeBase.front().m_amplitudeAngle;
+            const double maxValue = m_angleAmplitudeData.back().m_amplitudeAngle;
+            const double minValue = m_angleAmplitudeData.front().m_amplitudeAngle;
 
             int valueGapCount = 1;
             int valueCounter = 0;

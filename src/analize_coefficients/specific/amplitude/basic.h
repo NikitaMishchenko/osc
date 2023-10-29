@@ -161,7 +161,7 @@ namespace amplitude
             if (!isOk)
                 return isOk;
 
-            calculateFrequency(m_angleAmplitudeBase);
+            calculateFrequency(m_angleAmplitudeData);
 
             if (!isOk)
                 return isOk;
@@ -171,15 +171,15 @@ namespace amplitude
 
         void sortViaTime()
         {
-            std::sort(m_angleAmplitudeBase.begin(), m_angleAmplitudeBase.end(), [](AngleAmplitudeBase a, AngleAmplitudeBase b)
+            std::sort(m_angleAmplitudeData.begin(), m_angleAmplitudeData.end(), [](AngleAmplitudeBase a, AngleAmplitudeBase b)
                       { return a.m_amplitudeTime < b.m_amplitudeTime; });
         }
 
         AngleAmplitudeBase getMaxAmplitude() const
         {
-            auto it = std::max_element(m_angleAmplitudeBase.begin(), m_angleAmplitudeBase.end());
+            auto it = std::max_element(m_angleAmplitudeData.begin(), m_angleAmplitudeData.end());
 
-            if (it != m_angleAmplitudeBase.end())
+            if (it != m_angleAmplitudeData.end())
                 return *it;
 
             return AngleAmplitudeBase();
@@ -187,9 +187,9 @@ namespace amplitude
 
         AngleAmplitudeBase getMinAmplitude() const
         {
-            auto it = std::min_element(m_angleAmplitudeBase.begin(), m_angleAmplitudeBase.end());
+            auto it = std::min_element(m_angleAmplitudeData.begin(), m_angleAmplitudeData.end());
 
-            if (it != m_angleAmplitudeBase.end())
+            if (it != m_angleAmplitudeData.end())
                 return *it;
 
             return AngleAmplitudeBase();
@@ -228,7 +228,7 @@ namespace amplitude
             const int areaSize = 4;
             // approximate via ax^2+b*x+c -> x_extrenum = -b/(2a) y_extrenum= a(x_extrenum)^2+b(x_extrenum)+c
 
-            m_angleAmplitudeBase.reserve(m_AngleAmplitudeIndexes.size());
+            m_angleAmplitudeData.reserve(m_AngleAmplitudeIndexes.size());
 
             for (const auto &index : m_AngleAmplitudeIndexes)
             {
@@ -244,7 +244,7 @@ namespace amplitude
                                                              areaSize);
 
                 // int amplitudeIndex = m_AngleAmplitudeIndexes.at(index);
-                m_angleAmplitudeBase.emplace_back(
+                m_angleAmplitudeData.emplace_back(
                     AngleAmplitudeBase(calculatedTimeExtrenum,
                                        (ABS_AMPLITUDE == mode) ? std::abs(calculatedAngleExtrenum) : calculatedAngleExtrenum,
                                        m_dangle->at(index),
@@ -289,14 +289,14 @@ namespace amplitude
 
         friend std::ostream &operator<<(std::ostream &out, const AngleAmplitudeVector &input)
         {
-            for (const auto &ampl : input.m_angleAmplitudeBase)
+            for (const auto &ampl : input.m_angleAmplitudeData)
                 out << ampl;
 
             return out;
         }
 
     public:
-        std::vector<AngleAmplitudeBase> m_angleAmplitudeBase;
+        std::vector<AngleAmplitudeBase> m_angleAmplitudeData;
 
     private:
         std::shared_ptr<std::vector<double>> m_time;

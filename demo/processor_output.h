@@ -144,9 +144,9 @@ protected:
 
         {
             std::vector<amplitude::AngleAmplitudeBase> angleAmplitudeToAvg;
-            angleAmplitudeToAvg.reserve(amplitudeVector.m_angleAmplitudeBase.size());
+            angleAmplitudeToAvg.reserve(amplitudeVector.m_angleAmplitudeData.size());
 
-            for (const auto &amplitude : amplitudeVector.m_angleAmplitudeBase)
+            for (const auto &amplitude : amplitudeVector.m_angleAmplitudeData)
             {
                 if (std::abs(1.0 - (std::abs(amplitude.m_amplitudeAngle / extrenumAmplitude))) < limitAmplitudeRatio)
                 {

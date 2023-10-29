@@ -88,7 +88,7 @@ public:
     std::tuple<std::vector<PitchMomentumBasic>, std::vector<PitchMomentumBasic>, std::vector<PitchMomentumBasic>, std::vector<amplitude::AngleAmplitudeBase>>
     getData() const
     {
-        return std::make_tuple(m_pitchStaticMomentum, m_pitchMomentumBasicVector, m_pitchDynamicMomentum, m_angleAmplitude.m_angleAmplitudeBase);
+        return std::make_tuple(m_pitchStaticMomentum, m_pitchMomentumBasicVector, m_pitchDynamicMomentum, m_angleAmplitude.m_angleAmplitudeData);
     }
 
     std::string getPlottScript() const
@@ -340,7 +340,7 @@ private:
         m_proceduresHistory << "calculateEqvivalentDampingCoefficients()\n";
         m_proceduresHistory << "approximate abs amplitude via model: Amplitude(time) = f(time) = A*exp(-lambda*time) + B\n";
 
-        std::vector<amplitude::AngleAmplitudeBase>::const_iterator it = m_angleAmplitude.m_angleAmplitudeBase.begin();
+        std::vector<amplitude::AngleAmplitudeBase>::const_iterator it = m_angleAmplitude.m_angleAmplitudeData.begin();
         std::vector<double> dataToApproximateY;
         std::vector<double> dataToApproximateX;
 
@@ -355,19 +355,19 @@ private:
         if (m_specificName)
             foutApproxRes.open(fileNameApproxRes);
 
-        while (m_angleAmplitude.m_angleAmplitudeBase.end() != it)
+        while (m_angleAmplitude.m_angleAmplitudeData.end() != it)
         {
             for (size_t i = 0; i < m_numberOfPeriods * 2; i++)
             {
-                indexS = it - m_angleAmplitude.m_angleAmplitudeBase.begin();
+                indexS = it - m_angleAmplitude.m_angleAmplitudeData.begin();
                 /*std::cout << "calculateEqvivalentDampingCoefficient: " << it->m_amplitudeIndexesFromInitialAngle
                           << " index = " << indexS << "\t"
-                          << " size = " << m_angleAmplitude.m_angleAmplitudeBase.size() << "\n";*/
+                          << " size = " << m_angleAmplitude.m_angleAmplitudeData.size() << "\n";*/
                 dataToApproximateX.push_back(it->m_amplitudeTime);
                 dataToApproximateY.push_back(it->m_amplitudeAngle);
                 it++;
 
-                if (m_angleAmplitude.m_angleAmplitudeBase.end() == it)
+                if (m_angleAmplitude.m_angleAmplitudeData.end() == it)
                     break;
             }
 
