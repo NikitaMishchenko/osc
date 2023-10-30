@@ -11,9 +11,11 @@ struct DataToProc
 {
     DataToProc(const std::string &coreName,
                const std::string &modelName,
+               const double angleShift,
                const boost::filesystem::path &basePath)
         : m_coreName(coreName),
           m_modelName(modelName),
+          m_angleShift(angleShift),
           m_basePath(basePath)
     {
     }
@@ -24,6 +26,7 @@ struct DataToProc
         ss << "DataToProc:\n"
            << "coreName = " << m_coreName << "\n"
            << "modelName = " << m_modelName << "\n"
+           << "angleShift = " << m_angleShift << "\n"
            << "basePath = " << m_basePath << "\n";
 
         return ss.str();
@@ -31,6 +34,7 @@ struct DataToProc
 
     std::string m_coreName;
     std::string m_modelName;
+    double m_angleShift;
     boost::filesystem::path m_basePath;
 };
 
@@ -56,6 +60,7 @@ public:
         {
             m_dataToProc.push_back(DataToProc(data.second.get<std::string>("coreName"),
                                               data.second.get<std::string>("modelName"),
+                                              data.second.get<double>("angleShift"),
                                               m_root));
         }
     }

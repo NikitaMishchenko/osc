@@ -55,7 +55,7 @@ void doJob(const DataToProc &dataToProc)
 
         bool dataLoadedOk = false;
 
-        std::tie(dataLoadedOk, oscillation, flow, model) = processorInput.loadInputData();
+        std::tie(dataLoadedOk, oscillation, flow, model) = processorInput.loadInputData(dataToProc.m_angleShift);
 
         if (!dataLoadedOk)
         {

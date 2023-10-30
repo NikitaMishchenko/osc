@@ -59,21 +59,33 @@ public:
 
             if (comparator(oscillation, i, targetAngle))
             {
+                int indexFrom = i - interpolationPoints / 2;
+                int indexTo = i + interpolationPoints / 2;
+
+                if (indexFrom < 0)
+                {
+                    continue;
+                }
+
+                if (indexTo > oscillation.size())
+                {
+                    continue;
+                }
 
                 Function toSplineDangle =
-                    sortFunction(Function(std::vector<double>(oscillation.angleBegin() + (i - interpolationPoints / 2),
-                                                              oscillation.angleBegin() + (i + interpolationPoints / 2)),
-                                          std::vector<double>(oscillation.dangleBegin() + (i - interpolationPoints / 2),
-                                                              oscillation.dangleBegin() + (i + interpolationPoints / 2))));
+                    sortFunction(Function(std::vector<double>(oscillation.angleBegin() + indexFrom,
+                                                              oscillation.angleBegin() + indexTo),
+                                          std::vector<double>(oscillation.dangleBegin() + indexFrom,
+                                                              oscillation.dangleBegin() + indexTo)));
 
                 GnuslSplineWrapper splineDangle(toSplineDangle);
 
                 ///
                 Function toSplineDdangle =
-                    sortFunction(Function(std::vector<double>(oscillation.angleBegin() + (i - interpolationPoints / 2),
-                                                              oscillation.angleBegin() + (i + interpolationPoints / 2)),
-                                          std::vector<double>(oscillation.ddangleBegin() + (i - interpolationPoints / 2),
-                                                              oscillation.ddangleBegin() + (i + interpolationPoints / 2))));
+                    sortFunction(Function(std::vector<double>(oscillation.angleBegin() + indexFrom,
+                                                              oscillation.angleBegin() + indexTo),
+                                          std::vector<double>(oscillation.ddangleBegin() + indexFrom,
+                                                              oscillation.ddangleBegin() + indexTo)));
 
                 GnuslSplineWrapper splineDdangle(toSplineDdangle);
 

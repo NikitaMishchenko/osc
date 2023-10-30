@@ -49,7 +49,7 @@ public:
     }
 
     std::tuple<bool, Oscillation, wt_flow::Flow, Model>
-    loadInputData() const
+    loadInputData(double angleShift) const
     {
 
         m_descriptionStream << "Определяем имя файла истории колебаний: "
@@ -59,6 +59,9 @@ public:
         AngleHistory angleHistory;
         {
             bool isOk = angleHistory.loadRaw(m_angleHistoryFile.string());
+
+            if (angleShift)
+                angleHistory.codomainAdd(angleShift);
 
             if (!isOk)
                 throw std::runtime_error("failed to load AngleHistory from \"" + m_angleHistoryFile.string() + "\"");
