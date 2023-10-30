@@ -126,7 +126,7 @@ namespace amplitude
              amplitudeData++)
         {
             // m_freqFromPeriod m_frequency
-            amplitudeData->m_frequency = 1.0 / ((amplitudeData + 2)->m_amplitudeTime - amplitudeData->m_amplitudeTime);
+            amplitudeData->m_frequency = M_PI * 2.0 / ((amplitudeData + 2)->m_amplitudeTime - amplitudeData->m_amplitudeTime);
         }
     }
 

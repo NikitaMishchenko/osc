@@ -1,8 +1,8 @@
 #pragma once
 
 #include <utility>
-
 #include <vector>
+#include <math.h>
 
 #include <gsl/gsl_matrix.h>
 
@@ -123,6 +123,7 @@ private:
         }
 
         m_w /= m_angleAmplitudeVector.m_angleAmplitudeData.size();
+        m_w *= 2.0*M_PI;
 
         std::cout << "w = " << m_w << "\n";
     }

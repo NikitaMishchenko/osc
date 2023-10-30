@@ -66,7 +66,11 @@ protected:
             fout << wtOscillation << "\n";
         }
 
-        m_descriptionStream << "Средняя частота колебаний w[Гц] = "
+        m_descriptionStream << "Средняя частота колебаний f[Гц] = "
+                            << wtOscillation.getW()/2/M_PI
+                            << std::endl;
+
+        m_descriptionStream << "Средняя круговая частота колебаний w = "
                             << wtOscillation.getW()
                             << std::endl;
 
@@ -168,11 +172,11 @@ protected:
 
             amplitude::AngleAmplitudeBase angleAmplitudeAvg = amplitude::getAvg(angleAmplitudeToAvg);
 
-            m_descriptionStream << "Предельная средняя амплитуда автоколебаний: "
+            m_descriptionStream << "Предельная средняя амплитуда автоколебаний [Гц]: "
                                 << angleAmplitudeAvg.m_amplitudeAngle
                                 << std::endl;
 
-            m_descriptionStream << "Средняя частота автоколебаний: "
+            m_descriptionStream << "Средняя частота автоколебаний w[рад/с]: "
                                 << angleAmplitudeAvg.m_frequency
                                 << std::endl;     
 
