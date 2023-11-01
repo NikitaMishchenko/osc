@@ -13,6 +13,7 @@
 #include "flow/wt_flow.h"
 #include "analize_coefficients/specific/section/section.h"
 
+#include "gnuplot_script_helper.h"
 #include "processor_io.h"
 
 class ProcessorOutput : public ProcessorIo
@@ -87,7 +88,7 @@ protected:
                             << std::endl;
 
         m_descriptionStream << "Построить график mz(a):\n"
-                            << "plot " << m_wtOscillationFile << " using 2:($4*" << wtOscillation.getMzNondimensionalization() << ") with lines"
+                            << gnuplot_scripts::mz(m_wtOscillationFile, wtOscillation.getMzNondimensionalization())
                             << std::endl;
     }
 
@@ -187,10 +188,9 @@ protected:
                                 << std::endl;
 
             m_descriptionStream << "Построить график амплитуды и предельной амплитуды:\n"
-                                << "plot "
-                                << m_wtOscillationFile << " using 1:2 with lines, "
-                                << m_angleHistroyAbsAmplitudeFile << " using 1:2, "
-                                << angleAmplitudeAvg.m_amplitudeAngle << " lw 3 lc rgb \"red\""
+                                << gnuplot_scripts::amplitudeLimitAmplitude(m_wtOscillationFile,
+                                                                            m_angleHistroyAbsAmplitudeFile,
+                                                                            angleAmplitudeAvg.m_amplitudeAngle)
                                 << std::endl;
         }
     }
@@ -213,17 +213,19 @@ protected:
                             << std::endl;
 
         {
-            std::string sectionFilesGnuplotFile;
-            int sectionNo = 0;
+            std::stringstream sectionsGnuplotFileScript;
+            std::vector<boost::filesystem::path> specificSectionFileVector;
+            specificSectionFileVector.reserve(sectionVector.size());
+
             for (const auto &section : sectionVector)
             {
-                std::string specificSectionFile = m_coreName + "_section" + std::to_string(section.getTargetAngle()) + "_" + std::string(Section::ASCENDING == section.getSectionType() ? "asc" : "desc") + ".oscillation";
+                std::string specificSectionFileName = m_coreName + "_section" + std::to_string(section.getTargetAngle()) + "_" + std::string(Section::ASCENDING == section.getSectionType() ? "asc" : "desc") + ".oscillation";
+                boost::filesystem::path specificSectionFile = m_outputPath / specificSectionFileName;
 
-                std::string graphDecoration = ("using 4:3 pt " + std::to_string(sectionNo) + " lc " + std::to_string(sectionNo));
-                sectionFilesGnuplotFile += ", \"" + specificSectionFile + "\" " + graphDecoration;
+                specificSectionFileVector.push_back(specificSectionFile);
 
                 m_descriptionStream << "Сохранение данных сечения в файл (время, первая, вторая, третья производые по времени): "
-                                    << "\"" << specificSectionFile << "\""
+                                    << specificSectionFile
                                     << std::endl;
 
                 {
@@ -231,15 +233,11 @@ protected:
 
                     fout << section << "\n";
                 }
-
-                sectionNo++;
             }
 
             m_descriptionStream << "Построить график a''(a'):\n"
-                                << "plot " << m_wtOscillationFile << " using 4:3 with linespoints"
-                                << (sectionFilesGnuplotFile.empty()
-                                        ? ""
-                                        : sectionFilesGnuplotFile)
+                                << gnuplot_scripts::amplitudeLimitAmplitude(m_wtOscillationFile,
+                                                                            specificSectionFileVector)
                                 << std::endl;
         }
     }
