@@ -4,6 +4,7 @@
 #include <sstream>
 #include <fstream>
 #include <numeric>
+#include <memory>
 
 #include <boost/filesystem/path.hpp>
 #include <boost/filesystem.hpp>
@@ -15,14 +16,17 @@
 
 #include "gnuplot_script_helper.h"
 #include "processor_io.h"
+//#include "summary_processor.h"
 
 class ProcessorOutput : public ProcessorIo
 {
 public:
     ProcessorOutput(std::stringstream &descriptionStream,
+                    std::shared_ptr<std::stringstream> summaryStream,
                     const boost::filesystem::path &outputPath,
                     const std::string &coreName) : ProcessorIo(descriptionStream),
                                                    m_coreName(coreName),
+                                                   m_summaryStream(summaryStream),
                                                    m_outputPath(outputPath)
     {
         // working in folder of specific core data
@@ -41,6 +45,7 @@ public:
 
     virtual ~ProcessorOutput()
     {
+        *m_summaryStream << std::endl;
         m_descriptionStream << "Запись данных закончена!" << std::endl;
     }
 
@@ -90,6 +95,8 @@ protected:
         m_descriptionStream << "Построить график mz(a):\n"
                             << gnuplot_scripts::mz(m_wtOscillationFile, wtOscillation.getMzNondimensionalization())
                             << std::endl;
+
+        *m_summaryStream << m_coreName << " ";
     }
 
     void reportAmplitude(const WtOscillation &wtOscillation) const
@@ -173,19 +180,28 @@ protected:
 
             amplitude::AngleAmplitudeBase angleAmplitudeAvg = amplitude::getAvg(angleAmplitudeToAvg);
 
-            m_descriptionStream << "Предельная средняя амплитуда автоколебаний [Гц]: "
+            m_descriptionStream << "Предельная средняя амплитуда автоколебаний [degree]: "
                                 << angleAmplitudeAvg.m_amplitudeAngle
                                 << std::endl;
+
+            *m_summaryStream << angleAmplitudeAvg.m_amplitudeAngle << " ";
 
             m_descriptionStream << "Средняя частота автоколебаний w[рад/с]: "
                                 << angleAmplitudeAvg.m_frequency
                                 << std::endl;     
 
-            m_descriptionStream << "Безразмерная частота колебаний для участка автоколебаний [Гц]: "
-                                << calcWzNondimentional(angleAmplitudeAvg.m_frequency,
+            *m_summaryStream << angleAmplitudeAvg.m_frequency << " ";
+
+
+            const double wzMondimentional = calcWzNondimentional(angleAmplitudeAvg.m_frequency,
                                                         wtOscillation.getFlow(),
-                                                        wtOscillation.getModel())
+                                                        wtOscillation.getModel());
+
+            m_descriptionStream << "Безразмерная частота колебаний для участка автоколебаний [Гц]: "
+                                << wzMondimentional
                                 << std::endl;
+
+            *m_summaryStream << wzMondimentional << " ";
 
             m_descriptionStream << "Построить график амплитуды и предельной амплитуды:\n"
                                 << gnuplot_scripts::amplitudeLimitAmplitude(m_wtOscillationFile,
@@ -251,6 +267,8 @@ private:
     std::string m_wtOscillationName;
     std::string m_amplitudeName;
     std::string m_absAmplitudeName;
+
+    std::shared_ptr<std::stringstream> m_summaryStream; // todo make it shared_pt
 
     boost::filesystem::path m_outputPath;
 };

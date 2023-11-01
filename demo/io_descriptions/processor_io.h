@@ -10,8 +10,11 @@ public:
 
     virtual ~ProcessorIo()
     {
-        m_descriptionStream << "#####################################\n\n";
-        m_descriptionStream << "#####################################\n";
+        if (!m_descriptionStream.str().empty())
+        {
+            m_descriptionStream << "#####################################\n\n";
+            m_descriptionStream << "#####################################\n";
+        }
     }
     
 

@@ -6,15 +6,12 @@
 #include <boost/filesystem.hpp>
 
 
-
 class DescriptionStream : public std::stringstream
 {
 public:
     DescriptionStream(boost::filesystem::path path, std::string fileName = "") : m_descriptionName(fileName)
     {
-        if (!m_descriptionName.empty())
-            m_descriptionName += ".description";
-        else
+        if (m_descriptionName.empty())
             m_descriptionName = "description";
 
         m_descriptionFile = path / m_descriptionName;

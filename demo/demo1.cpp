@@ -1,6 +1,7 @@
 #include <iostream>
 #include <sstream>
 #include <fstream>
+#include <memory>
 
 #include <boost/filesystem/path.hpp>
 #include <boost/filesystem.hpp>
@@ -31,14 +32,14 @@
  *
  */
 
-void doJob(const DataToProc &dataToProc)
+void doJob(const DataToProc &dataToProc, std::shared_ptr<DescriptionStream> summaryStreamPtr)
 {
     const std::string coreName = dataToProc.m_coreName;
     const std::string modelName = dataToProc.m_modelName;
     boost::filesystem::path basePath = dataToProc.m_basePath;
 
-    DescriptionStream descriptionStream(dataToProc.m_basePath / coreName, coreName);
-
+    DescriptionStream descriptionStream(dataToProc.m_basePath / coreName, coreName + ".description");
+    
     ///
     //***********************************************************************************************
     ///
@@ -73,7 +74,7 @@ void doJob(const DataToProc &dataToProc)
         Sections sections(oscillation, sectionAngleStep);
         sections.calculate();
 
-        ProcessorOutput processorOutput(descriptionStream, basePath, coreName);
+        ProcessorOutput processorOutput(descriptionStream, summaryStreamPtr, basePath, coreName);
 
         bool dataWrittenOk = false;
 
@@ -105,13 +106,16 @@ int main(int argc, char **argv)
 {
     ConfigProcessor configProcessor;
 
-    configProcessor.load("/home/mishnic/data/data_proc/sphere_cone_M1.75/");
+    boost::filesystem::path configPath("/home/mishnic/data/data_proc/sphere_cone_M1.75/");
+    configProcessor.load(configPath.string());
 
     std::vector<DataToProc> dataToProc = configProcessor.getDataToProc();
-
+    
+    std::shared_ptr<DescriptionStream> summaryStreamPtr = std::make_shared<DescriptionStream>(configPath, "summary");
+    
     for (const auto& d : dataToProc)
     {
         std::cout << d.toString() << "\n";
-        doJob(d);
+        doJob(d, summaryStreamPtr);
     }
 }
