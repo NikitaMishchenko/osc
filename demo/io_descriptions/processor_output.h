@@ -16,8 +16,12 @@
 
 #include "gnuplot_script_helper.h"
 #include "processor_io.h"
-//#include "summary_processor.h"
 
+
+/**
+ * Manage data processing result and describes procedures performed,
+ * saves data calculated
+*/
 class ProcessorOutput : public ProcessorIo
 {
 public:

@@ -124,4 +124,8 @@ int main(int argc, char **argv)
     summary << "Построить график амплитуды от безразмерной частоты:\n"
             << "plot " << summaryStreamPtr->getSescriptionFileName() << " using 2:4 lw 10"
             << std::endl;
+
+    // todo ? make single Class for description and data stream getDataStream() << , detDescriptionStream() << , getFileNameDescirption(), getFileNameData()
+    // struct description, data -> binds data and it's description
+    // description passed for other sources, data
 }

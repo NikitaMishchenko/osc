@@ -13,6 +13,9 @@
 
 #include "processor_io.h"
 
+/**
+ * Manage data loading and describes procedures performed
+*/
 class ProcessorInput : public ProcessorIo
 {
 public:
@@ -121,7 +124,6 @@ private:
     std::string m_angleHistoryName;
     std::string m_modelName;
     std::string m_flowName;
-
 
     boost::filesystem::path m_inputPath;
 };
