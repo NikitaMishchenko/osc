@@ -118,4 +118,10 @@ int main(int argc, char **argv)
         std::cout << d.toString() << "\n";
         doJob(d, summaryStreamPtr);
     }
+
+    DescriptionStream summary(configPath, "summary.description");
+
+    summary << "Построить график амплитуды от безразмерной частоты:\n"
+            << "plot " << summaryStreamPtr->getSescriptionFileName() << " using 2:4 lw 10"
+            << std::endl;
 }

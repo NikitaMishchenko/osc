@@ -24,6 +24,11 @@ public:
         fout << this->str();
     }
 
+    boost::filesystem::path getSescriptionFileName() const
+    {
+        return m_descriptionFile;
+    }
+ 
 private:
     std::string m_descriptionName;
     boost::filesystem::path m_descriptionFile;
