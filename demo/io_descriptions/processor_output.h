@@ -84,6 +84,10 @@ protected:
                             << wtOscillation.getW()
                             << std::endl;
 
+        m_descriptionStream << "Начальный угол колебаний [a_0] = "
+                            << wtOscillation.getAngle(0)
+                            << std::endl;
+
         m_descriptionStream << "Коэффициент обезразмеривания для получения mz = I/(qsl)a'' -> I/(qsl) = "
                             << wtOscillation.getMzNondimensionalization()
                             << std::endl;
