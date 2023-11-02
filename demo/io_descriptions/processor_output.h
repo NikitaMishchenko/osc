@@ -210,7 +210,8 @@ protected:
             m_descriptionStream << "Построить график амплитуды и предельной амплитуды:\n"
                                 << gnuplot_scripts::amplitudeLimitAmplitude(m_wtOscillationFile,
                                                                             m_angleHistroyAbsAmplitudeFile,
-                                                                            angleAmplitudeAvg.m_amplitudeAngle)
+                                                                            angleAmplitudeAvg.m_amplitudeAngle,
+                                                                            m_coreName)
                                 << std::endl;
         }
     }
@@ -257,7 +258,8 @@ protected:
 
             m_descriptionStream << "Построить график a''(a'):\n"
                                 << gnuplot_scripts::amplitudeLimitAmplitude(m_wtOscillationFile,
-                                                                            specificSectionFileVector)
+                                                                            specificSectionFileVector,
+                                                                            m_coreName)
                                 << std::endl;
         }
     }
