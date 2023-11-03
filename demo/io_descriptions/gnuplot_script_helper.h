@@ -7,22 +7,22 @@
 
 namespace
 {
-    inline std::string commonDescription(const std::string& title = std::string(),
-                                         const std::string& xLable = std::string(),
-                                         const std::string& yLable = std::string())
+    inline std::string commonDescription(const std::string &title = std::string(),
+                                         const std::string &xLable = std::string(),
+                                         const std::string &yLable = std::string())
     {
         std::stringstream ss;
 
         ss << "set grid" << std::endl;
-        
-        if (!xLable.empty())
-            ss << "set xlabel \"" << xLable << "\"" << std::endl;
-        
-        if (!yLable.empty())
-            ss << "set ylabel \"" << yLable << "\"" << std::endl;
 
         if (!title.empty())
             ss << "set title \"" << title << "\"" << std::endl;
+
+        if (!xLable.empty())
+            ss << "set xlabel \"" << xLable << "\"" << std::endl;
+
+        if (!yLable.empty())
+            ss << "set ylabel \"" << yLable << "\"" << std::endl;
 
         ss << std::endl;
 
@@ -50,7 +50,7 @@ namespace gnuplot_scripts
     inline std::string amplitudeLimitAmplitude(const boost::filesystem::path &wtOscillationFile,
                                                const boost::filesystem::path &angleHistroyAbsAmplitudeFile,
                                                const double limitAmplitude,
-                                               const std::string& coreName)
+                                               const std::string &coreName)
     {
         std::stringstream ss;
 
@@ -71,20 +71,20 @@ namespace gnuplot_scripts
 
     namespace section_impl
     {
-        inline std::string singleSection(const std::string& specificSectionFile, int sectionIndex)
+        inline std::string singleSection(const std::string &specificSectionFile, int sectionIndex)
         {
             std::stringstream ss;
-            
-                std::string graphDecoration = "using 4:3 pt " + std::to_string(sectionIndex) + " lc " + std::to_string(sectionIndex) + " notitle";
-                ss << "\"" + specificSectionFile + "\" " + graphDecoration;
-            
+
+            std::string graphDecoration = "using 4:3 pt " + std::to_string(sectionIndex) + " lc " + std::to_string(sectionIndex) + " notitle";
+            ss << "\"" + specificSectionFile + "\" " + graphDecoration;
+
             return ss.str();
         }
     }
 
     inline std::string amplitudeLimitAmplitude(const boost::filesystem::path &wtOscillationFile,
-                                               const std::vector<boost::filesystem::path>& specificSectionFileVector,
-                                               const std::string& coreName)
+                                               const std::vector<boost::filesystem::path> &specificSectionFileVector,
+                                               const std::string &coreName)
     {
         std::stringstream ss;
 
@@ -109,6 +109,21 @@ namespace gnuplot_scripts
         return ss.str();
     }
 
+    inline std::string amplitudeSummary(const boost::filesystem::path &descriptionFileName)
+    {
+        std::stringstream ss;
+        const std::string titleAmplitudeSummary = "\"{/Symbol q}({/Symbol w}_n_o_n_d)\"";
 
+        ss << "set yrange [0:50]" << std::endl;
+        ss << "set xrange [0.01:0.020]" << std::endl;
+
+        ss << commonDescription("summary {/Symbol q}({/Symbol w}_n_o_n_d)",
+                                "{/Symbol w}_n_o_n_d",
+                                "{/Symbol q}");
+
+        ss << "plot " << descriptionFileName << " using 4:2 lw 10 title " << titleAmplitudeSummary << std::endl;
+
+        return ss.str();
+    }
 
 } // gnuplot_scripts

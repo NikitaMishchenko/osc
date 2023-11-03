@@ -24,7 +24,7 @@ public:
         fout << this->str();
     }
 
-    boost::filesystem::path getSescriptionFileName() const
+    boost::filesystem::path getDescriptionFileName() const
     {
         return m_descriptionFile;
     }

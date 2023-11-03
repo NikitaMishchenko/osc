@@ -205,7 +205,7 @@ protected:
                                                         wtOscillation.getFlow(),
                                                         wtOscillation.getModel());
 
-            m_descriptionStream << "Безразмерная частота колебаний для участка автоколебаний [Гц]: "
+            m_descriptionStream << "Безразмерная частота колебаний для участка автоколебаний [1]: "
                                 << wzMondimentional
                                 << std::endl;
 

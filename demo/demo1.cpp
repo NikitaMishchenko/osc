@@ -121,8 +121,8 @@ int main(int argc, char **argv)
 
     DescriptionStream summary(configPath, "summary.description");
 
-    summary << "Построить график амплитуды от безразмерной частоты:\n"
-            << "plot " << summaryStreamPtr->getSescriptionFileName() << " using 2:4 lw 10"
+    summary << "Построить график амплитуды от безразмерной частоты (coreName, amplitudeAngle[degre], avgW [rad/s], nondimW):\n"
+            << gnuplot_scripts::amplitudeSummary(summaryStreamPtr->getDescriptionFileName())
             << std::endl;
 
     // todo ? make single Class for description and data stream getDataStream() << , detDescriptionStream() << , getFileNameDescirption(), getFileNameData()
