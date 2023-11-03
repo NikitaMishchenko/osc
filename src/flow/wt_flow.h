@@ -12,7 +12,14 @@ namespace wt_flow
 {
     const double T0_KELVIN = 273.15;
     const double GRAVITATIONAL_ACCELERATION = 9.80665;
+    
+    inline double calculateVelocityWT(const double machNumber, const double temperature0)
+    {
+        const double velocity = 20.04 * machNumber * sqrt((temperature0 + T0_KELVIN) / (1.0 + 0.2 * machNumber * machNumber));
 
+        return velocity;
+    }
+    
     class Flow
     {
     public:
@@ -91,7 +98,7 @@ namespace wt_flow
         {
             if(m_T0 && m_mach)
             {
-                m_velocity = 20.04*m_mach*sqrt((m_T0 + T0_KELVIN)/(1.0 + 0.2*m_mach*m_mach));
+                m_velocity = calculateVelocityWT(m_T0, m_mach);
                 return true;
             }
 
