@@ -64,6 +64,7 @@ namespace amplitude
                                m_amplitudeAngle(0),
                                m_amplitudeDangle(0),
                                m_frequency(0),
+                               m_period(0),
                                m_amplitudeIndexesFromInitialAngle(-1) {}
 
         AngleAmplitudeBase(double time, double angle, int index)
@@ -73,11 +74,12 @@ namespace amplitude
         {
         }
 
-        AngleAmplitudeBase(double time, double angle, double dangle, double frequency, int index)
+        AngleAmplitudeBase(double time, double angle, double dangle, double frequency, double period, int index)
             : m_amplitudeTime(time),
               m_amplitudeAngle(angle),
               m_amplitudeDangle(dangle),
               m_frequency(frequency),
+              m_period(period),
               m_amplitudeIndexesFromInitialAngle(index)
         {
         }
@@ -104,6 +106,7 @@ namespace amplitude
                 << input.m_amplitudeAngle << " "
                 << input.m_amplitudeDangle << " "
                 << input.m_frequency << " "
+                << input.m_period << " "
                 << input.m_amplitudeIndexesFromInitialAngle << "\n";
 
             return out;
@@ -113,6 +116,7 @@ namespace amplitude
         double m_amplitudeAngle;
         double m_amplitudeDangle;
         double m_frequency; //< from periods
+        double m_period;
         int m_amplitudeIndexesFromInitialAngle;
 
     private:
@@ -126,7 +130,8 @@ namespace amplitude
              amplitudeData++)
         {
             // m_freqFromPeriod m_frequency
-            amplitudeData->m_frequency = M_PI * 2.0 / ((amplitudeData + 2)->m_amplitudeTime - amplitudeData->m_amplitudeTime);
+            amplitudeData->m_period = 2.0*((amplitudeData+1)->m_amplitudeTime - amplitudeData->m_amplitudeTime);
+            amplitudeData->m_frequency = M_PI * 2.0 / amplitudeData->m_period;
         }
     }
 
@@ -250,6 +255,7 @@ namespace amplitude
                                        (ABS_AMPLITUDE == mode) ? std::abs(calculatedAngleExtrenum) : calculatedAngleExtrenum,
                                        m_dangle->at(index),
                                        0, // will be calculated latter calculateFrequency()
+                                       0, // will be calculated latter calculateFrequency()
                                        index));
             }
 
@@ -312,12 +318,14 @@ namespace amplitude
         std::vector<double> angle;
         std::vector<double> dangle;
         std::vector<double> frequency;
+        std::vector<double> period;
         std::vector<int> index;
 
         time.reserve(angleAmplitudeVector.size());
         angle.reserve(angleAmplitudeVector.size());
         dangle.reserve(angleAmplitudeVector.size());
         frequency.reserve(angleAmplitudeVector.size());
+        period.reserve(angleAmplitudeVector.size());
         index.reserve(angleAmplitudeVector.size());
 
         for (const auto &val : angleAmplitudeVector)
@@ -326,6 +334,7 @@ namespace amplitude
             angle.emplace_back(val.m_amplitudeAngle);
             dangle.emplace_back(val.m_amplitudeDangle);
             frequency.emplace_back(val.m_frequency);
+            period.emplace_back(val.m_period);
             index.emplace_back(val.m_amplitudeIndexesFromInitialAngle);
         }
 
@@ -333,6 +342,7 @@ namespace amplitude
                                           std::accumulate(angle.begin(), angle.end(), 0.0) / angleAmplitudeVector.size(),
                                           std::accumulate(dangle.begin(), dangle.end(), 0.0) / angleAmplitudeVector.size(),
                                           std::accumulate(frequency.begin(), frequency.end(), 0.0) / angleAmplitudeVector.size(),
+                                          std::accumulate(period.begin(), period.end(), 0.0) / angleAmplitudeVector.size(),
                                           std::accumulate(index.begin(), index.end(), 0) / angleAmplitudeVector.size());
 
         return angleAmplitude;

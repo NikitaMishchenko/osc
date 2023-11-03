@@ -112,7 +112,7 @@ protected:
         m_descriptionStream << "#######################################################\n";
 
         m_descriptionStream << "Сохранение данных амплитуд в файл"
-                               "(время, первая, вторая производые по времени, частота, индекс отсчета в исходных данных): "
+                               "(время, первая  производная по времени, период, частота, индекс отсчета в исходных данных): "
                             << m_angleHistroyAmplitudeFile
                             << std::endl;
 
@@ -139,8 +139,7 @@ protected:
         amplitudeVector.sortViaTime();
 
         m_descriptionStream << "Сохранение данных абсолютной амплитуды в файл"
-                               "(время, первая, вторая производые по времени, частота, индекс отсчета в исходных данных): "
-                            << m_angleHistroyAbsAmplitudeFile
+                               "(время, первая  производная по времени, период, частота, индекс отсчета в исходных данных): "
                             << std::endl;
         {
             std::ofstream fout(m_angleHistroyAbsAmplitudeFile.string());
@@ -193,6 +192,10 @@ protected:
                                 << std::endl;
 
             *m_summaryStream << angleAmplitudeAvg.m_amplitudeAngle << " ";
+
+            m_descriptionStream << "Средний период автоколебаний T[с]: "
+                                << angleAmplitudeAvg.m_period
+                                << std::endl;  
 
             m_descriptionStream << "Средняя частота автоколебаний w[рад/с]: "
                                 << angleAmplitudeAvg.m_frequency
