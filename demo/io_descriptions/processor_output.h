@@ -25,18 +25,19 @@
 class ProcessorOutput : public ProcessorIo
 {
 public:
-    ProcessorOutput(std::stringstream &descriptionStream,
+    ProcessorOutput(std::shared_ptr<std::stringstream> descriptionStreamPtr,
+                    std::shared_ptr<std::stringstream> gnuplotGraphStreamPtr,
                     std::shared_ptr<std::stringstream> summaryStream,
                     const boost::filesystem::path &outputPath,
-                    const std::string &coreName) : ProcessorIo(descriptionStream),
+                    const std::string &coreName) : ProcessorIo({std::move(descriptionStreamPtr), std::move(gnuplotGraphStreamPtr)}),
                                                    m_coreName(coreName),
                                                    m_summaryStream(summaryStream),
                                                    m_outputPath(outputPath)
     {
         // working in folder of specific core data
-        m_descriptionStream << "Начинаем записывать данные. Исходный путь: " << m_outputPath << std::endl;
+        *getDescriptionStream() << "Начинаем записывать данные. Исходный путь: " << m_outputPath << std::endl;
         m_outputPath /= coreName;
-        m_descriptionStream << "Рабочая дирректория для записи данных: " << m_outputPath << std::endl;
+        *getDescriptionStream() << "Рабочая дирректория для записи данных: " << m_outputPath << std::endl;
 
         m_wtOscillationName = coreName + ".wt_oscillation";
         m_amplitudeName = coreName + "_amplitude.angle_history";
@@ -50,11 +51,11 @@ public:
     virtual ~ProcessorOutput()
     {
         *m_summaryStream << std::endl;
-        m_descriptionStream << "Запись данных закончена!" << std::endl;
+        *getDescriptionStream() << "Запись данных закончена!" << std::endl;
     }
 
     bool write(const WtOscillation &wtOscillation,
-               const Sections &sections)
+               const Sections &sections) const
     {
         reportWtOscillation(wtOscillation);
         reportAmplitude(wtOscillation);
@@ -66,7 +67,7 @@ public:
 protected:
     void reportWtOscillation(const WtOscillation &wtOscillation) const
     {
-        m_descriptionStream << "Сохранение данных колебаний в файл (время, первая, вторая, третья производые по времени): "
+        *getDescriptionStream() << "Сохранение данных колебаний в файл (время, первая, вторая, третья производые по времени): "
                             << m_wtOscillationFile
                             << std::endl;
 
@@ -76,31 +77,31 @@ protected:
             fout << wtOscillation << "\n";
         }
 
-        m_descriptionStream << "Средняя частота колебаний f[Гц] = "
+        *getDescriptionStream() << "Средняя частота колебаний f[Гц] = "
                             << wtOscillation.getW()/2/M_PI
                             << std::endl;
 
-        m_descriptionStream << "Средняя круговая частота колебаний w = "
+        *getDescriptionStream() << "Средняя круговая частота колебаний w = "
                             << wtOscillation.getW()
                             << std::endl;
 
-        m_descriptionStream << "Начальный угол колебаний [a_0] = "
+        *getDescriptionStream() << "Начальный угол колебаний [a_0] = "
                             << wtOscillation.getAngle(0)
                             << std::endl;
 
-        m_descriptionStream << "Коэффициент обезразмеривания для получения mz = I/(qsl)a'' -> I/(qsl) = "
+        *getDescriptionStream() << "Коэффициент обезразмеривания для получения mz = I/(qsl)a'' -> I/(qsl) = "
                             << wtOscillation.getMzNondimensionalization()
                             << std::endl;
 
-        m_descriptionStream << "Безразмерный момент инерции iz = 2I/(rho*s*l^3) = "
+        *getDescriptionStream() << "Безразмерный момент инерции iz = 2I/(rho*s*l^3) = "
                             << wtOscillation.getIzNondimensional()
                             << std::endl;
 
-        m_descriptionStream << "Безразмерная частота колебаний w = w_avt*l/v = "
+        *getDescriptionStream() << "Безразмерная частота колебаний w = w_avt*l/v = "
                             << wtOscillation.getWzNondimentional()
                             << std::endl;
 
-        m_descriptionStream << "Построить график mz(a):\n"
+        *getGnuplotGraphStream() << "Построить график mz(a):\n"
                             << gnuplot_scripts::mz(m_wtOscillationFile, wtOscillation.getMzNondimensionalization())
                             << std::endl;
 
@@ -109,9 +110,9 @@ protected:
 
     void reportAmplitude(const WtOscillation &wtOscillation) const
     {
-        m_descriptionStream << "#######################################################\n";
+        *getDescriptionStream() << "#######################################################\n";
 
-        m_descriptionStream << "Сохранение данных амплитуд в файл"
+        *getDescriptionStream() << "Сохранение данных амплитуд в файл"
                                "(время, первая  производная по времени, период, частота, индекс отсчета в исходных данных): "
                             << m_angleHistroyAmplitudeFile
                             << std::endl;
@@ -129,7 +130,7 @@ protected:
         amplitude::AngleAmplitudeBase minAmplitude;
         minAmplitude = amplitudeVector.getMinAmplitude();
 
-        m_descriptionStream << "Максимальная амплитуда колебаний: "
+        *getDescriptionStream() << "Максимальная амплитуда колебаний: "
                             << maxAmplitude.m_amplitudeAngle
                             << std::endl
                             << "Минимальная амплитуда колебаний: "
@@ -138,7 +139,7 @@ protected:
 
         amplitudeVector.sortViaTime();
 
-        m_descriptionStream << "Сохранение данных абсолютной амплитуды в файл"
+        *getDescriptionStream() << "Сохранение данных абсолютной амплитуды в файл"
                                "(время, первая  производная по времени, период, частота, индекс отсчета в исходных данных): "
                             << std::endl;
         {
@@ -152,7 +153,7 @@ protected:
         // todo make formal precise creteria
         const bool isAmplitudeDecreasing = maxAmplitude.m_amplitudeTime < minAmplitude.m_amplitudeTime;
         const double extrenumAmplitude = (isAmplitudeDecreasing ? minAmplitude.m_amplitudeAngle : maxAmplitude.m_amplitudeAngle);
-        m_descriptionStream << "Характер динамики амплитуды: "
+        *getDescriptionStream() << "Характер динамики амплитуды: "
                             << (isAmplitudeDecreasing ? "падение " : "рост ")
                             << "амплитуды до " << extrenumAmplitude
                             << std::endl;
@@ -161,7 +162,7 @@ protected:
 
         const double limitAmplitudeRatio = 0.1; // hardcode
 
-        m_descriptionStream << "Определение предельной амплитуды с допуском (avgAmpl[1-(ampl/extrnumAmpl) < ratio]): "
+        *getDescriptionStream() << "Определение предельной амплитуды с допуском (avgAmpl[1-(ampl/extrnumAmpl) < ratio]): "
                             << limitAmplitudeRatio
                             << std::endl;
 
@@ -178,7 +179,7 @@ protected:
             }
             angleAmplitudeToAvg.shrink_to_fit();
 
-            m_descriptionStream << "Первое значение амплитуды удовлетворяющее критерию (время, угол): "
+            *getDescriptionStream() << "Первое значение амплитуды удовлетворяющее критерию (время, угол): "
                                 << angleAmplitudeToAvg.front().m_amplitudeTime << ", "
                                 << angleAmplitudeToAvg.front().m_amplitudeAngle << "\n"
                                 << "Последнее значение амплитуды удовлетворяющее критерию (время, угол): "
@@ -187,17 +188,17 @@ protected:
 
             amplitude::AngleAmplitudeBase angleAmplitudeAvg = amplitude::getAvg(angleAmplitudeToAvg);
 
-            m_descriptionStream << "Предельная средняя амплитуда автоколебаний [degree]: "
+            *getDescriptionStream() << "Предельная средняя амплитуда автоколебаний [degree]: "
                                 << angleAmplitudeAvg.m_amplitudeAngle
                                 << std::endl;
 
             *m_summaryStream << angleAmplitudeAvg.m_amplitudeAngle << " ";
 
-            m_descriptionStream << "Средний период автоколебаний T[с]: "
+            *getDescriptionStream() << "Средний период автоколебаний T[с]: "
                                 << angleAmplitudeAvg.m_period
                                 << std::endl;  
 
-            m_descriptionStream << "Средняя частота автоколебаний w[рад/с]: "
+            *getDescriptionStream() << "Средняя частота автоколебаний w[рад/с]: "
                                 << angleAmplitudeAvg.m_frequency
                                 << std::endl;     
 
@@ -208,13 +209,13 @@ protected:
                                                         wtOscillation.getFlow(),
                                                         wtOscillation.getModel());
 
-            m_descriptionStream << "Безразмерная частота колебаний для участка автоколебаний [1]: "
+            *getDescriptionStream() << "Безразмерная частота колебаний для участка автоколебаний [1]: "
                                 << wzMondimentional
                                 << std::endl;
 
             *m_summaryStream << wzMondimentional << " ";
 
-            m_descriptionStream << "Построить график амплитуды и предельной амплитуды:\n"
+            *getGnuplotGraphStream() << "Построить график амплитуды и предельной амплитуды:\n"
                                 << gnuplot_scripts::amplitudeLimitAmplitude(m_wtOscillationFile,
                                                                             m_angleHistroyAbsAmplitudeFile,
                                                                             angleAmplitudeAvg.m_amplitudeAngle,
@@ -232,12 +233,12 @@ protected:
         double maxAngle, minAngle;
         std::tie(isOk, minAngle, maxAngle, sectionVector) = sections.getData();
 
-        m_descriptionStream << "Максимальный достигаемый угол: " << maxAngle
+        *getDescriptionStream() << "Максимальный достигаемый угол: " << maxAngle
                             << std::endl
                             << "Минимально достигаемый угол: " << minAngle
                             << std::endl;
 
-        m_descriptionStream << "Построем сечения по углам с шагом " << sectionAngleStep
+        *getDescriptionStream() << "Построем сечения по углам с шагом " << sectionAngleStep
                             << std::endl;
 
         {
@@ -245,7 +246,7 @@ protected:
             std::vector<boost::filesystem::path> specificSectionFileVector;
             specificSectionFileVector.reserve(sectionVector.size());
             
-            m_descriptionStream << "Сохранение данных сечения в файл (время, первая, вторая, третья производые по времени): "
+            *getDescriptionStream() << "Сохранение данных сечения в файл (время, первая, вторая, третья производые по времени): "
                                 << std::endl;
             
             for (const auto &section : sectionVector)
@@ -255,7 +256,7 @@ protected:
 
                 specificSectionFileVector.push_back(specificSectionFile);
 
-                m_descriptionStream << specificSectionFile
+                *getDescriptionStream() << specificSectionFile
                                     << std::endl;
 
                 {
@@ -265,7 +266,7 @@ protected:
                 }
             }
 
-            m_descriptionStream << "Построить график a''(a'):\n"
+            *getGnuplotGraphStream() << "Построить график a''(a'):\n"
                                 << gnuplot_scripts::amplitudeLimitAmplitude(m_wtOscillationFile,
                                                                             specificSectionFileVector,
                                                                             m_coreName)
@@ -273,6 +274,12 @@ protected:
         }
     }
 
+private:
+    std::shared_ptr<std::stringstream> getDescriptionStream() const {return m_descriptionStreamVector.at(0);}
+    std::shared_ptr<std::stringstream> getGnuplotGraphStream() const {return m_descriptionStreamVector.at(1);}
+
+
+public:
     boost::filesystem::path m_wtOscillationFile;
     boost::filesystem::path m_angleHistroyAmplitudeFile;
     boost::filesystem::path m_angleHistroyAbsAmplitudeFile;

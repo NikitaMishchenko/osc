@@ -19,11 +19,11 @@
 class ProcessorInput : public ProcessorIo
 {
 public:
-    ProcessorInput(std::stringstream& descriptionStream,
+    ProcessorInput(std::shared_ptr<std::stringstream> descriptionStreamPtr,
                    const boost::filesystem::path &inputPath,
                    const std::string &coreName,
                    const std::string &modelName)
-        : ProcessorIo(descriptionStream),
+        : ProcessorIo({descriptionStreamPtr}),
           m_coreName(coreName),
           m_modelName(modelName), 
           m_inputPath(inputPath)
@@ -48,16 +48,16 @@ public:
     {
         //std::ofstream fout(m_descriptionFile.string());
 
-        m_descriptionStream << "Загрузка данных закончена!" << std::endl;
+        *getDescriptionStream() << "Загрузка данных закончена!" << std::endl;
     }
 
     std::tuple<bool, Oscillation, wt_flow::Flow, Model>
-    loadInputData(double angleShift) const
+    loadInputData(double angleShift)
     {
 
-        m_descriptionStream << "Определяем имя файла истории колебаний: "
-                            << m_angleHistoryFile
-                            << std::endl;
+        *getDescriptionStream() << "Определяем имя файла истории колебаний: "
+                                        << m_angleHistoryFile
+                                        << std::endl;
 
         AngleHistory angleHistory;
         {
@@ -72,7 +72,7 @@ public:
 
         Oscillation oscillation(angleHistory);
 
-        m_descriptionStream << "Загрузка параметров модели из файла: "
+        *getDescriptionStream() << "Загрузка параметров модели из файла: "
                             << m_modelFile
                             << std::endl;
 
@@ -83,11 +83,11 @@ public:
             if (!isOk)
                 throw std::runtime_error("failed to load Model from \"" + m_modelFile.string() + "\"");
 
-            m_descriptionStream << "Параметры модели:\n"
+            *getDescriptionStream() << "Параметры модели:\n"
                                 << model.getInfoString() << std::endl;
         }
 
-        m_descriptionStream << "Загрузка параметров потока из файла: "
+        *getDescriptionStream() << "Загрузка параметров потока из файла: "
                             << "\"" << m_flowName << "\""
                             << std::endl;
 
@@ -99,7 +99,7 @@ public:
                 throw std::runtime_error("failed to load Flow from \"" + m_flowFile.string() + "\"");
         }
 
-        m_descriptionStream << "Параметры потока:\n"
+        *getDescriptionStream() << "Параметры потока:\n"
                             << flow.getInfoString() << std::endl;
 
         return std::make_tuple(true, oscillation, flow, model); // todo std::move
@@ -109,6 +109,10 @@ public:
     {
         return m_inputPath;
     }
+
+private:
+    std::shared_ptr<std::stringstream> getDescriptionStream() {return m_descriptionStreamVector.at(0);}
+    std::shared_ptr<std::stringstream> getGnuplotGraphStream() {return m_descriptionStreamVector.at(1);}
 
 protected:
     boost::filesystem::path m_angleHistoryFile;

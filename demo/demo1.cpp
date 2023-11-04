@@ -38,13 +38,14 @@ void doJob(const DataToProc &dataToProc, std::shared_ptr<DescriptionStream> summ
     const std::string modelName = dataToProc.m_modelName;
     boost::filesystem::path basePath = dataToProc.m_basePath;
 
-    DescriptionStream descriptionStream(dataToProc.m_basePath / coreName, coreName + ".description");
+    std::shared_ptr<DescriptionStream> descriptionStreamPtr = std::make_shared<DescriptionStream>(dataToProc.m_basePath / coreName, coreName + ".description");
+    std::shared_ptr<DescriptionStream> gnuplotGraphStreamPtr = std::make_shared<DescriptionStream>(dataToProc.m_basePath / coreName, coreName + "_gnuplot_graph" + ".description");
     
     ///
     //***********************************************************************************************
     ///
 
-    descriptionStream << "Определяем корневое имя файла: "
+    *descriptionStreamPtr << "Определяем корневое имя файла с описанием работы с данными: "
                       << "\"" << coreName << "\""
                       << std::endl;
 
@@ -52,7 +53,7 @@ void doJob(const DataToProc &dataToProc, std::shared_ptr<DescriptionStream> summ
     wt_flow::Flow flow;
     Model model;
     {
-        ProcessorInput processorInput(descriptionStream, basePath, coreName, modelName);
+        ProcessorInput processorInput(descriptionStreamPtr, basePath, coreName, modelName);
 
         bool dataLoadedOk = false;
 
@@ -70,11 +71,11 @@ void doJob(const DataToProc &dataToProc, std::shared_ptr<DescriptionStream> summ
         ///
         std::vector<Section> sectionVector;
         const int sectionAngleStep = 5;
-        descriptionStream << "Рассчет методом сечений для угла " << sectionAngleStep << " градусов\n";
+        *descriptionStreamPtr << "Рассчет методом сечений для угла " << sectionAngleStep << " градусов\n";
         Sections sections(oscillation, sectionAngleStep);
         sections.calculate();
 
-        ProcessorOutput processorOutput(descriptionStream, summaryStreamPtr, basePath, coreName);
+        ProcessorOutput processorOutput(descriptionStreamPtr, gnuplotGraphStreamPtr, summaryStreamPtr, basePath, coreName);
 
         bool dataWrittenOk = false;
 

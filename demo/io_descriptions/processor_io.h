@@ -1,25 +1,28 @@
 #pragma once
 
 #include <iostream>
+#include <vector>
+#include <memory>
 
 class ProcessorIo
 {
 public:
-    ProcessorIo(std::stringstream& descriptionStream) : m_descriptionStream(descriptionStream)
+    ProcessorIo(std::vector<std::shared_ptr<std::stringstream> > descriptionStreamVector) : m_descriptionStreamVector(descriptionStreamVector)
     {}
 
     virtual ~ProcessorIo()
     {
-        if (!m_descriptionStream.str().empty())
-        {
-            m_descriptionStream << "#####################################\n\n";
-            m_descriptionStream << "#####################################\n";
-        }
+        for (auto& descriptionStream : m_descriptionStreamVector)
+            if (!descriptionStream->str().empty())
+            {
+                *descriptionStream << "#####################################\n\n";
+                *descriptionStream << "#####################################\n";
+            }
     }
     
 
 protected:
-    std::stringstream& m_descriptionStream;
+    mutable std::vector<std::shared_ptr<std::stringstream>> m_descriptionStreamVector;
 private:
 };
 
