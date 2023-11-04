@@ -181,6 +181,16 @@ namespace amplitude
                       { return a.m_amplitudeTime < b.m_amplitudeTime; });
         }
 
+        AngleAmplitudeBase getAmplitude(const int index) const
+        {
+            return m_angleAmplitudeData.at(index);
+        }
+
+        double getAmplitudeTime(const int index) const
+        {
+            return getAmplitude(index).m_amplitudeTime;
+        }
+
         AngleAmplitudeBase getMaxAmplitude() const
         {
             auto it = std::max_element(m_angleAmplitudeData.begin(), m_angleAmplitudeData.end());
