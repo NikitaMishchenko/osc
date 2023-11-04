@@ -92,7 +92,7 @@ protected:
                             << wtOscillation.getMzNondimensionalization()
                             << std::endl;
 
-        m_descriptionStream << "Безразмерный момент инерции iz = 2I/(rho*s*l) = "
+        m_descriptionStream << "Безразмерный момент инерции iz = 2I/(rho*s*l^3) = "
                             << wtOscillation.getIzNondimensional()
                             << std::endl;
 
@@ -244,7 +244,10 @@ protected:
             std::stringstream sectionsGnuplotFileScript;
             std::vector<boost::filesystem::path> specificSectionFileVector;
             specificSectionFileVector.reserve(sectionVector.size());
-
+            
+            m_descriptionStream << "Сохранение данных сечения в файл (время, первая, вторая, третья производые по времени): "
+                                << std::endl;
+            
             for (const auto &section : sectionVector)
             {
                 std::string specificSectionFileName = m_coreName + "_section" + std::to_string(section.getTargetAngle()) + "_" + std::string(Section::ASCENDING == section.getSectionType() ? "asc" : "desc") + ".oscillation";
@@ -252,8 +255,7 @@ protected:
 
                 specificSectionFileVector.push_back(specificSectionFile);
 
-                m_descriptionStream << "Сохранение данных сечения в файл (время, первая, вторая, третья производые по времени): "
-                                    << specificSectionFile
+                m_descriptionStream << specificSectionFile
                                     << std::endl;
 
                 {

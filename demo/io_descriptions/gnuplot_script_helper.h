@@ -115,13 +115,13 @@ namespace gnuplot_scripts
         const std::string titleAmplitudeSummary = "\"{/Symbol q}({/Symbol w}_n_o_n_d)\"";
 
         ss << "set yrange [0:50]" << std::endl;
-        ss << "set xrange [0.01:0.020]" << std::endl;
+        ss << "set xrange [0.01:0.018]" << std::endl;
 
         ss << commonDescription("summary {/Symbol q}({/Symbol w}_n_o_n_d)",
                                 "{/Symbol w}_n_o_n_d",
                                 "{/Symbol q}");
 
-        ss << "plot " << descriptionFileName << " using 4:2 lw 10 title " << titleAmplitudeSummary << std::endl;
+        ss << "plot " << descriptionFileName << " using 4:2 lw 10 notitle "; // << titleAmplitudeSummary << std::endl;
 
         return ss.str();
     }
