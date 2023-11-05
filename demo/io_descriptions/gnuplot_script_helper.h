@@ -71,20 +71,42 @@ namespace gnuplot_scripts
 
     namespace section_impl
     {
-        inline std::string singleSection(const std::string &specificSectionFile, int sectionIndex)
+        std::string getMzGraphDataFromFileGnuplotScript(const double mzNondimensionalization = 1,
+                                                        const double wzNondimentionalization = 1)
+        {
+            const std::string dangleDataColumn = "$3"; // todo method to get data column
+            const std::string ddangleDataColumn = "$4";
+            
+            const std::string mz = ddangleDataColumn + "*" + std::to_string(mzNondimensionalization); 
+            const std::string da_nondim = dangleDataColumn + "*" + std::to_string(wzNondimentionalization);
+
+            return "using (" + da_nondim + "):(" + mz + ") ";
+        }
+
+        inline std::string singleSection(const boost::filesystem::path &wtOscillationFile,
+                                         const std::string &specificSectionFile,
+                                         int sectionIndex,
+                                         const double mzNondimensionalization = 1,
+                                         const double wzNondimentionalization = 1)
         {
             std::stringstream ss;
 
-            std::string graphDecoration = "using 4:3 pt " + std::to_string(sectionIndex) + " lc " + std::to_string(sectionIndex) + " notitle";
+            // getMzNondimensionalization() * ddangle (w) (getWzNondimensionalization() * dangle())
+            std::string graphDecoration = getMzGraphDataFromFileGnuplotScript(mzNondimensionalization, wzNondimentionalization);
+
+            graphDecoration += "pt " + std::to_string(sectionIndex) + " lc " + std::to_string(sectionIndex) + " notitle";
+
             ss << "\"" + specificSectionFile + "\" " + graphDecoration;
 
             return ss.str();
         }
     }
 
-    inline std::string amplitudeLimitAmplitude(const boost::filesystem::path &wtOscillationFile,
-                                               const std::vector<boost::filesystem::path> &specificSectionFileVector,
-                                               const std::string &coreName)
+    inline std::string sections(const boost::filesystem::path &wtOscillationFile,
+                                const std::vector<boost::filesystem::path> &specificSectionFileVector,
+                                const std::string &coreName,
+                                const double mzNondimensionalization = 1,
+                                const double wzNondimentionalization = 1)
     {
         std::stringstream ss;
 
@@ -93,14 +115,19 @@ namespace gnuplot_scripts
             int sectionNo = 0;
             for (const auto &sectionFile : specificSectionFileVector)
             {
-                sectionsGnuplotFileScript << ", " << section_impl::singleSection(sectionFile.string(), sectionNo);
+                sectionsGnuplotFileScript << ", "
+                                          << section_impl::singleSection(wtOscillationFile,
+                                                                         sectionFile.string(),
+                                                                         sectionNo,
+                                                                         mzNondimensionalization,
+                                                                         wzNondimentionalization);
                 sectionNo++;
             }
         }
 
         ss << commonDescription(std::string("amitude " + coreName + "5 degree step"), "{/Symbol w}_n_o_n_d", "{/Symbol q}({/Symbol w}_n_o_n_d)");
 
-        ss << "plot " << wtOscillationFile << " using 4:3 with linespoints"
+        ss << "plot " << wtOscillationFile << section_impl::getMzGraphDataFromFileGnuplotScript(mzNondimensionalization, wzNondimentionalization) << " with linespoints"
            << (sectionsGnuplotFileScript.str().empty()
                    ? ""
                    : sectionsGnuplotFileScript.str())
@@ -114,7 +141,7 @@ namespace gnuplot_scripts
         std::stringstream ss;
         // -pow(wtOscillation.getW(), 2)*wtOscillation.getMzNondimensionalization()
 
-        ss << "plot " << angleHistroyAbsAmplitudeFile << " using 2:($5*$5*" << -1*mzNondimensionalization << ") "
+        ss << "plot " << angleHistroyAbsAmplitudeFile << " using 2:($5*$5*" << -1 * mzNondimensionalization << ") "
            << std::endl;
 
         return ss.str();

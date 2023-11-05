@@ -24,6 +24,11 @@ inline double calcMzNondimensionalization(const wt_flow::Flow& flow, const Model
     return (model.getI() / flow.getDynamicPressure() / model.getS() / model.getL());
 }
 
+inline double calcWzNondimensionalization(const wt_flow::Flow& flow, const Model& model)
+{
+    return model.getL() / flow.getVelocity();
+}
+
 inline double calcIzNondimentional(const wt_flow::Flow& flow, const Model& model)
 {
     if (flow.getDensity() > 0)
@@ -73,6 +78,7 @@ public:
     }
 
     double getMzNondimensionalization() const { return m_mzNondimensionalization; }
+    double getWzNondimensionalization() const { return m_wzNondimensionalization; }
     double getIzNondimensional() const { return m_izNondimentional; }
     double getWzNondimentional() const { return m_wzNondimentional; }
 
@@ -104,6 +110,7 @@ private:
                                           std::make_shared<std::vector<double>>(this->getDangle()));
         calculateW();
         m_mzNondimensionalization = calcMzNondimensionalization(m_flow, m_model);
+        m_wzNondimensionalization = calcWzNondimensionalization(m_flow, m_model);
         m_izNondimentional = calcIzNondimentional(m_flow, m_model);
         m_wzNondimentional = calcWzNondimentional(m_w, m_flow, m_model);
     }
@@ -130,13 +137,14 @@ private:
 
     amplitude::AngleAmplitudeVector m_angleAmplitudeVector;
 
-    double m_w; // avg frequency of oscillation main mode from whoal data length
+    double m_w; // avg frequency of oscillation main mode from whoal
 
     wt_flow::Flow m_flow;
 
     Model m_model;
 
     double m_mzNondimensionalization;
+    double m_wzNondimensionalization;
     double m_izNondimentional;
     double m_wzNondimentional;
 };

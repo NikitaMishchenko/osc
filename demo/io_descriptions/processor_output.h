@@ -94,6 +94,10 @@ protected:
         *getDescriptionStream() << "Коэффициент обезразмеривания для получения mz = I/(qsl)a'' -> I/(qsl) = "
                                 << wtOscillation.getMzNondimensionalization()
                                 << std::endl;
+        
+        *getDescriptionStream() << "Коэффициент обезразмеривания для wz_nondim = l/v = "
+                                << wtOscillation.getWzNondimensionalization()
+                                << std::endl;
 
         *getDescriptionStream() << "Безразмерный момент инерции iz = 2I/(rho*s*l^3) = "
                                 << wtOscillation.getIzNondimensional()
@@ -279,10 +283,13 @@ protected:
                 }
             }
 
-            *getGnuplotGraphStream() << "Построить график a''(a'):\n"
-                                     << gnuplot_scripts::amplitudeLimitAmplitude(m_wtOscillationFile,
-                                                                                 specificSectionFileVector,
-                                                                                 m_coreName)
+            // getMzNondimensionalization() * ddangle (w) (getWzNondimensionalization() * dangle())
+            *getGnuplotGraphStream() << "Построить график m_z(a'_nondim) = (I/(qsl))*a''((l/v)*a') = :\n"
+                                     << gnuplot_scripts::sections(m_wtOscillationFile,
+                                                                  specificSectionFileVector,
+                                                                  m_coreName,
+                                                                  wtOscillation.getMzNondimensionalization(),
+                                                                  wtOscillation.getWzNondimensionalization())
                                      << std::endl;
         }
     }
