@@ -172,6 +172,14 @@ protected:
                                 << limitAmplitudeRatio
                                 << std::endl;
 
+        // calculate m_z__st
+        // -pow(wtOscillation.getW(), 2)*wtOscillation.getMzNondimensionalization()
+
+        AngleHistory pitchStaticCoefficient;
+        *getGnuplotGraphStream() << "Построить график статического момента тангажа:\n"
+                                 << gnuplot_scripts::pitchStaticCoefficient(m_angleHistroyAbsAmplitudeFile, wtOscillation.getMzNondimensionalization())
+                                 << std::endl;
+
         {
             std::vector<amplitude::AngleAmplitudeBase> angleAmplitudeToAvg;
             angleAmplitudeToAvg.reserve(amplitudeVector.m_angleAmplitudeData.size());
@@ -210,15 +218,15 @@ protected:
 
             *m_summaryStream << angleAmplitudeAvg.m_frequency << " ";
 
-            const double wzMondimentional = calcWzNondimentional(angleAmplitudeAvg.m_frequency,
+            const double wzMondimentionalSummary = calcWzNondimentional(angleAmplitudeAvg.m_frequency,
                                                                  wtOscillation.getFlow(),
                                                                  wtOscillation.getModel());
 
             *getDescriptionStream() << "Безразмерная частота колебаний для участка автоколебаний [1]: "
-                                    << wzMondimentional
+                                    << wzMondimentionalSummary
                                     << std::endl;
 
-            *m_summaryStream << wzMondimentional << " ";
+            *m_summaryStream << wzMondimentionalSummary << " ";
 
             *getGnuplotGraphStream() << "Построить график амплитуды и предельной амплитуды:\n"
                                      << gnuplot_scripts::amplitudeLimitAmplitude(m_wtOscillationFile,

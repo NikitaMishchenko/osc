@@ -109,6 +109,27 @@ namespace gnuplot_scripts
         return ss.str();
     }
 
+    inline std::string pitchStaticCoefficient(const boost::filesystem::path &angleHistroyAbsAmplitudeFile, double mzNondimensionalization)
+    {
+        std::stringstream ss;
+        // -pow(wtOscillation.getW(), 2)*wtOscillation.getMzNondimensionalization()
+
+        ss << "plot " << angleHistroyAbsAmplitudeFile << " using 2:($5*$5*" << -1*mzNondimensionalization << ") "
+           << std::endl;
+
+        return ss.str();
+    }
+
+    inline std::string pitchStaticCoefficientSummary(const boost::filesystem::path &angleHistroyAbsAmplitudeFile, double mzNondimensionalization)
+    {
+        std::stringstream ss;
+        // -pow(wtOscillation.getW(), 2)*wtOscillation.getMzNondimensionalization()
+
+        // todo
+
+        return ss.str();
+    }
+
     inline std::string amplitudeSummary(const boost::filesystem::path &descriptionFileName)
     {
         std::stringstream ss;

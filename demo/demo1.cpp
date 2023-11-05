@@ -113,7 +113,7 @@ int main(int argc, char **argv)
     std::vector<DataToProc> dataToProc = configProcessor.getDataToProc();
     
     std::shared_ptr<DescriptionStream> summaryStreamPtr = std::make_shared<DescriptionStream>(configPath, "summary");
-    
+
     for (const auto& d : dataToProc)
     {
         std::cout << d.toString() << "\n";
