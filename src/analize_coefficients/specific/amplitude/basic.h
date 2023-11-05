@@ -112,6 +112,36 @@ namespace amplitude
             return out;
         }
 
+        static std::string getTimeSavedDataIndex()
+        {
+            return "$1";
+        }
+
+        static std::string getAngleSavedDataIndex()
+        {
+            return "$2";
+        }
+
+        static std::string getDangleSavedDataIndex()
+        {
+            return "$3";
+        }
+
+        static std::string getFreqSavedDataIndex()
+        {
+            return "$4";
+        }
+
+        static std::string getPeriodSavedDataIndex()
+        {
+            return "$5";
+        }
+
+        static std::string getIndexSavedDataIndex()
+        {
+            return "$6";
+        }
+
         double m_amplitudeTime;
         double m_amplitudeAngle;
         double m_amplitudeDangle;

@@ -150,7 +150,7 @@ protected:
         amplitudeVector.sortViaTime();
 
         *getDescriptionStream() << "Сохранение данных абсолютной амплитуды в файл"
-                                   "(время, первая  производная по времени, период, частота, индекс отсчета в исходных данных): "
+                                   "(время, угол, первая  производная по времени, период, частота, индекс отсчета в исходных данных): "
                                 << std::endl;
         {
             std::ofstream fout(m_angleHistroyAbsAmplitudeFile.string());

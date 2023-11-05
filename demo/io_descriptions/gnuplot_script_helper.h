@@ -140,8 +140,15 @@ namespace gnuplot_scripts
     {
         std::stringstream ss;
         // -pow(wtOscillation.getW(), 2)*wtOscillation.getMzNondimensionalization()
-
-        ss << "plot " << angleHistroyAbsAmplitudeFile << " using 2:($5*$5*" << -1 * mzNondimensionalization << ") "
+        // "(время, первая  производная по времени, период, частота, индекс отсчета в исходных данных): "
+        const std::string timeDataColumn = "$1";
+        const std::string angleDataColumn = "$2";
+        const std::string dangleDataColumn = "$3";
+        const std::string w = "$4";
+        const std::string period = "$5";
+        const std::string indexInitialData = "$6";
+        // AngleAmplitudeBase
+        ss << "plot " << angleHistroyAbsAmplitudeFile << " using (" + angleDataColumn + "):(" + w + "*" + w + "*" << -1 * mzNondimensionalization << ") "
            << std::endl;
 
         return ss.str();
