@@ -123,14 +123,14 @@ private:
         }
 
         m_w /= m_angleAmplitudeVector.m_angleAmplitudeData.size();
-        m_w *= 2.0*M_PI;
+        //m_w *= 2.0*M_PI;
 
         std::cout << "w = " << m_w << "\n";
     }
 
     amplitude::AngleAmplitudeVector m_angleAmplitudeVector;
 
-    double m_w; // frequency of oscillation main mode
+    double m_w; // avg frequency of oscillation main mode from whoal data length
 
     wt_flow::Flow m_flow;
 

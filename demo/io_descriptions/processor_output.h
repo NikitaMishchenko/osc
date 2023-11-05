@@ -83,7 +83,7 @@ protected:
                                 << wtOscillation.getW() / 2 / M_PI
                                 << std::endl;
 
-        *getDescriptionStream() << "Средняя круговая частота колебаний w = "
+        *getDescriptionStream() << "Средняя круговая частота колебаний w0 = "
                                 << wtOscillation.getW()
                                 << std::endl;
 
@@ -99,8 +99,12 @@ protected:
                                 << wtOscillation.getIzNondimensional()
                                 << std::endl;
 
-        *getDescriptionStream() << "Безразмерная частота колебаний w = w_avt*l/v = "
+        *getDescriptionStream() << "Безразмерная частота колебаний w_nond = w_avt*l/v = "
                                 << wtOscillation.getWzNondimentional()
+                                << std::endl;
+
+        *getDescriptionStream() << "Статический коэффициент момента тангажа (по общей частоте колебаний) m_z__st = w0^2*I/(qsl) = "
+                                << -pow(wtOscillation.getW(), 2)*wtOscillation.getMzNondimensionalization()
                                 << std::endl;
 
         *getGnuplotGraphStream() << "Построить график mz(a):\n"
