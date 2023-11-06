@@ -79,31 +79,35 @@ protected:
             fout << wtOscillation << "\n";
         }
 
+        *getDescriptionStream() << "Коэффициент перевода градусов к радианам PI/180 = "
+                                << M_PI/180
+                                << std::endl;
+
         *getDescriptionStream() << "Средняя частота колебаний f[Гц] = "
                                 << wtOscillation.getW() / 2 / M_PI
                                 << std::endl;
 
-        *getDescriptionStream() << "Средняя круговая частота колебаний w0 = "
+        *getDescriptionStream() << "Средняя круговая частота колебаний w0 [rad/s] = "
                                 << wtOscillation.getW()
                                 << std::endl;
 
-        *getDescriptionStream() << "Начальный угол колебаний [a_0] = "
+        *getDescriptionStream() << "Начальный угол колебаний a_0 [grad] = "
                                 << wtOscillation.getAngle(0)
                                 << std::endl;
 
-        *getDescriptionStream() << "Коэффициент обезразмеривания для получения mz = I/(qsl)a'' -> I/(qsl) = "
+        *getDescriptionStream() << "Коэффициент обезразмеривания для получения mz из a'' [grad/s^2] mzNondimensionalization [s^2/grad] = I/(qsl) a'' -> I/(qsl) * PI/180 = "
                                 << wtOscillation.getMzNondimensionalization()
                                 << std::endl;
         
-        *getDescriptionStream() << "Коэффициент обезразмеривания для wz_nondim = l/v = "
+        *getDescriptionStream() << "Коэффициент обезразмеривания для wz_nondim wzNondimensionalization [s] = l/v = "
                                 << wtOscillation.getWzNondimensionalization()
                                 << std::endl;
 
-        *getDescriptionStream() << "Безразмерный момент инерции iz = 2I/(rho*s*l^3) = "
+        *getDescriptionStream() << "Безразмерный момент инерции iz [1] = 2I/(rho*s*l^3) = "
                                 << wtOscillation.getIzNondimensional()
                                 << std::endl;
 
-        *getDescriptionStream() << "Безразмерная частота колебаний w_nond = w_avt*l/v = "
+        *getDescriptionStream() << "Безразмерная частота колебаний w_nond [1] = w_avt*l/v = "
                                 << wtOscillation.getWzNondimentional()
                                 << std::endl;
 
@@ -179,9 +183,10 @@ protected:
         // calculate m_z__st
         // -pow(wtOscillation.getW(), 2)*wtOscillation.getMzNondimensionalization()
 
+        const double l_div_v = wtOscillation.getMzNondimensionalization()/angleDegToRad(); // already in radian here
         AngleHistory pitchStaticCoefficient;
         *getGnuplotGraphStream() << "Построить график статического момента тангажа:\n"
-                                 << gnuplot_scripts::pitchStaticCoefficient(m_angleHistroyAbsAmplitudeFile, wtOscillation.getMzNondimensionalization())
+                                 << gnuplot_scripts::pitchStaticCoefficientFromW0(m_angleHistroyAbsAmplitudeFile, l_div_v)
                                  << std::endl;
 
         {
@@ -284,12 +289,17 @@ protected:
             }
 
             // getMzNondimensionalization() * ddangle (w) (getWzNondimensionalization() * dangle())
+
+            const double ddangleCoeff = wtOscillation.getMzNondimensionalization();
+            const double dangleCoeff = M_PI/180*wtOscillation.getWzNondimensionalization();
+            *getGnuplotGraphStream() << ddangleCoeff << " " << dangleCoeff << std::endl;
+
             *getGnuplotGraphStream() << "Построить график m_z(a'_nondim) = (I/(qsl))*a''((l/v)*a') = :\n"
                                      << gnuplot_scripts::sections(m_wtOscillationFile,
                                                                   specificSectionFileVector,
                                                                   m_coreName,
-                                                                  wtOscillation.getMzNondimensionalization(),
-                                                                  wtOscillation.getWzNondimensionalization())
+                                                                  ddangleCoeff,
+                                                                  dangleCoeff)
                                      << std::endl;
         }
     }
@@ -365,15 +375,15 @@ protected:
         }
 
         {
-            *getGnuplotGraphStream() << "Построить график a''(a) по периодам:\n";
+            *getGnuplotGraphStream() << "Построить график m_z(a) по периодам:\n";
             *getGnuplotGraphStream()<< "plot "
-                                     << m_wtOscillationFile << " using 2:4 with lines, ";
+                                     << m_wtOscillationFile << " using 2:($4 * " << wtOscillation.getMzNondimensionalization() << ") with lines, ";
 
             for (int periodCounter = 0; periodCounter < amplitudeVector.size(); periodCounter++)
             {
                 boost::filesystem::path singlePeriodFile = m_periodsBaseDir / std::to_string(periodCounter);
 
-                *getGnuplotGraphStream() << singlePeriodFile << " using 2:4 with lines notitle, ";
+                *getGnuplotGraphStream() << singlePeriodFile << " using 2:($4 * " << wtOscillation.getMzNondimensionalization() << ") with lines notitle, ";
             }
             *getGnuplotGraphStream() << std::endl;
         }

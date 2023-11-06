@@ -19,9 +19,19 @@ struct Mz
     double mz;
 };
 
+inline double angleDegToRad()
+{
+    return M_PI / 180;
+}
+
 inline double calcMzNondimensionalization(const wt_flow::Flow& flow, const Model& model)
 {
-    return (model.getI() / flow.getDynamicPressure() / model.getS() / model.getL());
+    return (model.getI() / flow.getDynamicPressure() / model.getS() / model.getL() * angleDegToRad());
+}
+
+inline double calcMzDANondimensionalization(const wt_flow::Flow& flow, const Model& model)
+{
+    return (model.getI() / flow.getDynamicPressure() / model.getS() / model.getL() / angleDegToRad());
 }
 
 inline double calcWzNondimensionalization(const wt_flow::Flow& flow, const Model& model)
@@ -78,6 +88,7 @@ public:
     }
 
     double getMzNondimensionalization() const { return m_mzNondimensionalization; }
+    double getMzDANondimensionalization() const { return m_mzDANondimensionalization; }
     double getWzNondimensionalization() const { return m_wzNondimensionalization; }
     double getIzNondimensional() const { return m_izNondimentional; }
     double getWzNondimentional() const { return m_wzNondimentional; }
@@ -110,6 +121,7 @@ private:
                                           std::make_shared<std::vector<double>>(this->getDangle()));
         calculateW();
         m_mzNondimensionalization = calcMzNondimensionalization(m_flow, m_model);
+        m_mzDANondimensionalization = calcMzDANondimensionalization(m_flow, m_model);
         m_wzNondimensionalization = calcWzNondimensionalization(m_flow, m_model);
         m_izNondimentional = calcIzNondimentional(m_flow, m_model);
         m_wzNondimentional = calcWzNondimentional(m_w, m_flow, m_model);
@@ -144,6 +156,7 @@ private:
     Model m_model;
 
     double m_mzNondimensionalization;
+    double m_mzDANondimensionalization;
     double m_wzNondimensionalization;
     double m_izNondimentional;
     double m_wzNondimentional;

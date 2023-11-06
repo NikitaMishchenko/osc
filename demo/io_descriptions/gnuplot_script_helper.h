@@ -71,13 +71,18 @@ namespace gnuplot_scripts
 
     namespace section_impl
     {
+        // todo
+        inline std::string multiplierCoefficient(const double coeff)
+        {
+        }
+
         std::string getMzGraphDataFromFileGnuplotScript(const double mzNondimensionalization = 1,
                                                         const double wzNondimentionalization = 1)
         {
             const std::string dangleDataColumn = "$3"; // todo method to get data column
             const std::string ddangleDataColumn = "$4";
             
-            const std::string mz = ddangleDataColumn + "*" + std::to_string(mzNondimensionalization); 
+            const std::string mz = ddangleDataColumn + "*" + std::to_string(mzNondimensionalization*1000) + "/ 1000"; 
             const std::string da_nondim = dangleDataColumn + "*" + std::to_string(wzNondimentionalization);
 
             return "using (" + da_nondim + "):(" + mz + ") ";
@@ -115,7 +120,7 @@ namespace gnuplot_scripts
             int sectionNo = 0;
             for (const auto &sectionFile : specificSectionFileVector)
             {
-                sectionsGnuplotFileScript << ", "
+                sectionsGnuplotFileScript << ", \\\n"
                                           << section_impl::singleSection(wtOscillationFile,
                                                                          sectionFile.string(),
                                                                          sectionNo,
@@ -125,7 +130,7 @@ namespace gnuplot_scripts
             }
         }
 
-        ss << commonDescription(std::string("amitude " + coreName + "5 degree step"), "{/Symbol w}_n_o_n_d", "{/Symbol q}({/Symbol w}_n_o_n_d)");
+        ss << commonDescription(std::string("m_z " + coreName + ", 5 degree step"), "{/Symbol a}'_n_o_n_d", "m_z({/Symbol a}')");
 
         ss << "plot " << wtOscillationFile << section_impl::getMzGraphDataFromFileGnuplotScript(mzNondimensionalization, wzNondimentionalization) << " with linespoints"
            << (sectionsGnuplotFileScript.str().empty()
@@ -136,10 +141,10 @@ namespace gnuplot_scripts
         return ss.str();
     }
 
-    inline std::string pitchStaticCoefficient(const boost::filesystem::path &angleHistroyAbsAmplitudeFile, double mzNondimensionalization)
+    inline std::string pitchStaticCoefficientFromW0(const boost::filesystem::path &angleHistroyAbsAmplitudeFile, double wwCoeff)
     {
         std::stringstream ss;
-        // -pow(wtOscillation.getW(), 2)*wtOscillation.getMzNondimensionalization()
+        // -pow(wtOscillation.getW(), 2)*wtOscillation.getWzNondimensionalization()
         // "(время, первая  производная по времени, период, частота, индекс отсчета в исходных данных): "
         const std::string timeDataColumn = "$1";
         const std::string angleDataColumn = "$2";
@@ -148,7 +153,7 @@ namespace gnuplot_scripts
         const std::string period = "$5";
         const std::string indexInitialData = "$6";
         // AngleAmplitudeBase
-        ss << "plot " << angleHistroyAbsAmplitudeFile << " using (" + angleDataColumn + "):(" + w + "*" + w + "*" << -1 * mzNondimensionalization << ") "
+        ss << "plot " << angleHistroyAbsAmplitudeFile << " using (" + angleDataColumn + "):(" + w + "*" + w + "*" << -1 * wwCoeff << ") "
            << std::endl;
 
         return ss.str();
