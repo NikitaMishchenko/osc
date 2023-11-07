@@ -38,7 +38,7 @@ public:
         // m_descriptionName = coreName + ".description";
 
         m_angleHistoryFile = m_inputPath / m_angleHistoryName;
-        m_modelFile = m_inputPath / m_modelName;
+        m_modelFile = m_modelName;
         m_flowFile = m_inputPath / m_flowName;
 
         // m_descriptionFile = m_inputPath / m_descriptionName;
