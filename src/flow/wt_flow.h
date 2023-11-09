@@ -38,6 +38,22 @@ namespace wt_flow
             loadFile(fileName);
         }
 
+        // from PTL data
+        Flow(const double dynamicPressureKgForce, const double mach, const double temperature, const double reynolds)
+        {
+            m_mach = mach;
+            
+            m_reynolds = reynolds;
+            
+            m_T0 = temperature;
+            
+            m_velocity = calculateVelocityWT(mach, temperature);
+            
+            m_dynamicPressure = dynamicPressureKgForce * 9.8;
+            
+            m_rho = m_dynamicPressure/m_velocity/m_velocity*2.0;
+        }
+
         ///CALCULATE FLOW
         void setToDefault()
         {
@@ -89,6 +105,21 @@ namespace wt_flow
         double getDensity() const
         {
             return m_rho;
+        }
+
+        double getTemperature() const
+        {
+            return m_T0;
+        }
+
+        double getMach() const
+        {
+            return m_mach;
+        }
+
+        double getReynolds() const
+        {
+            return m_reynolds;
         }
 
         /**
