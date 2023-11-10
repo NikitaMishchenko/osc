@@ -35,18 +35,19 @@ public:
     {
         // working in folder of specific core data
         *getDescriptionStream() << "Начинаем записывать данные. Исходный путь: " << m_outputPath << std::endl;
-        m_outputPath /= coreName;
-        *getDescriptionStream() << "Рабочая дирректория для записи данных: " << m_outputPath << std::endl;
+        m_outputProcessingPath = m_outputPath/coreName;
+        *getDescriptionStream() << "Рабочая дирректория для записи данных обработки: " << m_outputProcessingPath << std::endl;
 
         m_wtOscillationName = coreName + ".wt_oscillation";
         m_amplitudeName = coreName + "_amplitude.angle_history";
         m_absAmplitudeName = coreName + "_abs_amplitude.angle_history";
 
-        m_wtOscillationFile = m_outputPath / m_wtOscillationName;
-        m_angleHistroyAmplitudeFile = m_outputPath / m_amplitudeName;
-        m_angleHistroyAbsAmplitudeFile = m_outputPath / m_absAmplitudeName;
+        m_wtOscillationFile = m_outputProcessingPath / m_wtOscillationName;
+        m_angleHistroyAmplitudeFile = m_outputProcessingPath / m_amplitudeName;
+        m_angleHistroyAbsAmplitudeFile = m_outputProcessingPath / m_absAmplitudeName;
 
-        m_periodsBaseDir = m_outputPath / "periods";
+        m_periodsBaseDir = m_outputProcessingPath / "periods";
+        m_graphGnuplotDir = m_outputPath / "plotters";
     }
 
     virtual ~ProcessorOutput()
@@ -237,12 +238,27 @@ protected:
 
             *m_summaryStream << wzMondimentionalSummary << " ";
 
-            *getGnuplotGraphStream() << "Построить график амплитуды и предельной амплитуды:\n"
-                                     << gnuplot_scripts::amplitudeLimitAmplitude(m_wtOscillationFile,
-                                                                                 m_angleHistroyAbsAmplitudeFile,
-                                                                                 angleAmplitudeAvg.m_amplitudeAngle,
-                                                                                 m_coreName)
-                                     << std::endl;
+            {
+                boost::filesystem::path graphGnuplotFile = m_graphGnuplotDir / (m_coreName + "_angleHistory.gp");
+
+                std::stringstream streamGnuplotGraph; 
+                
+                streamGnuplotGraph  << gnuplot_scripts::amplitudeLimitAmplitude(m_wtOscillationFile,
+                                                                               m_angleHistroyAbsAmplitudeFile,
+                                                                               angleAmplitudeAvg.m_amplitudeAngle,
+                                                                               m_coreName)
+                                    << std::endl;
+                
+                {
+                    std::ofstream fout(graphGnuplotFile.string());
+
+                    fout << streamGnuplotGraph.str() << std::endl;
+                }
+
+                *getGnuplotGraphStream() << "Построить график амплитуды и предельной амплитуды:\n"
+                                         << streamGnuplotGraph.str()
+                                         << std::endl;
+            }
         }
     }
 
@@ -274,7 +290,7 @@ protected:
             for (const auto &section : sectionVector)
             {
                 std::string specificSectionFileName = m_coreName + "_section" + std::to_string(section.getTargetAngle()) + "_" + std::string(Section::ASCENDING == section.getSectionType() ? "asc" : "desc") + ".oscillation";
-                boost::filesystem::path specificSectionFile = m_outputPath / specificSectionFileName;
+                boost::filesystem::path specificSectionFile = m_outputProcessingPath / specificSectionFileName;
 
                 specificSectionFileVector.push_back(specificSectionFile);
 
@@ -282,7 +298,7 @@ protected:
                                         << std::endl;
 
                 {
-                    std::ofstream fout(boost::filesystem::path(m_outputPath / specificSectionFile).string());
+                    std::ofstream fout(boost::filesystem::path(m_outputProcessingPath / specificSectionFile).string());
 
                     fout << section << "\n";
                 }
@@ -398,6 +414,7 @@ public:
     boost::filesystem::path m_angleHistroyAmplitudeFile;
     boost::filesystem::path m_angleHistroyAbsAmplitudeFile;
     boost::filesystem::path m_periodsBaseDir;
+    boost::filesystem::path m_graphGnuplotDir;
 
 private:
     std::string m_coreName;
@@ -408,4 +425,5 @@ private:
     std::shared_ptr<std::stringstream> m_summaryStream; // todo make it shared_pt
 
     boost::filesystem::path m_outputPath; //< core dirrectory
+    boost::filesystem::path m_outputProcessingPath; //< processing data of current core name stored here
 };
