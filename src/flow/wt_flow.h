@@ -7,19 +7,18 @@
 #include <vector>
 #include <string>
 
-
 namespace wt_flow
 {
     const double T0_KELVIN = 273.15;
     const double GRAVITATIONAL_ACCELERATION = 9.80665;
-    
+
     inline double calculateVelocityWT(const double machNumber, const double temperature0)
     {
         const double velocity = 20.04 * machNumber * sqrt((temperature0 + T0_KELVIN) / (1.0 + 0.2 * machNumber * machNumber));
 
         return velocity;
     }
-    
+
     class Flow
     {
     public:
@@ -30,10 +29,10 @@ namespace wt_flow
             m_T0 = 1;
             m_dynamicPressure = 1;
             m_mach = 1;
-            m_reynolds = 1; 
+            m_reynolds = 1;
         }
 
-        Flow(const std::string& fileName)
+        Flow(const std::string &fileName)
         {
             loadFile(fileName);
         }
@@ -42,31 +41,45 @@ namespace wt_flow
         Flow(const double dynamicPressureKgForce, const double mach, const double temperature, const double reynolds)
         {
             m_mach = mach;
-            
+
             m_reynolds = reynolds;
-            
+
             m_T0 = temperature;
-            
+
             m_velocity = calculateVelocityWT(mach, temperature);
-            
+
             m_dynamicPressure = dynamicPressureKgForce * 9.8;
-            
-            m_rho = m_dynamicPressure/m_velocity/m_velocity*2.0;
+
+            m_rho = m_dynamicPressure / m_velocity / m_velocity * 2.0;
         }
 
-        ///CALCULATE FLOW
+        Flow(const double density,
+             const double velocity,
+             const double temperature,
+             const double dynamicPressure,
+             const double mach,
+             const double reynolds) : m_rho(density),
+                                      m_velocity(velocity),
+                                      m_T0(temperature),
+                                      m_dynamicPressure(dynamicPressure),
+                                      m_mach(mach),
+                                      m_reynolds(reynolds)
+        {
+        }
+
+        /// CALCULATE FLOW
         void setToDefault()
         {
             m_velocity = 1;
             m_dynamicPressure = 1;
         }
 
-        void setDynamicPressure(const double& dynamicPressure)
+        void setDynamicPressure(const double &dynamicPressure)
         {
             m_dynamicPressure = dynamicPressure;
         }
 
-        void setReynolds(const double& reynolds)
+        void setReynolds(const double &reynolds)
         {
             m_reynolds = reynolds;
         }
@@ -82,8 +95,8 @@ namespace wt_flow
         }
 
         /**
-        *   @return true if ok
-        */
+         *   @return true if ok
+         */
         bool calculateDynamicPressure();
         bool calculateFlow();
 
@@ -123,11 +136,11 @@ namespace wt_flow
         }
 
         /**
-        *   calculete @m_velocity from @m_T0, @m_mach
-        */
+         *   calculete @m_velocity from @m_T0, @m_mach
+         */
         bool calculateVelocity()
         {
-            if(m_T0 && m_mach)
+            if (m_T0 && m_mach)
             {
                 m_velocity = calculateVelocityWT(m_T0, m_mach);
                 return true;
@@ -140,7 +153,7 @@ namespace wt_flow
         {
             if (m_velocity && m_dynamicPressure)
             {
-                m_rho = m_dynamicPressure/m_velocity/m_velocity * 2.0;
+                m_rho = m_dynamicPressure / m_velocity / m_velocity * 2.0;
                 return true;
             }
             return false;
@@ -151,13 +164,13 @@ namespace wt_flow
         std::string getInfoString() const;
 
         /**
-        *   Load data from txt-file of avg flow data:
-        *   Mach *machValue
-        *   m_T0
-        *   m_rho
-        */
-        bool loadFile( const std::string& fileName);
-        bool saveFile( const std::string& fileNmae);
+         *   Load data from txt-file of avg flow data:
+         *   Mach *machValue
+         *   m_T0
+         *   m_rho
+         */
+        bool loadFile(const std::string &fileName);
+        bool saveFile(const std::string &fileNmae);
 
     private:
         double m_rho = 0;

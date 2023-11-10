@@ -288,13 +288,8 @@ std::vector<wt_flow::Flow> parsePtlFile(const std::string &fileName, const int m
     return paresedFlow;
 }
 
-int main(int argc, char **argv)
+void parseAndSaveFlow(const boost::filesystem::path& ptlFlowFile)
 {
-    boost::filesystem::path basePath = "/home/mishnic/data/data_proc/sphere_cone_M1.75/flow_ptl/";
-    std::string coreName = "4474";
-
-    boost::filesystem::path ptlFlowFile = basePath / coreName;
-
     std::vector<wt_flow::Flow> flowVector = parsePtlFile(ptlFlowFile.string() + ".ptl");
 
     std::vector<double> density;
@@ -360,9 +355,29 @@ int main(int argc, char **argv)
     const double reynoldsFinal = std::accumulate(reynolds.begin(), reynolds.begin() + sizeToAvg, 0.0)/sizeToAvg;
 
 
-    wt_flow::Flow flowCalculated(wt_flow::Flow(dynamicPressureFinal, machFinal, temperatureFinal, reynoldsFinal));
+    wt_flow::Flow flowCalculated(wt_flow::Flow(densityFinal,
+                                               velocityFinal,
+                                               temperatureFinal,
+                                               dynamicPressureFinal,
+                                               machFinal,
+                                               reynoldsFinal));
 
     {
         flowCalculated.saveFile(ptlFlowFile.string() + ".flow");
     }
+}
+
+int main(int argc, char **argv)
+{
+    boost::filesystem::path basePath = "/home/mishnic/data/data_proc/sphere_cone_M1.75/flow_ptl/";
+    
+    for (int i = 4461; i < 4475; i++)
+    {
+        std::string coreName = std::to_string(i); //"4474";
+
+        boost::filesystem::path ptlFlowFile = basePath / coreName;
+
+        parseAndSaveFlow(ptlFlowFile);
+    }
+
 }
