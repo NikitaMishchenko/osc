@@ -47,6 +47,17 @@ namespace gnuplot_scripts
         return ss.str();
     }
 
+    /*
+        #!/usr/bin/gnuplot -persist
+
+        load '4463_angleHistory.gp'
+        load '4465_angleHistory.gp'
+        load '4468_angleHistory.gp'
+        load '4470_angleHistory.gp'
+        load '4471_angleHistory.gp'
+        load '4472_angleHistory.gp'
+        load '4474_angleHistory.gp'
+    */
     inline std::string amplitudeLimitAmplitude(const boost::filesystem::path &wtOscillationFile,
                                                const boost::filesystem::path &angleHistroyAbsAmplitudeFile,
                                                const double limitAmplitude,
@@ -54,16 +65,28 @@ namespace gnuplot_scripts
     {
         std::stringstream ss;
 
-        const std::string titleAngleHistory = "\"{/Symbol a}(t)\"";
-        const std::string titleAbsAmplitude = "\"{/Symbol q}(t)\"";
+        const std::string titleAngleHistory = "\"α(t)\"";
+        const std::string titleAbsAmplitude = "\"Θ(t)\"";
         const std::string titleLimitAmplitude = "\"limit amplitude\"";
 
-        ss << commonDescription(std::string("angle history " + coreName), "t", "{/Symbol a}(t)");
+        // ss << "set term png font \"arial\"\n";
+        // https://stackoverflow.com/questions/18753222/how-to-add-a-greek-character-in-png-file-created-by-gnuplot
+        ss << "set encoding utf8\n";
+
+        ss << commonDescription(std::string("angle history " + coreName), "t", "α(t)");
+
+        ss << "set terminal png size 800, 600;\n"
+           << "set output \"" << coreName << "_angle_history.png\" \n\n";
+
+        ss << "set xrange [0:9]\n";
+        ss << "set yrange [-130:130]\n";
 
         ss << "plot "
            << wtOscillationFile << " using 1:2 with lines title " << titleAngleHistory << ", "
            << angleHistroyAbsAmplitudeFile << " using 1:2 title " << titleAbsAmplitude << ", "
            << limitAmplitude << " lw 3 lc rgb \"red\" title " << titleLimitAmplitude << " "
+           << std::endl
+           << "\nreset"
            << std::endl;
 
         return ss.str();
