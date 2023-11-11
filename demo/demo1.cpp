@@ -122,10 +122,28 @@ int main(int argc, char **argv)
 
     DescriptionStream summary(configPath, "summary.description");
 
-    summary << "Построить график амплитуды от безразмерной частоты (coreName, amplitudeAngle[degre], avgW [rad/s], nondimW):\n"
-            << gnuplot_scripts::amplitudeSummary(summaryStreamPtr->getDescriptionFileName())
-            << std::endl;
+    {
+        std::stringstream streamGnuplotGraph; 
 
+        streamGnuplotGraph << gnuplot_scripts::amplitudeSummary(summaryStreamPtr->getDescriptionFileName())
+                           << std::endl;
+        
+        const std::string AmplitudeNondimGnuplotFileName = "amplitude_to_w_nondim.gp";
+
+        boost::filesystem::path gnuplotAmplitudeNondimGnuplotFile = configPath / "plotters" / AmplitudeNondimGnuplotFileName;
+
+        {
+            std::ofstream fout(gnuplotAmplitudeNondimGnuplotFile.string());
+        
+            fout << "reset\n"
+                 << streamGnuplotGraph.str() << std::endl;
+        }
+
+        summary << "Построить график амплитуды от безразмерной частоты (coreName, amplitudeAngle[degre], avgW [rad/s], nondimW):\n"
+                << streamGnuplotGraph.str() << std::endl;
+    }
+
+    
     // todo ? make single Class for description and data stream getDataStream() << , detDescriptionStream() << , getFileNameDescirption(), getFileNameData()
     // struct description, data -> binds data and it's description
     // description passed for other sources, data

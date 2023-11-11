@@ -14,6 +14,7 @@ namespace
         std::stringstream ss;
 
         ss << "set grid" << std::endl;
+        ss << "set encoding utf8\n";
 
         if (!title.empty())
             ss << "set title \"" << title << "\"" << std::endl;
@@ -71,7 +72,6 @@ namespace gnuplot_scripts
 
         // ss << "set term png font \"arial\"\n";
         // https://stackoverflow.com/questions/18753222/how-to-add-a-greek-character-in-png-file-created-by-gnuplot
-        ss << "set encoding utf8\n";
 
         ss << commonDescription(std::string("angle history " + coreName), "t", "α(t)");
 
@@ -143,7 +143,7 @@ namespace gnuplot_scripts
             int sectionNo = 0;
             for (const auto &sectionFile : specificSectionFileVector)
             {
-                sectionsGnuplotFileScript << ", \\\n"
+                sectionsGnuplotFileScript << ",\\\n"
                                           << section_impl::singleSection(wtOscillationFile,
                                                                          sectionFile.string(),
                                                                          sectionNo,
@@ -192,19 +192,22 @@ namespace gnuplot_scripts
         return ss.str();
     }
 
-    inline std::string amplitudeSummary(const boost::filesystem::path &descriptionFileName)
+    inline std::string amplitudeSummary(const boost::filesystem::path &dataFileName)
     {
         std::stringstream ss;
-        const std::string titleAmplitudeSummary = "\"{/Symbol q}({/Symbol w}_n_o_n_d)\"";
+        const std::string titleAmplitudeSummary = "\"Θ(ϖ\"";
+
+        ss << "set terminal png size 800, 600;\n"
+           << "set output \"" << dataFileName.string() << "_amplitude_w_nondim.png\" \n\n";
 
         ss << "set yrange [0:50]" << std::endl;
-        ss << "set xrange [0.01:0.018]" << std::endl;
+        ss << "set xrange [0.014:0.022]" << std::endl;
 
-        ss << commonDescription("summary {/Symbol q}({/Symbol w}_n_o_n_d)",
-                                "{/Symbol w}_n_o_n_d",
-                                "{/Symbol q}");
+        ss << commonDescription("summary Θ(ϖ)",
+                                "ϖ",
+                                "Θ");
 
-        ss << "plot " << descriptionFileName << " using 4:2 lw 10 notitle "; // << titleAmplitudeSummary << std::endl;
+        ss << "plot " << dataFileName << " using 4:2 lw 10 notitle ";
 
         return ss.str();
     }

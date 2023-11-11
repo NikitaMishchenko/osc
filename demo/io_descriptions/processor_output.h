@@ -379,13 +379,13 @@ protected:
         {
             *getGnuplotGraphStream() << "Построить график a(t) по периодам:\n";
             *getGnuplotGraphStream() << "plot "
-                                     << m_wtOscillationFile << " using 1:2 with lines, ";
+                                     << m_wtOscillationFile << " using 1:2 with lines,\\" << std::endl;
 
             for (int periodCounter = 0; periodCounter < amplitudeVector.size(); periodCounter++)
             {
                 boost::filesystem::path singlePeriodFile = m_periodsBaseDir / std::to_string(periodCounter);
 
-                *getGnuplotGraphStream() << singlePeriodFile << " using 1:2 with lines notitle, ";
+                *getGnuplotGraphStream() << singlePeriodFile << " using 1:2 with lines notitle,\\" << std::endl;
             }
             *getGnuplotGraphStream() << std::endl;
         }
@@ -393,13 +393,13 @@ protected:
         {
             *getGnuplotGraphStream() << "Построить график m_z(a) по периодам:\n";
             *getGnuplotGraphStream()<< "plot "
-                                     << m_wtOscillationFile << " using 2:($4 * " << wtOscillation.getMzNondimensionalization() << ") with lines, ";
+                                     << m_wtOscillationFile << " using 2:($4 * " << wtOscillation.getMzNondimensionalization() << ") with lines,\\" << std::endl;
 
             for (int periodCounter = 0; periodCounter < amplitudeVector.size(); periodCounter++)
             {
                 boost::filesystem::path singlePeriodFile = m_periodsBaseDir / std::to_string(periodCounter);
 
-                *getGnuplotGraphStream() << singlePeriodFile << " using 2:($4 * " << wtOscillation.getMzNondimensionalization() << ") with lines notitle, ";
+                *getGnuplotGraphStream() << singlePeriodFile << " using 2:($4 * " << wtOscillation.getMzNondimensionalization() << ") with lines notitle,\\" << std::endl;
             }
             *getGnuplotGraphStream() << std::endl;
         }
