@@ -26,10 +26,10 @@ public:
         : ProcessorIo({descriptionStreamPtr}),
           m_coreName(coreName),
           m_modelName(modelName), 
-          m_inputPath(inputPath)
+          m_inputPathCore(inputPath)
     {
         // working in folder of specific core data
-        m_inputPath /= coreName;
+        m_inputPathProcessing = m_inputPathCore / coreName;
 
         m_angleHistoryName = m_coreName + ".angle_history";
         m_modelFile = m_modelName + ".model";
@@ -37,11 +37,11 @@ public:
 
         // m_descriptionName = coreName + ".description";
 
-        m_angleHistoryFile = m_inputPath / m_angleHistoryName;
+        m_angleHistoryFile = m_inputPathProcessing / m_angleHistoryName;
         m_modelFile = m_modelName;
-        m_flowFile = m_inputPath / m_flowName;
+        m_flowFile = m_inputPathCore / "flow_ptl" / m_flowName;
 
-        // m_descriptionFile = m_inputPath / m_descriptionName;
+        // m_descriptionFile = m_inputPathProcessing / m_descriptionName;
     }
 
     virtual ~ProcessorInput()
@@ -107,7 +107,7 @@ public:
 
     boost::filesystem::path getInputPath() const
     {
-        return m_inputPath;
+        return m_inputPathCore;
     }
 
 private:
@@ -129,5 +129,6 @@ private:
     std::string m_modelName;
     std::string m_flowName;
 
-    boost::filesystem::path m_inputPath;
+    boost::filesystem::path m_inputPathCore;
+    boost::filesystem::path m_inputPathProcessing;
 };
