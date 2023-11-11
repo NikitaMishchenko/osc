@@ -1,9 +1,10 @@
 #pragma once
 
 #include <iostream>
-
+#include <functional>
 #include <tuple>
 #include <exception>
+#include <memory>
 
 #include "oscillation/wt_oscillation.h"
 #include "oscillation/oscillation_basic.h"
@@ -18,12 +19,12 @@ public:
         DESCENDING
     };
 
-    bool calculateSection(const Oscillation &oscillation, const double targetAngle, const int sectionType, uint interpolationPoints = 10)
+    bool calculateSection(std::shared_ptr<Oscillation> oscillationPtr, const double targetAngle, const int sectionType, uint interpolationPoints = 10)
     {
         m_sectionType = sectionType;
         m_targetAngle = targetAngle;
 
-        if (oscillation.size() == 0)
+        if (oscillationPtr->size() == 0)
             return false;
 
         const uint minimalInterpolationPoints = 3;
@@ -31,25 +32,25 @@ public:
         if (interpolationPoints < minimalInterpolationPoints)
             interpolationPoints = minimalInterpolationPoints;
 
-        for (int i = minimalInterpolationPoints; i < oscillation.size() - minimalInterpolationPoints; i++)
+        for (int i = minimalInterpolationPoints; i < oscillationPtr->size() - minimalInterpolationPoints; i++)
         {
 
-            std::function<bool(const Oscillation &, const int index, const double targetAngle)> comparator;
+            std::function<bool(std::shared_ptr<Oscillation> oscillationPtr, const int index, const double targetAngle)> comparator;
 
             if (ASCENDING == m_sectionType)
             {
-                comparator = [](const Oscillation &oscillation, const int index, const double targetAngle)
+                comparator = [](std::shared_ptr<Oscillation> oscillationPtr, const int index, const double targetAngle)
                 {
-                    return (oscillation.getAngle(index) > targetAngle &&
-                            targetAngle > oscillation.getAngle(index + 1));
+                    return (oscillationPtr->getAngle(index) > targetAngle &&
+                            targetAngle > oscillationPtr->getAngle(index + 1));
                 };
             }
             else if (DESCENDING == m_sectionType)
             {
-                comparator = [](const Oscillation &oscillation, const int index, const double targetAngle)
+                comparator = [](std::shared_ptr<Oscillation> oscillationPtr, const int index, const double targetAngle)
                 {
-                    return (oscillation.getAngle(index) < targetAngle &&
-                            targetAngle < oscillation.getAngle(index + 1));
+                    return (oscillationPtr->getAngle(index) < targetAngle &&
+                            targetAngle < oscillationPtr->getAngle(index + 1));
                 };
             }
             else
@@ -57,7 +58,7 @@ public:
                 throw std::runtime_error("comparator for section not selected");
             }
 
-            if (comparator(oscillation, i, targetAngle))
+            if (comparator(oscillationPtr, i, targetAngle))
             {
                 int indexFrom = i - interpolationPoints / 2;
                 int indexTo = i + interpolationPoints / 2;
@@ -67,29 +68,29 @@ public:
                     continue;
                 }
 
-                if (indexTo > oscillation.size())
+                if (indexTo > oscillationPtr->size())
                 {
                     continue;
                 }
 
                 Function toSplineDangle =
-                    sortFunction(Function(std::vector<double>(oscillation.angleBegin() + indexFrom,
-                                                              oscillation.angleBegin() + indexTo),
-                                          std::vector<double>(oscillation.dangleBegin() + indexFrom,
-                                                              oscillation.dangleBegin() + indexTo)));
+                    sortFunction(Function(std::vector<double>(oscillationPtr->angleBegin() + indexFrom,
+                                                              oscillationPtr->angleBegin() + indexTo),
+                                          std::vector<double>(oscillationPtr->dangleBegin() + indexFrom,
+                                                              oscillationPtr->dangleBegin() + indexTo)));
 
                 GnuslSplineWrapper splineDangle(toSplineDangle);
 
                 ///
                 Function toSplineDdangle =
-                    sortFunction(Function(std::vector<double>(oscillation.angleBegin() + indexFrom,
-                                                              oscillation.angleBegin() + indexTo),
-                                          std::vector<double>(oscillation.ddangleBegin() + indexFrom,
-                                                              oscillation.ddangleBegin() + indexTo)));
+                    sortFunction(Function(std::vector<double>(oscillationPtr->angleBegin() + indexFrom,
+                                                              oscillationPtr->angleBegin() + indexTo),
+                                          std::vector<double>(oscillationPtr->ddangleBegin() + indexFrom,
+                                                              oscillationPtr->ddangleBegin() + indexTo)));
 
                 GnuslSplineWrapper splineDdangle(toSplineDdangle);
 
-                this->push_back((oscillation.getTime(i) + oscillation.getTime(i + 1)) / 2, // bad one
+                this->push_back((oscillationPtr->getTime(i) + oscillationPtr->getTime(i + 1)) / 2, // bad one
                                 targetAngle,
                                 splineDangle.getEvaluation(targetAngle),
                                 splineDdangle.getEvaluation(targetAngle));
@@ -110,10 +111,13 @@ private:
 class Sections
 {
 public:
-    Sections(const Oscillation &oscillation, const double sectionAngleStep) : m_oscillation(oscillation)
+    Sections()
+    {}
+
+    Sections(std::shared_ptr<Oscillation> oscillationPtr, const double sectionAngleStep) : m_oscillationPtr(oscillationPtr)
     {
-        m_maxAngle = *std::max_element(oscillation.angleBegin(), oscillation.angleEnd());
-        m_minAngle = *std::min_element(oscillation.angleBegin(), oscillation.angleEnd());
+        m_maxAngle = *std::max_element(oscillationPtr->angleBegin(), oscillationPtr->angleEnd());
+        m_minAngle = *std::min_element(oscillationPtr->angleBegin(), oscillationPtr->angleEnd());
         m_sectionBorderValue = int(std::min(std::abs(m_maxAngle), std::abs(m_minAngle)) / sectionAngleStep) * sectionAngleStep;
         m_sectionAngleStep = sectionAngleStep;
 
@@ -132,12 +136,12 @@ public:
 
             {
                 Section sectionAsc;
-                sectionAsc.calculateSection(m_oscillation, sectionAngle, Section::ASCENDING);
+                sectionAsc.calculateSection(m_oscillationPtr, sectionAngle, Section::ASCENDING);
                 m_sectrionsVector.push_back(sectionAsc);
             }
             {
                 Section sectionDesc;
-                sectionDesc.calculateSection(m_oscillation, sectionAngle, Section::DESCENDING);
+                sectionDesc.calculateSection(m_oscillationPtr, sectionAngle, Section::DESCENDING);
                 m_sectrionsVector.push_back(sectionDesc);
             }
 
@@ -150,6 +154,11 @@ public:
         return std::make_tuple(true, m_minAngle, m_maxAngle, m_sectrionsVector);
     }
 
+    double sectionAngleStep() const
+    {
+        return m_sectionAngleStep;
+    }
+
 private:
     std::vector<Section> m_sectrionsVector;
     double m_maxAngle;
@@ -157,7 +166,7 @@ private:
     double m_sectionBorderValue;
     double m_sectionAngleStep;
 
-    Oscillation m_oscillation;
+    std::shared_ptr<Oscillation> m_oscillationPtr;
 };
 
 /*inline std::tuple<bool, double, double, std::vector<Section>>

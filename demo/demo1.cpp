@@ -72,14 +72,15 @@ void doJob(const DataToProc &dataToProc, std::shared_ptr<DescriptionStream> summ
         std::vector<Section> sectionVector;
         const int sectionAngleStep = 5;
         *descriptionStreamPtr << "Рассчет методом сечений для угла " << sectionAngleStep << " градусов\n";
-        Sections sections(oscillation, sectionAngleStep);
-        sections.calculate();
+        
+        // Sections sections(oscillation, sectionAngleStep);
+        // sections.calculate();
 
         ProcessorOutput processorOutput(descriptionStreamPtr, gnuplotGraphStreamPtr, summaryStreamPtr, basePath, coreName);
 
         bool dataWrittenOk = false;
 
-        dataWrittenOk = processorOutput.write(wtOscillation, sections);
+        dataWrittenOk = processorOutput.write(wtOscillation);
     }
 
     // /home/mishnic/data/phd/data_proc/pic_ddangle_respect_to_angle_of_attack

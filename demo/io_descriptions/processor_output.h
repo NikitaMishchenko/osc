@@ -12,7 +12,6 @@
 #include "oscillation/wt_oscillation.h"
 #include "model/tr_rod_model_params.h"
 #include "flow/wt_flow.h"
-#include "analize_coefficients/specific/section/section.h"
 
 #include "gnuplot_script_helper.h"
 #include "processor_io.h"
@@ -56,12 +55,11 @@ public:
         *getDescriptionStream() << "Запись данных закончена!" << std::endl;
     }
 
-    bool write(const WtOscillation &wtOscillation,
-               const Sections &sections) const
+    bool write(const WtOscillation &wtOscillation) const
     {
         reportWtOscillation(wtOscillation);
         reportAmplitude(wtOscillation);
-        reportSections(wtOscillation, sections);
+        reportSections(wtOscillation);
         reportPeriods(wtOscillation);
 
         return true;
@@ -262,14 +260,15 @@ protected:
         }
     }
 
-    void reportSections(const WtOscillation &wtOscillation,
-                        const Sections &sections) const
+    void reportSections(const WtOscillation &wtOscillation) const
     {
+        const int sectionAngleStep = 5; // hardcode
+        std::shared_ptr<Sections> sectionsPtr = wtOscillation.getSections(sectionAngleStep);
+
         bool isOk = false;
         std::vector<Section> sectionVector;
-        const int sectionAngleStep = 5; // hardcode
         double maxAngle, minAngle;
-        std::tie(isOk, minAngle, maxAngle, sectionVector) = sections.getData();
+        std::tie(isOk, minAngle, maxAngle, sectionVector) = sectionsPtr->getData();
 
         *getDescriptionStream() << "Максимальный достигаемый угол: " << maxAngle
                                 << std::endl

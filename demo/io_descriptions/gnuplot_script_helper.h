@@ -97,6 +97,7 @@ namespace gnuplot_scripts
         // todo
         inline std::string multiplierCoefficient(const double coeff)
         {
+            return std::string();
         }
 
         std::string getMzGraphDataFromFileGnuplotScript(const double mzNondimensionalization = 1,

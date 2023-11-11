@@ -3,6 +3,7 @@
 #include <utility>
 #include <vector>
 #include <math.h>
+#include <memory>
 
 #include <gsl/gsl_matrix.h>
 
@@ -12,6 +13,7 @@
 #include "gnusl_wrapper/filters/gauissian.h"
 #include "core/vector_helpers.h"
 #include "analize_coefficients/specific/amplitude/basic.h"
+#include "analize_coefficients/specific/section/section.h"
 
 struct Mz
 {
@@ -59,7 +61,7 @@ public:
 
     WtOscillation(const AngleHistory &angleHistory) : Oscillation(angleHistory),
                                                       m_flow(wt_flow::Flow()),
-                                                      m_model(Model())
+                                                      m_model(Model())                                                      
     {
         initialCalculation();
     };
@@ -100,6 +102,13 @@ public:
     Model getModel() const;
     wt_flow::Flow getFlow() const { return m_flow; }
     double getW() const { return m_w; };
+
+    std::shared_ptr<Sections> getSections(const double targetAngle) const
+    {
+        m_sectionsPtr = std::make_shared<Sections>(std::make_shared<Oscillation>(*this), targetAngle);
+        m_sectionsPtr->calculate();
+        return m_sectionsPtr;
+    }
 
     amplitude::AngleAmplitudeVector getAngleAmplitudeVector() const
     {
@@ -154,6 +163,8 @@ private:
     wt_flow::Flow m_flow;
 
     Model m_model;
+
+    mutable std::shared_ptr<Sections> m_sectionsPtr; //(oscillation, sectionAngleStep);
 
     double m_mzNondimensionalization;
     double m_mzDANondimensionalization;
