@@ -147,11 +147,27 @@ public:
 
             sectionAngle += m_sectionAngleStep;
         }
+
+        // for specific target angle get from ascending, get from descending ang calculate
+        /*for (const auto& section : m_sectrionsVector)
+        {
+            Function funcDdangleOndangle;
+
+            for (int i = 0; i < section.size()-1; i++)
+            {
+                double dangle = (section.getDangle(i+1) + section.getDangle(i)) / 2.0;
+                double ddangleOndangle = (section.getDdangle(i+1) - section.getDdangle(i)) / (section.getDangle(i+1) - section.getDangle(i));
+                
+                funcDdangleOndangle.push_back(dangle, ddangleOndangle);
+            }
+
+            m_ddangleOndangleVector.push_back(funcDdangleOndangle);
+        }*/
     }
 
-    std::tuple<bool, double, double, std::vector<Section>> getData() const
+    std::tuple<bool, double, double, std::vector<Section>, std::vector<Function>> getData() const
     {
-        return std::make_tuple(true, m_minAngle, m_maxAngle, m_sectrionsVector);
+        return std::make_tuple(true, m_minAngle, m_maxAngle, m_sectrionsVector, m_ddangleOndangleVector);
     }
 
     double sectionAngleStep() const
@@ -161,6 +177,7 @@ public:
 
 private:
     std::vector<Section> m_sectrionsVector;
+    std::vector<Function> m_ddangleOndangleVector;
     double m_maxAngle;
     double m_minAngle;
     double m_sectionBorderValue;

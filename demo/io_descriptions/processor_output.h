@@ -263,12 +263,13 @@ protected:
     void reportSections(const WtOscillation &wtOscillation) const
     {
         const int sectionAngleStep = 5; // hardcode
-        std::shared_ptr<Sections> sectionsPtr = wtOscillation.getSections(sectionAngleStep);
+        std::shared_ptr<Sections> sectionsPtr = wtOscillation.calcAndGetSections(sectionAngleStep);
 
         bool isOk = false;
         std::vector<Section> sectionVector;
+        std::vector<Function> ddangleOnDangleVector;
         double maxAngle, minAngle;
-        std::tie(isOk, minAngle, maxAngle, sectionVector) = sectionsPtr->getData();
+        std::tie(isOk, minAngle, maxAngle, sectionVector, ddangleOnDangleVector) = sectionsPtr->getData();
 
         *getDescriptionStream() << "Максимальный достигаемый угол: " << maxAngle
                                 << std::endl
@@ -278,7 +279,7 @@ protected:
         *getDescriptionStream() << "Построем сечения по углам с шагом " << sectionAngleStep
                                 << std::endl;
 
-        {
+        { 
             std::stringstream sectionsGnuplotFileScript;
             std::vector<boost::filesystem::path> specificSectionFileVector;
             specificSectionFileVector.reserve(sectionVector.size());
@@ -300,6 +301,10 @@ protected:
                     std::ofstream fout(boost::filesystem::path(m_outputProcessingPath / specificSectionFile).string());
 
                     fout << section << "\n";
+                }
+
+                {
+                    // todo report ddangleOndangle
                 }
             }
 

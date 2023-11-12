@@ -170,6 +170,17 @@ public:
             valCodomain = log(valCodomain);
     }
 
+    friend std::ostream &operator<<(std::ostream &outSource, const Function &D)
+    {
+        for (size_t i = 0; i < D.size(); i++)
+        {
+            outSource << D.m_domain.at(i) << "\t"
+                      << D.m_codomain.at(i) << "\n";
+        }
+
+        return outSource;
+    }
+
     virtual void info() const
     {
         std::cout << "Function object:\n"

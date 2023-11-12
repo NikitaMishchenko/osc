@@ -103,7 +103,7 @@ public:
     wt_flow::Flow getFlow() const { return m_flow; }
     double getW() const { return m_w; };
 
-    std::shared_ptr<Sections> getSections(const double targetAngle) const
+    std::shared_ptr<Sections> calcAndGetSections(const double targetAngle) const
     {
         m_sectionsPtr = std::make_shared<Sections>(std::make_shared<Oscillation>(*this), targetAngle);
         m_sectionsPtr->calculate();
