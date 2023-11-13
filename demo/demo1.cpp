@@ -17,7 +17,7 @@
 #include "io_descriptions/processor_input.h"
 #include "io_descriptions/processor_output.h"
 #include "io_descriptions/description_stream.h"
-#include "io_descriptions/config_processor.h"
+#include "io_descriptions/config_processor/config_processor.h"
 
 /**
  *  Файлы должны находиться в одном каталоге переменная root

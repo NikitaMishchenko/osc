@@ -151,9 +151,8 @@ private:
         }
 
         m_w /= m_angleAmplitudeVector.m_angleAmplitudeData.size();
-        //m_w *= 2.0*M_PI;
 
-        std::cout << "w = " << m_w << "\n";
+        std::cout << "w = " << m_w << "\n";        
     }
 
     amplitude::AngleAmplitudeVector m_angleAmplitudeVector;
