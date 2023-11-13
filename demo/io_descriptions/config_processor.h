@@ -72,6 +72,11 @@ public:
         return m_dataToProc;
     }
 
+    boost::filesystem::path getRootPath()
+    {   
+        return m_root;
+    }
+
 private:
     boost::filesystem::path m_root;
     std::vector<DataToProc> m_dataToProc;

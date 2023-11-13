@@ -107,13 +107,15 @@ void rewriteData(const DataToProc &d)
 int main(int argc, char **argv)
 {
     ConfigProcessor configProcessor;
-
-    boost::filesystem::path configPath("/home/mishnic/data/data_proc/sphere_cone_M1.75/");
-    configProcessor.load(configPath.string());
-
+    {
+        boost::filesystem::path configPath = "";
+        configProcessor.load(configPath.string());
+    }
+    
+    boost::filesystem::path rootDataPath = configProcessor.getRootPath();
     std::vector<DataToProc> dataToProc = configProcessor.getDataToProc();
     
-    std::shared_ptr<DescriptionStream> summaryStreamPtr = std::make_shared<DescriptionStream>(configPath, "summary");
+    std::shared_ptr<DescriptionStream> summaryStreamPtr = std::make_shared<DescriptionStream>(rootDataPath, "summary");
 
     for (const auto& d : dataToProc)
     {
@@ -121,7 +123,7 @@ int main(int argc, char **argv)
         doJob(d, summaryStreamPtr);
     }
 
-    DescriptionStream summary(configPath, "summary.description");
+    DescriptionStream summary(rootDataPath, "summary.description");
 
     {
         std::stringstream streamGnuplotGraph; 
@@ -131,7 +133,7 @@ int main(int argc, char **argv)
         
         const std::string AmplitudeNondimGnuplotFileName = "amplitude_to_w_nondim.gp";
 
-        boost::filesystem::path gnuplotAmplitudeNondimGnuplotFile = configPath / "plotters" / AmplitudeNondimGnuplotFileName;
+        boost::filesystem::path gnuplotAmplitudeNondimGnuplotFile = rootDataPath / "plotters" / AmplitudeNondimGnuplotFileName;
 
         {
             std::ofstream fout(gnuplotAmplitudeNondimGnuplotFile.string());
