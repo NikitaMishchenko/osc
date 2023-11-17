@@ -24,9 +24,7 @@ set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fPIC")
 
 #set(SOURCE_FILES main.cpp)
 
-add_library(flow 
-          ./src/flow/parse_ptl.cpp
-          ./src/flow/parse_ptl.h
+add_library(flow
           ./src/flow/wt_flow.h
           ./src/flow/wt_flow.cpp
 )

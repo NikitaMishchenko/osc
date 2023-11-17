@@ -12,8 +12,8 @@
 #include "fft/fftw_impl.h"
 #include "periods/periods_base.h"
 #include "io_helpers/cut_oscillation_file.h"
-#include "flow/parse_ptl.h"
 #include "flow/wt_flow.h"
+#include "flow/ptl_flow.h"
 #include "analize_coefficients/dynamic_coefficients.h"
 #include "errcodes.h"
 #include "pendulum/pendulum_analisys.h"
@@ -116,8 +116,18 @@ namespace basic_procedures
     inline ErrorCodes performProcedureFlow(const std::string &fileName)
     {
         wt_flow::Flow flow;
+        bool isOk = false;
+        
+        try
+        {
+            flow = averageFLowData(parsePtlFile(fileName + ".ptl"));
+        }
+        catch(...)
+        {
 
-        if (wt_flow::parsePTLfile(fileName + ".ptl", flow, 5))
+        }
+
+        if (isOk)
         {
             flow.saveFile(fileName + ".flow");
             std::cout << "File " << fileName << " parsed: success\n";
