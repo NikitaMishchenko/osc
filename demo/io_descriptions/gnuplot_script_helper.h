@@ -33,6 +33,36 @@ namespace
 
 namespace gnuplot_scripts
 {
+    /*
+        #!/usr/bin/gnuplot -persist
+
+        load '4463_phase_plane.gp'
+        load '4465_phase_plane.gp'
+        load '4468_phase_plane.gp'
+        load '4470_phase_plane.gp'
+        load '4471_phase_plane.gp'
+        load '4472_phase_plane.gp'
+        load '4474_phase_plane.gp'
+    */
+    inline std::string phasePlaneDangleViaT(const boost::filesystem::path &m_wtOscillationFile, const std::string& coreName)
+    {
+        std::stringstream ss;
+        
+        const std::string title = "dα/dt " + coreName;
+
+        ss << "set terminal png size 800, 600;\n"
+           << "set output \"" << coreName << "_phase_plane.png\" \n\n";
+
+        ss << "set yrange [-7000:7000]\n";
+        ss << "set xrange [-140:140]\n";
+
+        ss << commonDescription("dα/dt " + coreName, "α", "dα/dt");
+
+        ss << "plot " << m_wtOscillationFile << " using 2:3 " << "with lines notitle"
+           << std::endl;
+
+        return ss.str();
+    }
 
     inline std::string mz(const boost::filesystem::path &m_wtOscillationFile, const double mzNondimensionalization)
     {

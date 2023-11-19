@@ -34,7 +34,7 @@ public:
     {
         // working in folder of specific core data
         *getDescriptionStream() << "Начинаем записывать данные. Исходный путь: " << m_outputPath << std::endl;
-        m_outputProcessingPath = m_outputPath/coreName;
+        m_outputProcessingPath = m_outputPath / coreName;
         *getDescriptionStream() << "Рабочая дирректория для записи данных обработки: " << m_outputProcessingPath << std::endl;
 
         m_wtOscillationName = coreName + ".wt_oscillation";
@@ -79,7 +79,7 @@ protected:
         }
 
         *getDescriptionStream() << "Коэффициент перевода градусов к радианам PI/180 = "
-                                << M_PI/180
+                                << M_PI / 180
                                 << std::endl;
 
         *getDescriptionStream() << "Средняя частота колебаний f[Гц] = "
@@ -97,7 +97,7 @@ protected:
         *getDescriptionStream() << "Коэффициент обезразмеривания для получения mz из a'' [grad/s^2] mzNondimensionalization [s^2/grad] = I/(qsl) a'' -> I/(qsl) * PI/180 = "
                                 << wtOscillation.getMzNondimensionalization()
                                 << std::endl;
-        
+
         *getDescriptionStream() << "Коэффициент обезразмеривания для wz_nondim wzNondimensionalization [s] = l/v = "
                                 << wtOscillation.getWzNondimensionalization()
                                 << std::endl;
@@ -111,8 +111,27 @@ protected:
                                 << std::endl;
 
         *getDescriptionStream() << "Статический коэффициент момента тангажа (по общей частоте колебаний) m_z__st = w0^2*I/(qsl) = "
-                                << -pow(wtOscillation.getW(), 2)*wtOscillation.getMzNondimensionalization()
+                                << -pow(wtOscillation.getW(), 2) * wtOscillation.getMzNondimensionalization()
                                 << std::endl;
+
+        {
+            boost::filesystem::path graphGnuplotFile = m_graphGnuplotDir / (m_coreName + "_phase_plane.gp");
+
+            std::stringstream streamGnuplotGraph;
+
+            streamGnuplotGraph << gnuplot_scripts::phasePlaneDangleViaT(m_wtOscillationFile, m_coreName)
+                               << std::endl;
+
+            {
+                std::ofstream fout(graphGnuplotFile.string());
+
+                fout << streamGnuplotGraph.str() << std::endl;
+            }
+
+            *getGnuplotGraphStream() << "Построить график на фазовой плоскости da/dt(a):\n"
+                                     << streamGnuplotGraph.str()
+                                     << std::endl;
+        }
 
         *getGnuplotGraphStream() << "Построить график mz(a):\n"
                                  << gnuplot_scripts::mz(m_wtOscillationFile, wtOscillation.getMzNondimensionalization())
@@ -182,7 +201,7 @@ protected:
         // calculate m_z__st
         // -pow(wtOscillation.getW(), 2)*wtOscillation.getMzNondimensionalization()
 
-        const double l_div_v = wtOscillation.getMzNondimensionalization()/angleDegToRad(); // already in radian here
+        const double l_div_v = wtOscillation.getMzNondimensionalization() / angleDegToRad(); // already in radian here
         AngleHistory pitchStaticCoefficient;
         *getGnuplotGraphStream() << "Построить график статического момента тангажа:\n"
                                  << gnuplot_scripts::pitchStaticCoefficientFromW0(m_angleHistroyAbsAmplitudeFile, l_div_v)
@@ -227,8 +246,8 @@ protected:
             *m_summaryStream << angleAmplitudeAvg.m_frequency << " ";
 
             const double wzMondimentionalSummary = calcWzNondimentional(angleAmplitudeAvg.m_frequency,
-                                                                 wtOscillation.getFlow(),
-                                                                 wtOscillation.getModel());
+                                                                        wtOscillation.getFlow(),
+                                                                        wtOscillation.getModel());
 
             *getDescriptionStream() << "Безразмерная частота колебаний для участка автоколебаний [1]: "
                                     << wzMondimentionalSummary
@@ -239,14 +258,14 @@ protected:
             {
                 boost::filesystem::path graphGnuplotFile = m_graphGnuplotDir / (m_coreName + "_angleHistory.gp");
 
-                std::stringstream streamGnuplotGraph; 
-                
-                streamGnuplotGraph  << gnuplot_scripts::amplitudeLimitAmplitude(m_wtOscillationFile,
+                std::stringstream streamGnuplotGraph;
+
+                streamGnuplotGraph << gnuplot_scripts::amplitudeLimitAmplitude(m_wtOscillationFile,
                                                                                m_angleHistroyAbsAmplitudeFile,
                                                                                angleAmplitudeAvg.m_amplitudeAngle,
                                                                                m_coreName)
-                                    << std::endl;
-                
+                                   << std::endl;
+
                 {
                     std::ofstream fout(graphGnuplotFile.string());
 
@@ -279,7 +298,7 @@ protected:
         *getDescriptionStream() << "Построем сечения по углам с шагом " << sectionAngleStep
                                 << std::endl;
 
-        { 
+        {
             std::stringstream sectionsGnuplotFileScript;
             std::vector<boost::filesystem::path> specificSectionFileVector;
             specificSectionFileVector.reserve(sectionVector.size());
@@ -311,7 +330,7 @@ protected:
             // getMzNondimensionalization() * ddangle (w) (getWzNondimensionalization() * dangle())
 
             const double ddangleCoeff = wtOscillation.getMzNondimensionalization();
-            const double dangleCoeff = M_PI/180*wtOscillation.getWzNondimensionalization();
+            const double dangleCoeff = M_PI / 180 * wtOscillation.getWzNondimensionalization();
             *getGnuplotGraphStream() << ddangleCoeff << " " << dangleCoeff << std::endl;
 
             *getGnuplotGraphStream() << "Построить график m_z(a'_nondim) = (I/(qsl))*a''((l/v)*a') = :\n"
@@ -341,7 +360,7 @@ protected:
         for (int periodCounter = 0; periodCounter < amplitudeVector.size(); periodCounter++)
         {
             const double amplitudeTimeValue = amplitudeVector.getAmplitudeTime(periodCounter);
-            
+
             std::vector<double>::const_iterator timeBorderIt =
                 std::find_if(startOfPeriodIt,
                              wtOscillation.timeEnd(),
@@ -367,9 +386,9 @@ protected:
                                     << singlePeriodFile
                                     << std::endl;
             std::ofstream foutSinglePeriod(singlePeriodFile.string());
-            
+
             for (int i = startIndexOfPeriodData; i < endIndexOfPeriodData; i++)
-            {           
+            {
                 foutSinglePeriod << wtOscillation.getTime(i) << " "
                                  << wtOscillation.getAngle(i) << " "
                                  << wtOscillation.getDangle(i) << " "
@@ -379,7 +398,7 @@ protected:
             startOfPeriodIt = timeBorderIt;
             startIndexOfPeriodData = endIndexOfPeriodData;
         }
-        
+
         {
             *getGnuplotGraphStream() << "Построить график a(t) по периодам:\n";
             *getGnuplotGraphStream() << "plot "
@@ -396,7 +415,7 @@ protected:
 
         {
             *getGnuplotGraphStream() << "Построить график m_z(a) по периодам:\n";
-            *getGnuplotGraphStream()<< "plot "
+            *getGnuplotGraphStream() << "plot "
                                      << m_wtOscillationFile << " using 2:($4 * " << wtOscillation.getMzNondimensionalization() << ") with lines,\\" << std::endl;
 
             for (int periodCounter = 0; periodCounter < amplitudeVector.size(); periodCounter++)
@@ -428,6 +447,6 @@ private:
 
     std::shared_ptr<std::stringstream> m_summaryStream; // todo make it shared_pt
 
-    boost::filesystem::path m_outputPath; //< core dirrectory
+    boost::filesystem::path m_outputPath;           //< core dirrectory
     boost::filesystem::path m_outputProcessingPath; //< processing data of current core name stored here
 };
