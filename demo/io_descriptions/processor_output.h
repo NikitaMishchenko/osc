@@ -256,7 +256,7 @@ protected:
             *m_summaryStream << wzMondimentionalSummary << " ";
 
             {
-                boost::filesystem::path graphGnuplotFile = m_graphGnuplotDir / (m_coreName + "_angleHistory.gp");
+                boost::filesystem::path graphGnuplotFile = m_graphGnuplotDir / (m_coreName + "_amplitude.gp");
 
                 std::stringstream streamGnuplotGraph;
 
@@ -273,6 +273,26 @@ protected:
                 }
 
                 *getGnuplotGraphStream() << "Построить график амплитуды и предельной амплитуды:\n"
+                                         << streamGnuplotGraph.str()
+                                         << std::endl;
+            }
+
+            {
+                boost::filesystem::path graphGnuplotFile = m_graphGnuplotDir / (m_coreName + "_angleHistory.gp");
+
+                std::stringstream streamGnuplotGraph;
+
+                streamGnuplotGraph << gnuplot_scripts::angleHistory(m_wtOscillationFile,
+                                                                    m_coreName)
+                                   << std::endl;
+
+                {
+                    std::ofstream fout(graphGnuplotFile.string());
+
+                    fout << streamGnuplotGraph.str() << std::endl;
+                }
+
+                *getGnuplotGraphStream() << "Построить график истории угла атаки:\n"
                                          << streamGnuplotGraph.str()
                                          << std::endl;
             }
