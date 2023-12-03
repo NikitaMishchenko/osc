@@ -5,13 +5,28 @@
 #include <string>
 
 #include <boost/filesystem.hpp>
+#include <boost/regex.hpp>
 
 #include "flow/wt_flow.h"
 #include "flow/ptl_flow.h"
 
-void parseAndSaveFlow(const boost::filesystem::path& ptlFlowFile)
+void parseAndSaveFlow(const boost::filesystem::path &ptlFlowFile)
 {
-    std::vector<wt_flow::Flow> flowVector = parsePtlFile(ptlFlowFile.string() + ".ptl");
+    std::cout << "parsing " << ptlFlowFile << std::endl;
+
+    std::vector<wt_flow::Flow> flowVector;
+
+    try
+    {
+        flowVector = parsePtlFile(ptlFlowFile.string() + ".ptl");
+    }
+    catch(...)
+    {
+        std::cerr << "failed to parse " << ptlFlowFile << " skipping\n";
+        return;
+    }
+
+    std::cout << "parsed size: " << flowVector.size() << std::endl;
 
     {
         std::ofstream fout(ptlFlowFile.string() + "_parsed_flow");
@@ -37,14 +52,29 @@ void parseAndSaveFlow(const boost::filesystem::path& ptlFlowFile)
 int main(int argc, char **argv)
 {
     boost::filesystem::path basePath = "/home/mishnic/data/data_proc/sphere_cone_M1.75/flow_ptl/";
-    
-    for (int i = 4461; i < 4475; i++)
+
+    std::vector<boost::filesystem::path> ptlFiles;
+    boost::regex regexPtl("(.*\\.ptl)");
+
+    // for (int i = 4461; i < 4475; i++)
+    for (boost::filesystem::directory_iterator it(basePath); it != boost::filesystem::directory_iterator(); ++it)
     {
-        std::string coreName = std::to_string(i); //"4474";
-
-        boost::filesystem::path ptlFlowFile = basePath / coreName;
-
-        parseAndSaveFlow(ptlFlowFile);
+        if (boost::regex_search(it->path().string(), regexPtl))
+        {
+            std::cout << *it << "\n";
+            ptlFiles.push_back(it->path());
+        }
     }
 
+    for (const auto& ptlFile : ptlFiles)
+    {
+        // std::string coreName = std::to_string(i); //"4474";
+
+        // boost::filesystem::path ptlFlowFile = basePath / coreName;
+        std::string fileName(ptlFile.string());
+        fileName = std::string(fileName.begin(), fileName.end() - std::string(".ptl").size());
+        parseAndSaveFlow(fileName);
+    }
+
+    std::cout << "Finished\n";
 }

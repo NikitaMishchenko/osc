@@ -177,6 +177,7 @@ target_link_libraries(demo2
                       libboost_program_options.a
                       -lboost_filesystem
                       -lboost_system
+                      -lboost_regex
                       GSL::gsl
                       GSL::gslcblas
                       fftw3

@@ -65,6 +65,22 @@ namespace wt_flow
                                       m_mach(mach),
                                       m_reynolds(reynolds)
         {
+
+            m_velocity = calculateVelocityWT(mach, temperature);
+
+            // m_dynamicPressure = m_dynamicPressure * 9.8;
+
+            m_rho = m_dynamicPressure / m_velocity / m_velocity * 2.0;
+        }
+    
+        Flow(const Flow& flow)
+        {
+            m_rho = flow.m_rho;
+            m_velocity = flow.m_velocity;
+            m_T0 = flow.m_T0;
+            m_dynamicPressure = flow.m_dynamicPressure;
+            m_mach = flow.m_mach;
+            m_reynolds = flow.m_reynolds;
         }
 
         /// CALCULATE FLOW

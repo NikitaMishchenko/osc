@@ -4,34 +4,8 @@
 
 #include "flow/wt_flow.h"
 
-inline std::vector<wt_flow::Flow>
-parsePtlFile(const std::string &fileName,
-             const int maxTestCountsScinceAnglePolling = 999,
-             const int skipCounts = 0)
+struct FirstTable
 {
-    std::ifstream fin(fileName);
-
-    std::string buffString;
-    // find first table
-    // N          ñèíõð           TX          P0b         PC_M           AP           AI         P0_M       pkt_ls     t1 (ñåê)     t2 (ñåê)
-    {
-        const std::string stringMarker = "----------------------------------------------";
-
-        int i = 0;
-        while (i < 3)
-        {
-            if (stringMarker == buffString)
-            {
-                i++;
-            }
-
-            fin >> buffString;
-        }
-
-        std::getline(fin, buffString);
-    }
-
-    // read first table
     std::vector<int> N;
     std::vector<int> isTestStarted;
     std::vector<double> TX;
@@ -44,50 +18,141 @@ parsePtlFile(const std::string &fileName,
     std::vector<double> t1;
     std::vector<double> t2;
 
+    void push_back(int _N,
+                   int _isTestStarted,
+                   double _TX,
+                   double _P0b,
+                   double _PC_M,
+                   double _AP,
+                   double _AI,
+                   double _P0_M,
+                   double _pkt_ls,
+                   double _t1,
+                   double _t2)
+    {
+        N.push_back(_N);
+        isTestStarted.push_back(_isTestStarted);
+        TX.push_back(_TX);
+        P0b.push_back(_P0b);
+        PC_M.push_back(_PC_M);
+        AP.push_back(_AP);
+        AI.push_back(_AI);
+        P0_M.push_back(_P0_M);
+        pkt_ls.push_back(_pkt_ls);
+        t1.push_back(_t1);
+        t2.push_back(_t2);
+    }
+};
+
+namespace
+{
+    void findFirstTable(std::ifstream& fin)
+    {
+        std::string buffString;
+        
+        // find first table
+        // N          ñèíõð           TX          P0b         PC_M           AP           AI         P0_M       pkt_ls     t1 (ñåê)     t2 (ñåê)
+        {
+            const std::string stringMarker = "----------------------------------------------";
+
+            int i = 0;
+            while (i < 3)
+            {
+                if (stringMarker == buffString)
+                {
+                    i++;
+                }
+
+                fin >> buffString;
+            }
+
+            std::getline(fin, buffString);
+        }
+    }
+    
+    FirstTable parseFirstTable(std::ifstream& fin)
+    {
+        findFirstTable(fin);
+        
+        std::string buffString;
+
+        // read first table
+        FirstTable firstTable;
+
+        while (1)
+        {
+            fin >> buffString;
+
+            if ("______________________________________________________________________________________" == buffString)
+            {
+                break;
+            }
+
+            int N = std::stoi(buffString);
+            
+            fin >> buffString;
+            if (!(buffString == "1" || buffString == "2" || buffString == "3"))
+                throw "bad format of ptl data in row \"isTestStarted\"";
+
+            int isTestStarted = std::stoi(buffString);
+
+            double TX;
+            fin >> TX;
+            
+            double P0b;
+            fin >> P0b;
+
+            double PC_M;
+            fin >> PC_M;
+
+            double AP;
+            fin >> AP;
+
+            double AI;
+            fin >> AI;
+
+            double P0_M;
+            fin >> P0_M;
+
+            double pkt_ls;
+            fin >> pkt_ls;
+
+            double t1;
+            fin >> t1;
+
+            double t2;
+            fin >> t2;
+
+            firstTable.push_back(N,
+                                 isTestStarted,
+                                 TX,
+                                 P0b,
+                                 PC_M,
+                                 AP,
+                                 AI,
+                                 P0_M,
+                                 pkt_ls,
+                                 t1,
+                                 t2);
+        }
+
+        return firstTable;
+    }
+
+}
+
+inline std::vector<wt_flow::Flow>
+parsePtlFile(const std::string &fileName,
+             const int maxTestCountsScinceAnglePolling = 999,
+             const int skipCounts = 0)
+{
+    std::ifstream fin(fileName);
+
+    std::string buffString;
     double buffDouble;
     int buffInt;
 
-    while (1)
-    {
-        fin >> buffString;
-
-        if ("______________________________________________________________________________________" == buffString)
-        {
-            break;
-        }
-
-        N.push_back(std::stoi(buffString));
-        fin >> buffInt;
-
-        isTestStarted.push_back(buffInt);
-
-        fin >> buffDouble;
-        TX.push_back(buffDouble);
-
-        fin >> buffDouble;
-        P0b.push_back(buffDouble);
-
-        fin >> buffDouble;
-        PC_M.push_back(buffDouble);
-
-        fin >> buffDouble;
-        AP.push_back(buffDouble);
-
-        fin >> buffDouble;
-        AI.push_back(buffDouble);
-
-        fin >> buffDouble;
-        P0_M.push_back(buffDouble);
-
-        fin >> buffDouble;
-        pkt_ls.push_back(buffDouble);
-
-        fin >> buffDouble;
-        t1.push_back(buffDouble);
-
-        fin >> buffDouble;
-        t2.push_back(buffDouble);
-    }
+    FirstTable firstTable = parseFirstTable(fin);
 
     // find second table
     // N          pkt_r          pKD           UP           AL          ALF            M          M_r         M_ls     t1 (ñåê)     t2 (ñåê)
@@ -109,7 +174,7 @@ parsePtlFile(const std::string &fileName,
     // t2
 
     {
-        for (int i = 0; i < N.size(); i++)
+        for (int i = 0; i < firstTable.N.size(); i++)
         {
             // N
             fin >> buffInt;
@@ -160,7 +225,7 @@ parsePtlFile(const std::string &fileName,
     // t2
 
     {
-        for (int i = 0; i < N.size(); i++)
+        for (int i = 0; i < firstTable.N.size(); i++)
         {
             // N
             fin >> buffInt;
@@ -199,7 +264,7 @@ parsePtlFile(const std::string &fileName,
     // t2
 
     {
-        for (int i = 0; i < N.size(); i++)
+        for (int i = 0; i < firstTable.N.size(); i++)
         {
             // N
             fin >> buffInt;
@@ -252,7 +317,7 @@ parsePtlFile(const std::string &fileName,
     // t2
 
     {
-        for (int i = 0; i < N.size(); i++)
+        for (int i = 0; i < firstTable.N.size(); i++)
         {
             // N
             fin >> buffInt;
@@ -277,9 +342,9 @@ parsePtlFile(const std::string &fileName,
 
     std::vector<wt_flow::Flow> paresedFlow;
 
-    for (int i = 0; i < N.size(); i++)
+    for (int i = 0; i < firstTable.N.size(); i++)
     {
-        if (3 == isTestStarted.at(i))
+        if (3 == firstTable.isTestStarted.at(i))
             paresedFlow.push_back(wt_flow::Flow(Q.at(i), M.at(i), F_TX.at(i), Re.at(i)));
     }
 
@@ -341,12 +406,10 @@ averageFLowData(const std::vector<wt_flow::Flow> flowVector)
     const double machFinal = std::accumulate(mach.begin(), mach.begin() + sizeToAvg, 0.0) / sizeToAvg;
     const double reynoldsFinal = std::accumulate(reynolds.begin(), reynolds.begin() + sizeToAvg, 0.0) / sizeToAvg;
 
-    wt_flow::Flow resultFLow(densityFinal,
-                             velocityFinal,
-                             temperatureFinal,
-                             dynamicPressureFinal,
-                             machFinal,
-                             reynoldsFinal);
-
-    return resultFlow;
+    return wt_flow::Flow(densityFinal,
+                         velocityFinal,
+                         temperatureFinal,
+                         dynamicPressureFinal,
+                         machFinal,
+                         reynoldsFinal);
 }
