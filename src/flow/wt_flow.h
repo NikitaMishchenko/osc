@@ -48,7 +48,7 @@ namespace wt_flow
 
             m_velocity = calculateVelocityWT(mach, temperature);
 
-            m_dynamicPressure = dynamicPressureKgForce * 9.8;
+            m_dynamicPressure = dynamicPressureKgForce * GRAVITATIONAL_ACCELERATION;
 
             m_rho = m_dynamicPressure / m_velocity / m_velocity * 2.0;
         }
@@ -68,7 +68,7 @@ namespace wt_flow
 
             m_velocity = calculateVelocityWT(mach, temperature);
 
-            // m_dynamicPressure = m_dynamicPressure * 9.8;
+            // m_dynamicPressure = m_dynamicPressure * GRAVITATIONAL_ACCELERATION;
 
             m_rho = m_dynamicPressure / m_velocity / m_velocity * 2.0;
         }
