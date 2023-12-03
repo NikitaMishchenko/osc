@@ -390,7 +390,7 @@ parsePtlFile(const std::string &fileName,
     for (int i = 0; i < firstTable.N.size(); i++)
     {
         if (3 == firstTable.isTestStarted.at(i))
-            paresedFlow.push_back(wt_flow::Flow(Q.at(i), secondTable.M.at(i), F_TX.at(i), Re.at(i)));
+            paresedFlow.push_back(wt_flow::Flow(Q.at(i), secondTable.M.at(i), F_TX.at(i), Re.at(i))); // dynamic pressure calculated here
     }
 
     return paresedFlow;
