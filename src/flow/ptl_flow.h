@@ -4,8 +4,9 @@
 
 #include "flow/wt_flow.h"
 
-struct FirstTable
+class FirstTable
 {
+public:
     std::vector<int> N;
     std::vector<int> isTestStarted;
     std::vector<double> TX;
@@ -42,38 +43,11 @@ struct FirstTable
         t1.push_back(_t1);
         t2.push_back(_t2);
     }
-};
 
-namespace
-{
-    void findFirstTable(std::ifstream& fin)
-    {
-        std::string buffString;
-        
-        // find first table
-        // N          ñèíõð           TX          P0b         PC_M           AP           AI         P0_M       pkt_ls     t1 (ñåê)     t2 (ñåê)
-        {
-            const std::string stringMarker = "----------------------------------------------";
-
-            int i = 0;
-            while (i < 3)
-            {
-                if (stringMarker == buffString)
-                {
-                    i++;
-                }
-
-                fin >> buffString;
-            }
-
-            std::getline(fin, buffString);
-        }
-    }
-    
-    FirstTable parseFirstTable(std::ifstream& fin)
+    static FirstTable parse(std::ifstream &fin)
     {
         findFirstTable(fin);
-        
+
         std::string buffString;
 
         // read first table
@@ -89,7 +63,7 @@ namespace
             }
 
             int N = std::stoi(buffString);
-            
+
             fin >> buffString;
             if (!(buffString == "1" || buffString == "2" || buffString == "3"))
                 throw "bad format of ptl data in row \"isTestStarted\"";
@@ -98,7 +72,7 @@ namespace
 
             double TX;
             fin >> TX;
-            
+
             double P0b;
             fin >> P0b;
 
@@ -139,7 +113,132 @@ namespace
         return firstTable;
     }
 
-}
+private:
+    static void findFirstTable(std::ifstream &fin)
+    {
+        std::string buffString;
+
+        // find first table
+        // N          ñèíõð           TX          P0b         PC_M           AP           AI         P0_M       pkt_ls     t1 (ñåê)     t2 (ñåê)
+        {
+            const std::string stringMarker = "----------------------------------------------";
+
+            int i = 0;
+            while (i < 3)
+            {
+                if (stringMarker == buffString)
+                {
+                    i++;
+                }
+
+                fin >> buffString;
+            }
+
+            std::getline(fin, buffString);
+        }
+    }
+};
+
+struct SecondTable
+{
+public:
+
+    void push_back(double _pkt_r,
+                   double _pKD,
+                   double _UP,
+                   double _AL,
+                   double _ALF,
+                   double _M,
+                   double _M_r,
+                   double _M_ls)
+    {
+        pkt_r.push_back(_pkt_r);
+        pKD.push_back(_pKD);
+        UP.push_back(_UP);
+        AL.push_back(_AL);
+        ALF.push_back(_ALF);
+        M.push_back(_M);
+        M_r.push_back(_M_r);
+        M_ls.push_back(_M_ls);
+    }
+
+    static SecondTable parse(std::ifstream &fin, const std::vector<int> N)
+    {       
+        std::string buffString;
+
+        // find second table
+        // N          pkt_r          pKD           UP           AL          ALF            M          M_r         M_ls     t1 (ñåê)     t2 (ñåê)
+        {
+            std::getline(fin, buffString);
+            std::getline(fin, buffString);
+        }
+        
+        SecondTable secondTable;
+
+        int buffInt;
+        double buffDouble;
+
+        for (int i = 0; i < N.size(); i++)
+        {
+            // N
+            fin >> buffInt;
+
+            double pkt_r;
+            fin >> pkt_r;
+
+            double pKD;
+            fin >> pKD;
+
+            double UP;
+            fin >> UP;
+
+            double AL;
+            fin >> AL;
+
+            double ALF;
+            fin >> ALF;
+
+            double M;
+            fin >> M;
+
+            double M_r;
+            fin >> M_r;
+
+            double M_ls;
+            fin >> M_ls;
+
+
+            // f1
+            fin >> buffDouble;
+            // f2
+            fin >> buffDouble;
+            
+            secondTable.push_back(pkt_r,
+                                  pKD,
+                                  UP,
+                                  AL,
+                                  ALF,
+                                  M,
+                                  M_r,
+                                  M_ls);
+        }
+
+        return secondTable;
+    }
+
+    std::vector<double> pkt_r;
+    std::vector<double> pKD;
+    std::vector<double> UP;
+    std::vector<double> AL;
+    std::vector<double> ALF;
+    std::vector<double> M;
+    std::vector<double> M_r;
+    std::vector<double> M_ls;
+
+
+    private:
+};
+
 
 inline std::vector<wt_flow::Flow>
 parsePtlFile(const std::string &fileName,
@@ -152,63 +251,9 @@ parsePtlFile(const std::string &fileName,
     double buffDouble;
     int buffInt;
 
-    FirstTable firstTable = parseFirstTable(fin);
+    FirstTable firstTable = FirstTable::parse(fin);
 
-    // find second table
-    // N          pkt_r          pKD           UP           AL          ALF            M          M_r         M_ls     t1 (ñåê)     t2 (ñåê)
-    {
-        std::getline(fin, buffString);
-        std::getline(fin, buffString);
-    }
-
-    // N
-    std::vector<double> pkt_r;
-    std::vector<double> pKD;
-    std::vector<double> UP;
-    std::vector<double> AL;
-    std::vector<double> ALF;
-    std::vector<double> M;
-    std::vector<double> M_r;
-    std::vector<double> M_ls;
-    // t1
-    // t2
-
-    {
-        for (int i = 0; i < firstTable.N.size(); i++)
-        {
-            // N
-            fin >> buffInt;
-
-            fin >> buffDouble;
-            pkt_r.push_back(buffDouble);
-
-            fin >> buffDouble;
-            pKD.push_back(buffDouble);
-
-            fin >> buffDouble;
-            UP.push_back(buffDouble);
-
-            fin >> buffDouble;
-            AL.push_back(buffDouble);
-
-            fin >> buffDouble;
-            ALF.push_back(buffDouble);
-
-            fin >> buffDouble;
-            M.push_back(buffDouble);
-
-            fin >> buffDouble;
-            M_r.push_back(buffDouble);
-
-            fin >> buffDouble;
-            M_ls.push_back(buffDouble);
-
-            // f1
-            fin >> buffDouble;
-            // f2
-            fin >> buffDouble;
-        }
-    }
+    SecondTable secondTable = SecondTable::parse(fin, firstTable.N);
 
     // find third table
     // N             Re            Q     t1 (ñåê)     t2 (ñåê)
@@ -345,7 +390,7 @@ parsePtlFile(const std::string &fileName,
     for (int i = 0; i < firstTable.N.size(); i++)
     {
         if (3 == firstTable.isTestStarted.at(i))
-            paresedFlow.push_back(wt_flow::Flow(Q.at(i), M.at(i), F_TX.at(i), Re.at(i)));
+            paresedFlow.push_back(wt_flow::Flow(Q.at(i), secondTable.M.at(i), F_TX.at(i), Re.at(i)));
     }
 
     return paresedFlow;
