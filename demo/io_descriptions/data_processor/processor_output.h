@@ -13,7 +13,7 @@
 #include "model/tr_rod_model_params.h"
 #include "flow/wt_flow.h"
 
-#include "gnuplot_script_helper.h"
+#include "demo/io_descriptions/gnuplot_script_helper.h"
 #include "processor_io.h"
 
 /**

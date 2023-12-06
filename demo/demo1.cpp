@@ -14,8 +14,8 @@
 #include "analize_coefficients/specific/amplitude/utils.h"
 #include "analize_coefficients/specific/section/section.h"
 
-#include "io_descriptions/processor_input.h"
-#include "io_descriptions/processor_output.h"
+#include "io_descriptions/data_processor/processor_input.h"
+#include "io_descriptions/data_processor/processor_output.h"
 #include "io_descriptions/description_stream.h"
 #include "io_descriptions/config_processor/config_processor.h"
 
