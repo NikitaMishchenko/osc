@@ -341,7 +341,7 @@ namespace io
                                             << std::endl;
 
                     {
-                        std::ofstream fout(boost::filesystem::path(m_outputProcessingPath / specificSectionFile).string());
+                        std::ofstream fout(boost::filesystem::path(specificSectionFile).string());
 
                         fout << section << "\n";
                     }
