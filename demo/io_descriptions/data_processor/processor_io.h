@@ -4,25 +4,27 @@
 #include <vector>
 #include <memory>
 
-class ProcessorIo
+namespace io 
 {
-public:
-    ProcessorIo(std::vector<std::shared_ptr<std::stringstream> > descriptionStreamVector) : m_descriptionStreamVector(descriptionStreamVector)
-    {}
-
-    virtual ~ProcessorIo()
+    class ProcessorIo
     {
-        for (auto& descriptionStream : m_descriptionStreamVector)
-            if (!descriptionStream->str().empty())
-            {
-                *descriptionStream << "#####################################\n\n";
-                *descriptionStream << "#####################################\n";
-            }
-    }
-    
+    public:
+        ProcessorIo(std::vector<std::shared_ptr<std::stringstream> > descriptionStreamVector) : m_descriptionStreamVector(descriptionStreamVector)
+        {}
 
-protected:
-    mutable std::vector<std::shared_ptr<std::stringstream>> m_descriptionStreamVector;
-private:
-};
+        virtual ~ProcessorIo()
+        {
+            for (auto& descriptionStream : m_descriptionStreamVector)
+                if (!descriptionStream->str().empty())
+                {
+                    *descriptionStream << "#####################################\n\n";
+                    *descriptionStream << "#####################################\n";
+                }
+        }
+        
 
+    protected:
+        mutable std::vector<std::shared_ptr<std::stringstream>> m_descriptionStreamVector;
+    private:
+    };
+}
