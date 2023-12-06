@@ -127,18 +127,16 @@ public:
 
     void calculate()
     {
-        for (int sectionAngle = -m_sectionBorderValue; sectionAngle <= m_sectionBorderValue;)
+        double sectionAngle = -m_sectionBorderValue;
+
+        while (sectionAngle <= m_sectionBorderValue)
         {
-            // descriptionStream << "Рассчет методом сечений для угла " << sectionAngle << " градусов\n";
-            // std::cout << "sectionAngle = " << sectionAngle << "\n";
-
-            bool isOk = false;
-
             {
                 Section sectionAsc;
                 sectionAsc.calculateSection(m_oscillationPtr, sectionAngle, Section::ASCENDING);
                 m_sectrionsVector.push_back(sectionAsc);
             }
+
             {
                 Section sectionDesc;
                 sectionDesc.calculateSection(m_oscillationPtr, sectionAngle, Section::DESCENDING);
