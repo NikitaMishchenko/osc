@@ -63,11 +63,12 @@ void doJob(const DataToProc &dataToProc, std::shared_ptr<DescriptionStream> summ
 
     WtOscillation wtOscillation(oscillation, flow, model);
     {
-        std::vector<Section> sectionVector;
-        const double sectionAngleStep = dataToProc.m_sectionAngleStep ? dataToProc.m_sectionAngleStep.get() : 5.0;
-        *descriptionStreamPtr << "Рассчет методом сечений с шагом угла " << sectionAngleStep << " градусов\n";
-
-        io::ProcessorOutput processorOutput(descriptionStreamPtr, gnuplotGraphStreamPtr, summaryStreamPtr, basePath, coreName);
+        io::ProcessorOutput processorOutput(descriptionStreamPtr,
+                                            gnuplotGraphStreamPtr,
+                                            summaryStreamPtr,
+                                            basePath,
+                                            coreName,
+                                            dataToProc.m_dataToOutput);
 
         bool dataWrittenOk = false;
 

@@ -29,22 +29,22 @@ public:
         std::vector<std::string> fruits;
         for (const auto& data : tree.get_child("description.dataToProceed"))
         {
-            boost::optional<double> sectionAngleStep;
+            double sectionAngleStep;
 
             try
             {
-                sectionAngleStep = data.second.get<double>(DataToProc::sectionAngleStepKey);
+                sectionAngleStep = data.second.get<double>(DataToOutput::sectionAngleStepKey);
             }
             catch(...)
             {
-
+                sectionAngleStep = 5.0;
             }
 
             m_dataToProc.push_back(DataToProc(data.second.get<std::string>(DataToProc::coreNameKey),
                                               data.second.get<std::string>(DataToProc::modelNameKey),
                                               data.second.get<double>(DataToProc::angleShiftKey),
-                                              sectionAngleStep,
-                                              m_root));
+                                              m_root,
+                                              DataToOutput(sectionAngleStep)));
         }
     }
 

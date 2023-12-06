@@ -15,6 +15,7 @@
 
 #include "demo/io_descriptions/gnuplot_script_helper.h"
 #include "processor_io.h"
+#include "demo/io_descriptions/config_processor/data_to_process.h"
 
 namespace io
 {
@@ -29,10 +30,12 @@ namespace io
                         std::shared_ptr<std::stringstream> gnuplotGraphStreamPtr,
                         std::shared_ptr<std::stringstream> summaryStream,
                         const boost::filesystem::path &outputPath,
-                        const std::string &coreName) : ProcessorIo({std::move(descriptionStreamPtr), std::move(gnuplotGraphStreamPtr)}),
-                                                       m_coreName(coreName),
-                                                       m_summaryStream(summaryStream),
-                                                       m_outputPath(outputPath)
+                        const std::string &coreName,
+                        const DataToOutput dataToOutput) : ProcessorIo({std::move(descriptionStreamPtr), std::move(gnuplotGraphStreamPtr)}),
+                                                           m_coreName(coreName),
+                                                           m_summaryStream(summaryStream),
+                                                           m_outputPath(outputPath),
+                                                           m_dataToOutput(dataToOutput)
         {
             // working in folder of specific core data
             *getDescriptionStream() << "Начинаем записывать данные. Исходный путь: " << m_outputPath << std::endl;
@@ -303,8 +306,10 @@ namespace io
 
         void reportSections(const WtOscillation &wtOscillation) const
         {
-            const int sectionAngleStep = 5; // hardcode
-            std::shared_ptr<Sections> sectionsPtr = wtOscillation.calcAndGetSections(sectionAngleStep);
+            *getDescriptionStream() << "Построем сечения по углам с шагом " << m_dataToOutput.m_sectionAngleStep
+                                    << std::endl;
+
+            std::shared_ptr<Sections> sectionsPtr = wtOscillation.calcAndGetSections(m_dataToOutput.m_sectionAngleStep);
 
             bool isOk = false;
             std::vector<Section> sectionVector;
@@ -315,9 +320,6 @@ namespace io
             *getDescriptionStream() << "Максимальный достигаемый угол: " << maxAngle
                                     << std::endl
                                     << "Минимально достигаемый угол: " << minAngle
-                                    << std::endl;
-
-            *getDescriptionStream() << "Построем сечения по углам с шагом " << sectionAngleStep
                                     << std::endl;
 
             {
@@ -471,6 +473,8 @@ namespace io
 
         boost::filesystem::path m_outputPath;           //< core dirrectory
         boost::filesystem::path m_outputProcessingPath; //< processing data of current core name stored here
+
+        DataToOutput m_dataToOutput;
     };
 
 } // namespace io
