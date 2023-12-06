@@ -40,10 +40,6 @@ void doJob(const DataToProc &dataToProc, std::shared_ptr<DescriptionStream> summ
     std::shared_ptr<DescriptionStream> descriptionStreamPtr = std::make_shared<DescriptionStream>(dataToProc.m_basePath / coreName, coreName + ".description");
     std::shared_ptr<DescriptionStream> gnuplotGraphStreamPtr = std::make_shared<DescriptionStream>(dataToProc.m_basePath / coreName, coreName + "_gnuplot_graph" + ".description");
 
-    ///
-    //***********************************************************************************************
-    ///
-
     *descriptionStreamPtr << "Определяем корневое имя файла с описанием работы с данными: "
                           << "\"" << coreName << "\""
                           << std::endl;
@@ -67,13 +63,9 @@ void doJob(const DataToProc &dataToProc, std::shared_ptr<DescriptionStream> summ
 
     WtOscillation wtOscillation(oscillation, flow, model);
     {
-        ///
         std::vector<Section> sectionVector;
-        const int sectionAngleStep = 5;
-        *descriptionStreamPtr << "Рассчет методом сечений для угла " << sectionAngleStep << " градусов\n";
-
-        // Sections sections(oscillation, sectionAngleStep);
-        // sections.calculate();
+        const double sectionAngleStep = dataToProc.m_sectionAngleStep ? dataToProc.m_sectionAngleStep.get() : 5.0;
+        *descriptionStreamPtr << "Рассчет методом сечений с шагом угла " << sectionAngleStep << " градусов\n";
 
         io::ProcessorOutput processorOutput(descriptionStreamPtr, gnuplotGraphStreamPtr, summaryStreamPtr, basePath, coreName);
 
@@ -81,8 +73,6 @@ void doJob(const DataToProc &dataToProc, std::shared_ptr<DescriptionStream> summ
 
         dataWrittenOk = processorOutput.write(wtOscillation);
     }
-
-    // /home/mishnic/data/phd/data_proc/pic_ddangle_respect_to_angle_of_attack
 }
 
 void rewriteData(const DataToProc &d)
@@ -116,10 +106,10 @@ int main(int argc, char **argv)
 
     std::shared_ptr<DescriptionStream> summaryStreamPtr = std::make_shared<DescriptionStream>(rootDataPath, "summary");
 
-    for (const auto &d : dataToProc)
+    for (const auto &singleDataToProc : dataToProc)
     {
-        std::cout << d.toString() << "\n";
-        doJob(d, summaryStreamPtr);
+        std::cout << singleDataToProc.toString() << "\n";
+        doJob(singleDataToProc, summaryStreamPtr);
     }
 
     DescriptionStream summary(rootDataPath, "summary.description");

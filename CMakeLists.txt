@@ -151,7 +151,8 @@ include(CPack)
 # demo
 
 add_executable(demo1 
-               demo/demo1.cpp)
+               demo/demo1.cpp
+               demo/io_descriptions/config_processor/data_to_process.cpp)
 
 target_link_libraries(demo1
                       basic  
