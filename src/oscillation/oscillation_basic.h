@@ -218,6 +218,8 @@ public:
         dangle = d.dangle;
         ddangle = d.ddangle;
 
+        AngleHistory::operator=(d);
+
         return *this;
     }
 
