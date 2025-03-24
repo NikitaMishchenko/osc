@@ -7,7 +7,6 @@
 #include <vector>
 #include <string>
 
-
 namespace wt_flow
 {
     const double T0_KELVIN = 273.15;
@@ -15,32 +14,30 @@ namespace wt_flow
 
     class Flow
     {
-    private:
-        double m_rho = 0;
-        double m_velocity = 0;
-        double m_T0 = 0;
-
-        double m_dynamicPressure = 0;
-
-        // reference
-        double m_mach = 0;
-        double m_reynolds = 0; // normalized at 1 meter
-
-
     public:
-        ///CALCULATE FLOW
+        Flow() : m_rho(0),
+                 m_velocity(1),
+                 m_T0(0),
+                 m_dynamicPressure(1),
+                 m_mach(0),
+                 m_reynolds(0)
+
+        {
+        }
+
+        /// CALCULATE FLOW
         void setToDefault()
         {
             m_velocity = 1;
             m_dynamicPressure = 1;
         }
 
-        void setDynamicPressure(const double& dynamicPressure)
+        void setDynamicPressure(const double &dynamicPressure)
         {
             m_dynamicPressure = dynamicPressure;
         }
 
-        void setReynolds(const double& reynolds)
+        void setReynolds(const double &reynolds)
         {
             m_reynolds = reynolds;
         }
@@ -56,8 +53,8 @@ namespace wt_flow
         }
 
         /**
-        *   @return true if ok
-        */
+         *   @return true if ok
+         */
         bool calculateDynamicPressure();
         bool calculateFlow();
 
@@ -72,13 +69,13 @@ namespace wt_flow
         }
 
         /**
-        *   calculete @m_velocity from @m_T0, @m_mach
-        */
+         *   calculete @m_velocity from @m_T0, @m_mach
+         */
         bool calculateVelocity()
         {
-            if(m_T0 && m_mach)
+            if (m_T0 && m_mach)
             {
-                m_velocity = 20.04*m_mach*sqrt((m_T0 + T0_KELVIN)/(1.0 + 0.2*m_mach*m_mach));
+                m_velocity = 20.04 * m_mach * sqrt((m_T0 + T0_KELVIN) / (1.0 + 0.2 * m_mach * m_mach));
                 return true;
             }
 
@@ -89,7 +86,7 @@ namespace wt_flow
         {
             if (m_velocity && m_dynamicPressure)
             {
-                m_rho = m_dynamicPressure/m_velocity/m_velocity * 2.0;
+                m_rho = m_dynamicPressure / m_velocity / m_velocity * 2.0;
                 return true;
             }
             return false;
@@ -99,14 +96,24 @@ namespace wt_flow
         void print();
 
         /**
-        *   Load data from txt-file of avg flow data:
-        *   Mach *machValue
-        *   m_T0
-        *   m_rho
-        */
-        bool loadFile( const std::string& fileName);
-        bool saveFile( const std::string& fileNmae);
+         *   Load data from txt-file of avg flow data:
+         *   Mach *machValue
+         *   m_T0
+         *   m_rho
+         */
+        bool loadFile(const std::string &fileName);
+        bool saveFile(const std::string &fileNmae);
 
+    private:
+        double m_rho = 0;
+        double m_velocity = 1;
+        double m_T0 = 0;
+
+        double m_dynamicPressure = 1;
+
+        // reference
+        double m_mach = 0;
+        double m_reynolds = 0; // normalized at 1 meter
     };
 
 } // namespace wt_flow
