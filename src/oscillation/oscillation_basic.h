@@ -22,15 +22,11 @@ enum LOG_MODE
 class Oscillation : public AngleHistory
 {
 public:
-    std::vector<double> dangle;
-    std::vector<double> ddangle;
-
 
     Oscillation(): AngleHistory(), dangle(), ddangle()
     {
         std::cerr << "default Oscillation() constructor()\n";
     }
-
 
     Oscillation(const AngleHistory& angleHistory) : AngleHistory(angleHistory)
     {
@@ -495,4 +491,8 @@ public:
         std::cout << "Oscillation object \nsize = ";
         std::cout << this->size() << std::endl;
     }
+
+public:
+    std::vector<double> dangle;
+    std::vector<double> ddangle;
 };
