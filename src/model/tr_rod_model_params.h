@@ -85,7 +85,10 @@ public:
         }
 
         std::string buff_s;
-        fin >> buff_s >> buff_s >> m_name >> buff_s >> buff_s >> m_refSquare >> buff_s >> buff_s >> m_refLength >> buff_s >> buff_s >> m_momentOfInertia;
+        fin >> buff_s >> buff_s >> m_name 
+            >> buff_s >> buff_s >> m_refSquare 
+            >> buff_s >> buff_s >> m_refLength 
+            >> buff_s >> buff_s >> m_momentOfInertia;
 
         fin.close();
 

@@ -8,21 +8,20 @@
 namespace amplitude
 {
 
-    class AngleAmplitudeAnalyser : public AngleAmplitude
+    class AngleAmplitudeAnalyser : public AngleAmplitudeVector
     {
     public:
 
-        AngleAmplitudeAnalyser(const AngleAmplitude& angleAmplitude)
-            : AngleAmplitude(angleAmplitude),
-            m_sortedAmplitude(m_angleAmplitudeBase)
+        AngleAmplitudeAnalyser(const AngleAmplitudeVector& angleAmplitude)
+            : AngleAmplitudeVector(angleAmplitude),
+            m_sortedAmplitude(m_angleAmplitudeData)
         {
         }
 
         std::vector<AngleAmplitudeBase> getSortedAmplitude() const {return m_sortedAmplitude;}
 
-        void getMostFrequentAmplitudeValue(const int gapCount)
+        void getMostFrequentAmplitudeValue(const int gapCount = 1)
         {
-
             /*
                 get amplitude
                 sort via value y
@@ -38,8 +37,8 @@ namespace amplitude
                           return a.m_amplitudeAngle < b.m_amplitudeAngle;
                       });
 
-            const double maxValue = m_angleAmplitudeBase.back().m_amplitudeAngle;
-            const double minValue = m_angleAmplitudeBase.front().m_amplitudeAngle;
+            const double maxValue = m_angleAmplitudeData.back().m_amplitudeAngle;
+            const double minValue = m_angleAmplitudeData.front().m_amplitudeAngle;
 
             int valueGapCount = 1;
             int valueCounter = 0;

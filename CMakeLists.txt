@@ -24,9 +24,7 @@ set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fPIC")
 
 #set(SOURCE_FILES main.cpp)
 
-add_library(flow 
-          ./src/flow/parse_ptl.cpp
-          ./src/flow/parse_ptl.h
+add_library(flow
           ./src/flow/wt_flow.h
           ./src/flow/wt_flow.cpp
 )
@@ -127,9 +125,12 @@ add_executable(runTests
                tests/main.cpp 
                tests/integrated_test.cpp 
                tests/approximation_test.cpp
+               tests/approximation_qadratic_test.cpp
                tests/frequency_test.cpp
                tests/oscillation_basics_test.cpp
-               tests/fftw_wrap_test.cpp)
+               tests/fftw_wrap_test.cpp
+               tests/interpolation_test.cpp
+               tests/numeric_derevative_test.cpp)
 
 target_link_libraries(runTests
                      ${GTEST_LIBRARIES}
@@ -146,6 +147,42 @@ target_link_libraries(runTests
 set(CPACK_PROJECT_NAME ${PROJECT_NAME})
 set(CPACK_PROJECT_VERSION ${PROJECT_VERSION})
 include(CPack)
+
+# demo
+
+add_executable(demo1 
+               demo/demo1.cpp
+               demo/io_descriptions/config_processor/data_to_process.cpp)
+
+target_link_libraries(demo1
+                      basic  
+                      flow
+                      wtOscillationlib
+                      #gnuplot_wrapper "-L/home/mishnic/src/gnuplot_wrapper/build/libgnuplot_wrapper.so"
+                      libboost_program_options.a
+                      -lboost_filesystem
+                      -lboost_system
+                      GSL::gsl
+                      GSL::gslcblas
+                      fftw3
+)
+
+add_executable(demo2 
+               demo/demo2.cpp)
+
+target_link_libraries(demo2
+                      basic  
+                      flow
+                      wtOscillationlib
+                      #gnuplot_wrapper "-L/home/mishnic/src/gnuplot_wrapper/build/libgnuplot_wrapper.so"
+                      libboost_program_options.a
+                      -lboost_filesystem
+                      -lboost_system
+                      -lboost_regex
+                      GSL::gsl
+                      GSL::gslcblas
+                      fftw3
+)
 
 #TESTS
 

@@ -89,7 +89,8 @@ namespace periods ///caclulate periods
     * Разделение истории колебаний на периоды колебаний.
     */
     inline int calculate_periods(Oscillation D, std::string base_file_name)
-    {std::cout << "calculate_periods\n";
+    {
+        std::cout << "calculate_periods\n";
 
         std::ofstream fout;
 
@@ -131,7 +132,7 @@ namespace periods ///caclulate periods
                 fout.close();
                 period_counter++;
             }
-            std::cout << "period_counter = " << period_counter << std::endl;
+            // std::cout << "period_counter = " << period_counter << std::endl;
         }
         return period_counter;
     }

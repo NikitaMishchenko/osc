@@ -13,14 +13,11 @@
 
 Oscillation::Oscillation(const AngleHistory &angleHistory) : AngleHistory(angleHistory)
 {
-    std::cout << "Oscillation(AngleHistory) constructor()\n";
-
     this->recalculate();
 }
 
 Oscillation::Oscillation(const std::string &file_name) : AngleHistory(file_name)
 {
-    std::cout << "Oscillation( " << file_name << ") constructor\n";
     this->recalculate();
 }
 

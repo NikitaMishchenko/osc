@@ -12,8 +12,8 @@
 #include "fft/fftw_impl.h"
 #include "periods/periods_base.h"
 #include "io_helpers/cut_oscillation_file.h"
-#include "flow/parse_ptl.h"
 #include "flow/wt_flow.h"
+#include "flow/ptl_flow.h"
 #include "analize_coefficients/dynamic_coefficients.h"
 #include "errcodes.h"
 #include "pendulum/pendulum_analisys.h"
@@ -116,8 +116,18 @@ namespace basic_procedures
     inline ErrorCodes performProcedureFlow(const std::string &fileName)
     {
         wt_flow::Flow flow;
+        bool isOk = false;
+        
+        try
+        {
+            flow = averageFLowData(parsePtlFile(fileName + ".ptl"));
+        }
+        catch(...)
+        {
 
-        if (wt_flow::parsePTLfile(fileName + ".ptl", flow, 5))
+        }
+
+        if (isOk)
         {
             flow.saveFile(fileName + ".flow");
             std::cout << "File " << fileName << " parsed: success\n";
@@ -174,12 +184,11 @@ namespace basic_procedures
 
         WtOscillation wtTest(oscillation, flow, model);
 
-        wtTest.getMz(); // fixme now it returns mz
-        wtTest.saveMzData(fileName + "_mz");
+        // wtTest.saveMzData(fileName + "_mz");
         // todo check
 
-        wtTest.calcAngleAmplitudeIndexes();
-        wtTest.saveMzAmplitudeData(fileName + "_mz_amplitude");
+        // wtTest.calcAngleAmplitudeIndexes();
+        // wtTest.saveMzAmplitudeData(fileName + "_mz_amplitude");
 
         return SUCCESS;
     };
@@ -430,7 +439,7 @@ namespace basic_procedures
             // wtTest.saveMzData(fileNameMz);
             //  todo check
 
-            wtTest->calcAngleAmplitudeIndexes();
+            // wtTest->calcAngleAmplitudeIndexes();
             // wtTest.getMz();
             // wtTest.saveMzAmplitudeData(fileName + "_mz_amplitude");
 
@@ -485,7 +494,7 @@ namespace basic_procedures
                 fout1 << pickedDynamic1.at(i) << "\t" << pickedDynamic2.at(i) << "\n";
             }
 
-            wtTest->saveMzData("mzdata");
+            // wtTest->saveMzData("mzdata");
 
             std::vector<double> amplitude1;
             std::vector<double> amplitude2;

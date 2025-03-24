@@ -1,0 +1,13 @@
+{
+  "description": {
+    "pathToData": "/path/to/core/dir/with/dirs/for/every/oscillation/data",
+    "dataToProceed": [
+      {
+        "coreName": "core_name",
+        "angleShift": 0,
+        "sectionAngleStep" : 3.5,
+        "modelName": "/path/to/file/specific_model_file.model"
+      }
+    ]
+  }
+}

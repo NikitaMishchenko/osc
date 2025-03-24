@@ -1,8 +1,9 @@
 #pragma once
 
 #include <utility>
-
 #include <vector>
+#include <math.h>
+#include <memory>
 
 #include <gsl/gsl_matrix.h>
 
@@ -11,6 +12,8 @@
 #include "flow/wt_flow.h"
 #include "gnusl_wrapper/filters/gauissian.h"
 #include "core/vector_helpers.h"
+#include "analize_coefficients/specific/amplitude/basic.h"
+#include "analize_coefficients/specific/section/section.h"
 
 struct Mz
 {
@@ -18,17 +21,49 @@ struct Mz
     double mz;
 };
 
+inline double angleDegToRad()
+{
+    return M_PI / 180;
+}
+
+inline double calcMzNondimensionalization(const wt_flow::Flow& flow, const Model& model)
+{
+    return (model.getI() / flow.getDynamicPressure() / model.getS() / model.getL() * angleDegToRad());
+}
+
+inline double calcMzDANondimensionalization(const wt_flow::Flow& flow, const Model& model)
+{
+    return (model.getI() / flow.getDynamicPressure() / model.getS() / model.getL() / angleDegToRad());
+}
+
+inline double calcWzNondimensionalization(const wt_flow::Flow& flow, const Model& model)
+{
+    return model.getL() / flow.getVelocity();
+}
+
+inline double calcIzNondimentional(const wt_flow::Flow& flow, const Model& model)
+{
+    if (flow.getDensity() > 0)
+        return 2 * model.getI() / flow.getDensity() / model.getS() / pow(model.getL(), 3);
+    else
+       return  0;
+}
+
+inline double calcWzNondimentional(const double wAut, const wt_flow::Flow& flow, const Model& model)
+{
+    return wAut * model.getL() / flow.getVelocity();
+}
+
 class WtOscillation : public Oscillation
 {
 public:
-    WtOscillation(){}
+    WtOscillation() {}
 
     WtOscillation(const AngleHistory &angleHistory) : Oscillation(angleHistory),
                                                       m_flow(wt_flow::Flow()),
-                                                      m_model(Model())
+                                                      m_model(Model())                                                      
     {
-        calcAngleAmplitudeIndexes();
-        calculateW();
+        initialCalculation();
     };
 
     WtOscillation(const Oscillation &oscillation,
@@ -38,68 +73,101 @@ public:
           m_flow(flow),
           m_model(model)
     {
-        calcAngleAmplitudeIndexes();
-        calculateW();
+        initialCalculation();
     };
 
     virtual ~WtOscillation(){};
 
-    // SPECIFIC METHODS
-    // todo move to helpers
-    /*void makeScaledDDAngle(const double &factor)
+    void initFromData(const Oscillation &oscillation,
+                      const wt_flow::Flow &flow,
+                      const Model &model)
     {
-        std::vector<double> scaledDDAngle;
+        *this = oscillation;
+        m_flow = flow;
+        m_model = model;
 
-        if (m_mz.mz.size() > 0)
-        {
-            scaledDDAngle = ddangle;
+        initialCalculation();
+    }
 
-            if ((factor - 1.0) < 0.0000000001 &&
-                (1.0 - factor) < 0.0000000001)
-            {
-                return scaledDDAngle;
-            }
-
-            for (size_t i = 0; i < scaledDDAngle.size(); i++)
-                scaledDDAngle[i] *= factor;
-        }
-
-        return scaledDDAngle;
-    }*/
+    double getMzNondimensionalization() const { return m_mzNondimensionalization; }
+    double getMzDANondimensionalization() const { return m_mzDANondimensionalization; }
+    double getWzNondimensionalization() const { return m_wzNondimensionalization; }
+    double getIzNondimensional() const { return m_izNondimentional; }
+    double getWzNondimentional() const { return m_wzNondimentional; }
 
     std::vector<double> getTimeAmplitude() const;
     std::vector<double> getAngleAmplitude() const;
     double getTimeAmplitude(const size_t index) const;
     double getAngleAmplitude(const size_t index) const;
     Model getModel() const;
-    wt_flow::Flow getFlow() const {return m_flow;}
-    double getW() const {return m_w;};
-    std::vector<Mz> getMz(){return m_mz;}
+    wt_flow::Flow getFlow() const { return m_flow; }
+    double getW() const { return m_w; };
+
+    std::shared_ptr<Sections> calcAndGetSections(const double targetAngle) const
+    {
+        m_sectionsPtr = std::make_shared<Sections>(std::make_shared<Oscillation>(*this), targetAngle);
+        m_sectionsPtr->calculate();
+        return m_sectionsPtr;
+    }
+
+    amplitude::AngleAmplitudeVector getAngleAmplitudeVector() const
+    {
+        return m_angleAmplitudeVector;
+    }
 
     // IO
-    bool saveMzData(const std::string &fileName) const;
-
-    bool saveMzAmplitudeData(const std::string &fileName);
-
     // todo refactor: move to private
     // first -time, second mz
-    bool getMzAmplitudeIndexes();
-
-    bool calcAngleAmplitudeIndexes();
 
     // othre
     virtual void info() const override;
 
 private:
-    void calculateW();
+    void initialCalculation()
+    {
+        m_angleAmplitudeVector.initialize(std::make_shared<std::vector<double>>(this->getTime()),
+                                          std::make_shared<std::vector<double>>(this->getAngle()),
+                                          std::make_shared<std::vector<double>>(this->getDangle()));
+        calculateW();
+        m_mzNondimensionalization = calcMzNondimensionalization(m_flow, m_model);
+        m_mzDANondimensionalization = calcMzDANondimensionalization(m_flow, m_model);
+        m_wzNondimensionalization = calcWzNondimensionalization(m_flow, m_model);
+        m_izNondimentional = calcIzNondimentional(m_flow, m_model);
+        m_wzNondimentional = calcWzNondimentional(m_w, m_flow, m_model);
+    }
 
-    std::vector<Mz> m_mz;
-    //std::vector<size_t> m_mzAmplitudeIndexes;
-    std::vector<size_t> m_AngleAmplitudeIndexes;
+    void calculateW()
+    {
+        /* freq at middle of data
+        const size_t timeIndex1 = m_angleAmplitudeVector.at(m_angleAmplitudeVector.size()/2);
+        const size_t timeIndex2 = m_angleAmplitudeVector.at(m_angleAmplitudeVector.size()/2 + 1);
 
-    double m_w; // frequency of oscillation main mode
+        // 0.5 cos ampl indexies for top and bottom envelop
+        m_w = 0.5 / (m_domain.at(timeIndex2) - m_domain.at(timeIndex1));
+        */
+        for (const auto &ampl : m_angleAmplitudeVector.m_angleAmplitudeData)
+        {
+            m_w += ampl.m_frequency;
+        }
+
+        m_w /= m_angleAmplitudeVector.m_angleAmplitudeData.size();
+
+        std::cout << "w = " << m_w << "\n";        
+    }
+
+    amplitude::AngleAmplitudeVector m_angleAmplitudeVector;
+
+    double m_w; // avg frequency of oscillation main mode from whoal
 
     wt_flow::Flow m_flow;
 
     Model m_model;
+
+    mutable std::shared_ptr<Sections> m_sectionsPtr; //(oscillation, sectionAngleStep);
+
+    double m_mzNondimensionalization;
+    double m_mzDANondimensionalization;
+    double m_wzNondimensionalization;
+    double m_izNondimentional;
+    double m_wzNondimentional;
 };

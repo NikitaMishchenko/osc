@@ -19,7 +19,7 @@ namespace wt_flow
     {
         if (m_mach && m_T0)
         {
-            m_velocity = 20.04 * m_mach * sqrt((m_T0 + T0_KELVIN) / (1.0 + 0.2 * m_mach * m_mach));
+            m_velocity = calculateVelocityWT(m_T0, m_mach);
 
             return calculateDynamicPressure();
         }
@@ -68,6 +68,8 @@ namespace wt_flow
 
         // mach = *mach* T0  = *T0* rho = *rho*
         fin >> buff_s >> buff_s >> m_mach >> buff_s >> buff_s >> m_reynolds >> buff_s >> buff_s >> m_T0 >> buff_s >> buff_s >> m_velocity >> buff_s >> buff_s >> m_dynamicPressure >> buff_s >> buff_s >> m_rho;
+
+        m_rho = m_dynamicPressure/m_velocity/m_velocity*2;
 
         fin.close();
 
