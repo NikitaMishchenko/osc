@@ -1,31 +1,4 @@
-#pragma once
-
-#include <utility>
-#include <string>
-#include <vector>
-
-#include "../src/basic_procedures.h"
-#include "../src/errcodes.h"
-
-/** TODO
-    make an .cpp and make tests based on GTEST
-*/
-
-namespace
-{
-
-    template <class A>
-    bool EXPECTED_EQ(A f, A s)
-    {
-        return (f == s);
-    }
-
-    template <class A>
-    bool EXPECTED_NE(A f, A s)
-    {
-        return !EXPECTED_EQ(f, s);
-    }
-}
+#include <gtest/gtest.h>
 
 // todo performing queue ???
 
@@ -33,7 +6,7 @@ int makeAllTests()
 {
     std::cout << "testing stated. Performing...\n";
 
-    std::vector<std::pair<bool, uint16_t>> result;
+/*    std::vector<std::pair<bool, uint16_t>> result;
     result.reserve(5);
 
     int counter = 0;
@@ -52,11 +25,13 @@ int makeAllTests()
                   << "______________\n";
     }
     // basic_procedures::performProcedurePeriods("empty_osc", std::string(), std::vector<double>());
-
+*/
     return 0;
 }
 
-int main(int argc, char **argv)
-{
-    return makeAllTests();
+
+
+int main(int argc, char **argv) {
+    testing::InitGoogleTest(&argc, argv);
+    return RUN_ALL_TESTS();
 }

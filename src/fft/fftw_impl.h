@@ -7,9 +7,24 @@
 
 #include <fftw3.h>
 
-#include "../oscillation/oscillation_basic.h"
-
 const double PI = 3.14159265359;
+
+namespace
+{
+    void realVectorToFftwComplex(std::vector<double>::const_iterator signalBegin,
+                                 std::vector<double>::const_iterator signalEnd,
+                                 fftw_complex *data)
+    {
+        int i = 0;
+        for (auto it = signalBegin; it != signalEnd; ++it)
+        {
+            data[i][0] = *it;
+            data[i][1] = 0;
+            ++i;
+        }
+    }
+
+}
 
 namespace osc
 {
@@ -54,43 +69,25 @@ namespace osc
             std::vector<double> img;
         };
 
-        namespace
+        osc::fftw::Spectrum fftwComplexToVectors(fftw_complex *data, size_t dataSize)
         {
-            void realVectorToFftwComplex(std::vector<double>::const_iterator signalBegin,
-                                         std::vector<double>::const_iterator signalEnd,
-                                         fftw_complex *data)
+            std::cout << "fftwComplexToVectors()\n";
+
+            ::osc::fftw::Spectrum spectrum(dataSize);
+
+            for (size_t i = 0; i < dataSize; i++)
             {
-                std::cout << "realVectorToFftwComplex()\n";
-
-                int i = 0;
-                for (auto it = signalBegin; it != signalEnd; ++it)
-                {
-                    data[i][0] = *it;
-                    data[i][1] = 0;
-                    ++i;
-                }
+                spectrum.real.at(i) = data[i][0];
+                spectrum.img.at(i) = data[i][1];
+                spectrum.amplitude.at(i) = sqrt(spectrum.real.at(i) * spectrum.real.at(i) + spectrum.img.at(i) * spectrum.img.at(i));
             }
-            ::osc::fftw::Spectrum fftwComplexToVectors(fftw_complex *data, size_t dataSize)
-            {
-                std::cout << "fftwComplexToVectors()\n";
 
-                ::osc::fftw::Spectrum spectrum(dataSize);
-
-                for (size_t i = 0; i < dataSize; i++)
-                {
-                    spectrum.real.at(i) = data[i][0];
-                    spectrum.img.at(i) = data[i][1];
-                    spectrum.amplitude.at(i) = sqrt(spectrum.real.at(i) * spectrum.real.at(i)
-                                                    + spectrum.img.at(i) * spectrum.img.at(i));
-                }
-
-                return spectrum;
-            }
+            return spectrum;
         }
 
         /*
-        *  @returns Spectrum based on interval from @signalBegin to @signalEnd (discretization is assumed being constant)
-        */
+         *  @returns Spectrum based on interval from @signalBegin to @signalEnd (discretization is assumed being constant)
+         */
         inline osc::fftw::Spectrum perfomFftw(std::vector<double>::const_iterator signalBegin, std::vector<double>::const_iterator signalEnd)
         {
             // std::cout << "performFftw entry()\n";
@@ -125,12 +122,13 @@ namespace osc
         }
 
     }
+
 }
 
 namespace fftw_example
 {
 
-    void generate_signal(fftw_complex *signal, double freq, uint8_t length)
+    inline void generate_signal(fftw_complex *signal, double freq, uint16_t length)
     {
         std::cout << "Signal generation\n";
 
@@ -148,7 +146,7 @@ namespace fftw_example
         fout.close();
     }
 
-    void func(uint8_t N)
+    inline void func(uint16_t N)
     {
         // const uint8_t N = 1024*16;
 

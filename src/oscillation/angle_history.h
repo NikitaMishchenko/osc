@@ -5,139 +5,114 @@
 #include <vector>
 #include <string>
 
+#include "core/function.h"
 
-class AngleHistory
+/*
+ * Assumed constant timeStep
+ */
+class  AngleHistory : public Function // todo rename it's better be like TwoVectors // on the higher lvl make it angle and time
 {
 public:
-
-    AngleHistory()
+    AngleHistory() : Function(), m_timeStep(0.0)
     {}
 
-    AngleHistory(const std::vector<double>& timeIn, const std::vector<double>& angleIn) : m_time(timeIn), m_angle(angleIn)
-    {}
+    AngleHistory(const std::vector<double> &timeIn, const std::vector<double> &angleIn);
 
-    AngleHistory(const std::string& file_name)
+    AngleHistory(const std::string &file_name);
+
+    virtual ~AngleHistory() {}
+
+    double getTimeStep() const
     {
-        std::cerr << "AngleHistory( " << file_name << ") constructor\n";
-
-        this->loadRaw(file_name);
-            this->info();
+        return m_timeStep;
     }
 
-    virtual ~AngleHistory()
+    std::vector<double> getAngle() const
     {
-        m_angle.clear();
-        m_time.clear();
+        return m_codomain;
     }
 
-    //copy
-    AngleHistory(const AngleHistory& d) : m_time(d.m_time), m_angle(d.m_angle)
+    double getAngle(int index) const
     {
-        std::cout << "AngleHistory copy constructor\n";
+        return m_codomain.at(index);
     }
 
-    AngleHistory& operator= (const AngleHistory& d)
-    {
-        m_time = d.m_time;
-        m_angle = d.m_angle;
-
-        return *this;
-    }
-
-
-    std::vector<double> getAngle() const 
-    {
-        return m_angle;
-    }
-
-    double getAngle(int index) const 
-    {
-        return m_angle.at(index);
-    }
-    
     void setAngle(size_t index, const double value)
     {
-        m_angle.at(index) = value;
+        m_codomain.at(index) = value;
     }
 
-    std::vector<double> getTime() const 
+    // todo remove? it's unsafe
+    void setAngle(const std::vector<double> &newAngle)
     {
-        return m_time;
+        m_codomain = newAngle;
     }
 
-    void moveAngle(const double A)
+    std::vector<double> getTime() const
     {
-        for(auto& a : m_angle)
-            a += A;
+        return m_domain;
     }
 
-    virtual void print()
+    double getTime(int index) const
     {
-        std::cout << *this;
+        return m_domain.at(index);
     }
 
-
-    /*
-    * TODO make overload for operator>>
-    */
-    friend std::ostream& operator<< (std::ostream& out, const AngleHistory& D)
+    void setTime(size_t index, const double value)
     {
-        for(size_t i = 0; i < D.size(); i++)
+        m_domain.at(index) = value;
+    }
+
+    void setTime(const std::vector<double> &newTime)
+    {
+        m_domain = newTime;
+    }
+
+    // STL-like
+    virtual void clear() override;
+
+    virtual void info() const;
+    virtual void print() const;
+    virtual bool loadRaw(const std::string &file_name);
+    virtual void write(const std::string &fileName) const;
+
+    friend std::ostream &operator<<(std::ostream &out, const AngleHistory &D)
+    {
+        for (size_t i = 0; i < D.size(); i++)
         {
-             out << D.m_time[i] << "\t"
-                 << D.m_angle[i] << "\t"
-                 << "\n";
+            out << D.m_domain.at(i) << "\t"
+                << D.m_codomain.at(i) << "\t"
+                << "\n";
         }
 
         return out;
     }
 
-    virtual const size_t size() const { return m_angle.size();}
-
-    virtual void info()
+    friend std::istream &operator>>(std::ifstream &inSource, AngleHistory &Data)
     {
-        std::cout << "AngleHistory object \nsize = ";
-        std::cout << m_angle.size() << std::endl;
-    }
+        double b_angle, b_time;
 
-    virtual bool loadRaw(const std::string& file_name)
-    {
-        std::ifstream fin(file_name);
-        std::cout << "trying open file: " << file_name << std::endl;
-
-        if(fin.is_open())
+        while (!inSource.eof())
         {
-            while(!fin.eof())
-            {
-                double b_angle, b_time;
+            inSource >> b_time >> b_angle;
 
-                fin >> b_time >> b_angle;
-
-                this->push_back(b_time, b_angle);
-
-            }
-            
-            std::cout << "file " << file_name << " loaded! Closing\n";
-            fin.close();
-            return true;
-        }
-        else
-        {
-            std::cerr << "File " << file_name << " was not found. Loading failed\n";
+            Data.push_back(b_time, b_angle);
         }
 
-        fin.close();
-        return false;
+        return inSource;
     }
 
 protected:
+    void calculateTimeStep();
+    double indexToTime(const size_t index) const;
+    size_t timeToIndex(const double timeValue) const;
 
-    void push_back(const double time, const double angle)
+    /*std::vector<double>::iterator timeIterator(const double timeValue) const
     {
-        m_time.push_back(time);
-        m_angle.push_back(angle);
-    }
+        return (m_domain.begin() + timeToIndex(timeValue));
+    }*/
 
-    std::vector<double> m_time;
-    std::vector<double> m_angle;
+    std::vector<double>::const_iterator timeIterator(const double timeValue) const;
+
+    double m_timeStep;
 };

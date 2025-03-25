@@ -1,26 +1,19 @@
 #include <string>
 #include <utility>
 
+#include <boost/log/trivial.hpp>
+#include <boost/log/core.hpp>
+#include <boost/log/expressions.hpp>
+
 #include "options.h"
 #include "basic_procedures.h"
-//#include "../tests/tests.h"
-
-/*
-
-#include "oscillation/oscillation_basic.h"
-#include "oscillation/cut_oscillation_file.h"
-
-#include "oscillation/wt_oscillation.h"
-#include "flow/parse_ptl.h"
-#include "analize_coefficients/dynamic_coefficients.h"
-*/
 
 const double Pi = 3.14159265359;
 
 int doJob(const options::Procedure procedureToPerform,
-          const std::string fileName,
-          const std::string fileName2,
-          const std::vector<double> extraArgumentsVector)
+          const std::string& fileName,
+          const std::string& fileName2,
+          const std::vector<double>& extraArgumentsVector)
 {
     int result = basic_procedures::UNEXPECTED;
 
@@ -82,11 +75,110 @@ int doJob(const options::Procedure procedureToPerform,
         break;
     }
 
+    case options::APPROXIMATION:
+    {
+        result = basic_procedures::performProcedureLinnearApproximation(fileName);
+        break;
+    }
+
+    case ::options::COEFFICINETS_WINDOW:
+    case ::options::DYN_COEFFICINETS_WINDOW_WT_TEST:
+    {
+        using namespace options;
+
+        if (extraArgumentsVector.size() < 3) // or default arguments?
+        {
+            std::cerr << "Too few arguments int extraArgumentsVector! Aborting...\n";
+
+            result = basic_procedures::FAIL;
+
+            break;
+        }
+
+        const size_t indexFromData = extraArgumentsVector.at(0);
+        const size_t indexToData = extraArgumentsVector.at(1);
+        const size_t windowSize = extraArgumentsVector.at(2);
+        const size_t stepSize = extraArgumentsVector.at(3);
+
+        approximation::linnear::ApproxResultVector approxResultVector;
+
+        if (COEFFICINETS_WINDOW == procedureToPerform)
+        {
+            std::tie(result, approxResultVector) = basic_procedures::performProcedurecCoefficientsFromWindow(fileName,
+                                                                                                             indexFromData,
+                                                                                                             indexToData,
+                                                                                                             windowSize,
+                                                                                                             stepSize);
+        }
+        else if (DYN_COEFFICINETS_WINDOW_WT_TEST == procedureToPerform)
+        {
+            boost::optional<double> moveAngeleAmplitudeValue = boost::none;
+
+            if (extraArgumentsVector.size() < 4)
+            {
+                std::cerr << "Too few arguments int extraArgumentsVector! moveAngeleAmplitudeValue will unitilalised\n";
+            }
+            else
+            {
+                // to get negative value
+                moveAngeleAmplitudeValue = (!extraArgumentsVector.at(4) ? -1.0*extraArgumentsVector.at(5) : extraArgumentsVector.at(4));
+                std::cout << "Got moveAngleAmplitudeValue: " << moveAngeleAmplitudeValue.get() << "\n";
+            }
+
+            std::tie(result, approxResultVector) = basic_procedures::performProcedurecDynCoefficientsFromWindowForWtTest(fileName,
+                                                                                                                         indexFromData,
+                                                                                                                         indexToData,
+                                                                                                                         windowSize,
+                                                                                                                         stepSize,
+                                                                                                                         moveAngeleAmplitudeValue);
+        }
+
+        
+        const std::string suffix = fileName2;
+        const std::string resultFileName = fileName + "_" + suffix + "_result";
+
+        std::cout << "Saving ApproxResultVector to file: " << resultFileName << "\n";
+
+        approxResultVector.save(resultFileName);
+
+        break;
+    }
+
+    case options::FILTER_GAUSS:
+    {
+        std::cout << "prefroming FiterGauss\n";
+
+        using namespace options;
+
+        if (extraArgumentsVector.size() < 2)
+        {
+            std::cerr << "not ebouth extraArguments for gaauss filter\n";
+
+            result = basic_procedures::FAIL;
+
+            break;
+        }
+
+        const std::string fileNameInput = fileName;
+        const std::string fileNameOutput = (!fileName2.empty() ? fileName2 : (std::string(fileName)+"_fGauss"));
+        
+
+        const size_t windowSize = extraArgumentsVector.at(0);
+        const double alphaValue = extraArgumentsVector.at(1);
+
+        AngleHistory angleHistory(fileName);
+
+        result = basic_procedures::performProcedureFilterSignalViaGaussSimpleFitler(fileNameInput, fileNameOutput, windowSize, alphaValue);
+
+        break;
+    }
+
+
     case options::TEST:
     {
         std::cout << "performing All test procedures\n";
 
-        // result = basic_procedures::testFunc();
+        result = basic_procedures::testFunc();
 
         break;
     }
@@ -94,6 +186,8 @@ int doJob(const options::Procedure procedureToPerform,
     default:
     {
         result = basic_procedures::UNEXPECTED;
+
+        result = basic_procedures::testFunc();
 
         break;
     }
@@ -119,6 +213,8 @@ int doJob(const options::Procedure procedureToPerform,
 
     return 666;
 }
+
+
 
 int main(int argc, char *argv[])
 {
@@ -152,7 +248,10 @@ int main(int argc, char *argv[])
 
     /// INIT PARAMS
     const options::Procedure procedureToPerform = opt.getProcedure();
-    std::cout << "got procedure: " << static_cast<int>(procedureToPerform) << "\n";
+    
+    std::cout << "got procedure: " << static_cast<int>(procedureToPerform)
+    << " which is " << options::helpers::toString(procedureToPerform)<< "\n"; // todo make string output
+    
     const std::string fileName = opt.getFileName();
     const std::string fileName2 = opt.getFileName2();
     const std::vector<double> extraArgumentsVector = opt.getArgs();

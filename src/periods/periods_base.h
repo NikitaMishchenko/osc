@@ -1,21 +1,20 @@
 #pragma once
 
+#include "oscillation/oscillation_basic.h"
+
 class Periods
 {
 public:
 
-
 private:
 
     std::vector<Oscillation> periods;
-
-
 };
 
 namespace periods ///caclulate periods
 {
 
-    std::vector<Oscillation> splitPeriods(const Oscillation& D)
+    inline std::vector<Oscillation> splitPeriods(const Oscillation& D)
     {
         std::cout << "split periods\n";
 
@@ -35,9 +34,9 @@ namespace periods ///caclulate periods
         {
             std::cout << periodCounter << std::endl;
 
-            if(D.dangle[i] <= 0)
+            if(D.getDangle(i) <= 0)
             {
-                while( D.dangle[i] <= 0.0 && i < D.size())
+                while( D.getDangle(i) <= 0.0 && i < D.size())
                 {
                     buff.push_back(D.getTime(i), D.getAngle(i), D.getDangle(i), D.getDdangle(i));
                     //std::cout << "buff time = " << buff.time[i] << " buff size = " << buff.size() << std::endl;
@@ -55,9 +54,9 @@ namespace periods ///caclulate periods
             }
 
 
-            if(D.dangle[i] > 0.0)
+            if(D.getDangle(i) > 0.0)
             {
-                while( D.dangle[i] >= 0.0 && i < D.size())
+                while( D.getDangle(i) >= 0.0 && i < D.size())
                 {
                     buff.push_back(D.getTime(i), D.getAngle(i), D.getDangle(i), D.getDdangle(i));
                     //std::cout << "buff time = " << buff.time[i] << " buff size = " << buff.size() << std::endl;
@@ -89,8 +88,9 @@ namespace periods ///caclulate periods
     /*
     * Разделение истории колебаний на периоды колебаний.
     */
-    int calculate_periods(Oscillation D, std::string base_file_name)
-    {std::cout << "calculate_periods\n";
+    inline int calculate_periods(Oscillation D, std::string base_file_name)
+    {
+        std::cout << "calculate_periods\n";
 
         std::ofstream fout;
 
@@ -99,10 +99,10 @@ namespace periods ///caclulate periods
 
         while(i < D.size())
         {
-            if(D.dangle[i] <= 0)
+            if(D.getDangle(i) <= 0)
             {
                 fout.open(base_file_name + std::to_string(period_counter));
-                while( D.dangle[i] <= 0.0)
+                while( D.getDangle(i) <= 0.0)
                 {
                     fout << D.getTime(i) << "\t"
                             << D.getAngle(i) << "\t"
@@ -117,10 +117,10 @@ namespace periods ///caclulate periods
 
             std::cout << "period_counter = " << period_counter << std::endl;
 
-            if(D.dangle[i]>=0.0)
+            if(D.getDangle(i)>=0.0)
             {
                 fout.open(base_file_name + std::to_string(period_counter));
-                while( D.dangle[i] > 0.0)
+                while( D.getDangle(i) > 0.0)
                 {
                     fout << D.getTime(i) << "\t"
                             << D.getAngle(i) << "\t"
@@ -132,7 +132,7 @@ namespace periods ///caclulate periods
                 fout.close();
                 period_counter++;
             }
-            std::cout << "period_counter = " << period_counter << std::endl;
+            // std::cout << "period_counter = " << period_counter << std::endl;
         }
         return period_counter;
     }
@@ -140,7 +140,7 @@ namespace periods ///caclulate periods
 
     namespace gnuplot
     {
-        std::string file_name(std::string fn){
+        inline std::string file_name(std::string fn){
             return (std::string("\"") + fn + "\"");
         }
     }
@@ -149,7 +149,7 @@ namespace periods ///caclulate periods
     /**
     * Генерация скриптов отрисовки периодов колебаний
     */
-    void PlotScript(std::string base_file_name, int period_counter)
+    inline void PlotScript(std::string base_file_name, int period_counter)
     {
         std::ofstream fout(base_file_name);
         std::ofstream fout1;
@@ -201,7 +201,7 @@ namespace periods ///caclulate periods
 
     }
 
-    void SavePeriod(std::string file_name)
+    inline void SavePeriod(std::string file_name)
     {
         std::cout << "empty func\n";
     }
