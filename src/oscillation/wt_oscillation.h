@@ -155,12 +155,11 @@ private:
         std::cout << "w = " << m_w << "\n";        
     }
 
+public:
     amplitude::AngleAmplitudeVector m_angleAmplitudeVector;
-
     double m_w; // avg frequency of oscillation main mode from whoal
 
     wt_flow::Flow m_flow;
-
     Model m_model;
 
     mutable std::shared_ptr<Sections> m_sectionsPtr; //(oscillation, sectionAngleStep);
