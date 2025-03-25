@@ -47,10 +47,7 @@ void Oscillation::recalculate()
 }
 
 Oscillation::~Oscillation()
-{
-    dangle.clear();
-    ddangle.clear();
-}
+{}
 
 Oscillation::Oscillation(const Oscillation &d) : dangle(d.dangle),
                                     ddangle(d.ddangle)
