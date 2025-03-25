@@ -77,10 +77,7 @@ void AngleHistory::write(const std::string &fileName) const
 
 void AngleHistory::calculateTimeStep()
 {
-    if (size())
-        m_timeStep = ((size() >= 2) ? (m_domain.at(1) - m_domain.at(0)) : 0.0);
-    else
-        m_timeStep = 0.0;
+    m_timeStep = ((size() >= 2) ? (m_domain.at(1) - m_domain.at(0)) : 0.0);
 }
 
 double AngleHistory::indexToTime(const size_t index) const

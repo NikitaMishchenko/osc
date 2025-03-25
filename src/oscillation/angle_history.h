@@ -107,11 +107,6 @@ protected:
     double indexToTime(const size_t index) const;
     size_t timeToIndex(const double timeValue) const;
 
-    /*std::vector<double>::iterator timeIterator(const double timeValue) const
-    {
-        return (m_domain.begin() + timeToIndex(timeValue));
-    }*/
-
     std::vector<double>::const_iterator timeIterator(const double timeValue) const;
 
     double m_timeStep;
