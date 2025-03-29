@@ -14,6 +14,7 @@
 #include "core/vector_helpers.h"
 #include "analize_coefficients/specific/amplitude/basic.h"
 #include "analize_coefficients/specific/section/section.h"
+#include "analize_coefficients/specific/section/sections.h"
 
 struct Mz
 {
