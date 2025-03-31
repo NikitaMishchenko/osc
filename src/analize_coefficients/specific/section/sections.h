@@ -3,6 +3,7 @@
 #include <memory>
 #include <vector>
 #include <algorithm>
+#include <exception>
 
 #include "analize_coefficients/specific/section/section.h"
 #include "oscillation/oscillation_basic.h"
@@ -14,15 +15,16 @@ public:
     Sections()
     {}
 
-    Sections(std::shared_ptr<Oscillation> oscillationPtr, const double sectionAngleStep) : m_oscillationPtr(oscillationPtr)
+    Sections(std::shared_ptr<Oscillation> oscillationPtr, const double sectionAngleStep) 
+        : m_oscillationPtr(oscillationPtr),
+          m_sectionAngleStep(sectionAngleStep)
     {
-        m_maxAngle = *std::max_element(oscillationPtr->angleBegin(), oscillationPtr->angleEnd());
-        m_minAngle = *std::min_element(oscillationPtr->angleBegin(), oscillationPtr->angleEnd());
-        m_sectionBorderValue = int(std::min(std::abs(m_maxAngle), std::abs(m_minAngle)) / sectionAngleStep) * sectionAngleStep;
-        m_sectionAngleStep = sectionAngleStep;
+        if (oscillationPtr->angleBegin() == oscillationPtr->angleEnd())
+            throw std::range_error("sections throws, input angle is empty!");
 
-        // descriptionStream << "Сечения в промежутке [" << -sectionBorderValue << ", " << sectionBorderValue << "]"
-        //                   << std::endl;
+        m_maxAngle           = *std::max_element(oscillationPtr->angleBegin(), oscillationPtr->angleEnd());
+        m_minAngle           = *std::min_element(oscillationPtr->angleBegin(), oscillationPtr->angleEnd());
+        m_sectionBorderValue = int(std::min(std::abs(m_maxAngle), std::abs(m_minAngle)) / m_sectionAngleStep) * m_sectionAngleStep;
     }
 
     void calculate()
